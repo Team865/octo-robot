@@ -1,0 +1,31 @@
+ENABLE_TESTING()
+
+SET(UNIT_TESTS test_check_for_commands test_device test_histogram test_enums )
+
+add_library( firmware_test_lib STATIC ${FIRMWARE_SOURCES} )
+
+foreach( TEST ${UNIT_TESTS} )
+
+  SET( TEST_MAIN_CPP ${CMAKE_CURRENT_SOURCE_DIR}/${TEST})
+  SET_SOURCE_FILES_PROPERTIES(${TEST_MAIN_CPP} PROPERTIES LANGUAGE CXX)
+
+  ADD_EXECUTABLE(${TEST} ${TEST_MAIN_CPP})
+
+  TARGET_LINK_LIBRARIES( ${TEST}
+    firmware_test_lib
+    ${GTEST_BOTH_LIBRARIES}
+    ${GTEST_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+  )
+
+  ADD_TEST(${TEST} ${TEST})
+
+  ADD_CUSTOM_COMMAND(
+    TARGET ${TEST}
+    COMMENT "Running ${TEST}"
+    POST_BUILD
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMAND ${TEST} )
+
+endforeach(TEST)
+
