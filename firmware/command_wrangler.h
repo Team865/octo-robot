@@ -70,7 +70,7 @@ class CommandWrangler: public ActionInterface
   ///
   virtual unsigned int loop() override final;
 
-  virtual const char* debugName() override final { return "CommandWrangler.g"; } 
+  virtual const char* debugName() override final { return "CommandWrangler"; } 
   private:
 
 #ifdef GTEST_FOUND

@@ -1,9 +1,10 @@
 #include <ESP8266WiFi.h>
 #include "hardware_esp8266.h"
 
-const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap = {
-  { MOTOR0_FORWARD_REVERSE,   14 },
-  { MOTOR0_DRIVE              4 }
+const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap = 
+{
+  { Pin::MOTOR0_FORWARD_REVERSE,   14 },
+  { Pin::MOTOR0_DRIVE,             4 }
 };
 
 const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {
