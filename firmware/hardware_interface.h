@@ -23,17 +23,15 @@ class HWI
 
   enum class Pin {
     START_OF_PINS = 0,
-    MOTOR0_FORWARD_REVERSE = 0,
-    MOTOR0_DRIVE,
+    MOTOR0_PIN0 = 0,
+    MOTOR0_PIN1,
     END_OF_PINS 
   };
 
   enum class PinState {
     START_OF_PIN_STATES = 0,
-    MOTOR_ON = 0,     // Motor at 100%
-    MOTOR_OFF,        // Motor at 0%
-    DIR_FORWARD,      // Motor drives "forward"
-    DIR_BACKWARD ,    // Motor drives "backward"
+    MOTOR_POS = 0,    // Apply voltage to pin
+    MOTOR_NEG,        // Don't apply voltage
     DUMMY_INACTIVE,   // Dummy state for unit testing
     END_OF_PIN_STATES
   };

@@ -19,8 +19,9 @@ CommandWrangler::CommandWrangler(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg,
-    std::shared_ptr<TimeInterface> timeArg
-) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, timeMgr{ timeArg }
+    std::shared_ptr<TimeInterface> timeArg,
+    std::shared_ptr<Action::Motor> motorAArg
+) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, timeMgr{ timeArg }, motorA{ motorAArg }
 {
   DebugInterface& dlog = *debugLog;
   dlog << "Bringing up net interface\n";
@@ -93,6 +94,7 @@ const std::unordered_map<CommandParser::Command,
   CommandWrangler::commandImpl = 
 {
   { CommandParser::Command::Ping,       &CommandWrangler::doPing},
+  { CommandParser::Command::SetMotorA,  &CommandWrangler::doSetMotorA},
   { CommandParser::Command::NoCommand,  &CommandWrangler::doError},
 };
 
@@ -101,6 +103,7 @@ const CommandToBool CommandWrangler::doesCommandInterrupt=
 {
   { CommandParser::Command::Ping,          false  },
   { CommandParser::Command::NoCommand,     false  },
+  { CommandParser::Command::SetMotorA,     false  },
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -129,9 +132,16 @@ void CommandWrangler::doError( CommandParser::CommandPacket cp )
 void CommandWrangler::doPing( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  WifiDebugOstream log( debugLog.get(), net.get() );
   stateStack.push( CommandState::DO_PING, __LINE__ ); 
 }
+
+void CommandWrangler::doSetMotorA( CommandParser::CommandPacket cp )
+{
+  WifiDebugOstream log( debugLog.get(), net.get() );
+  log << cp.optionalArg << "\n";
+  motorA->setSpeed( cp.optionalArg );
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -152,7 +162,8 @@ unsigned int CommandWrangler::stateAcceptCommands()
     return 0;
   }
 
-  return 1000*1000;
+  // 50 possible updates per second.
+  return 20*1000;
 }
 
 unsigned int CommandWrangler::stateDoingPing()

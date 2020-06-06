@@ -28,7 +28,8 @@ class CommandTemplate
 
 const std::vector<CommandTemplate> commandTemplates =
 {
-  { "ping",       Command::Ping,     HasArg::No  },
+  { "ping",       Command::Ping,       HasArg::No   },
+  { "motora",     Command::SetMotorA,  HasArg::Yes  },
 }; 
 
 /// @brief Process an integer argument

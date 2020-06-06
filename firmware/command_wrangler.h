@@ -12,6 +12,7 @@
 #include "histogram.h"
 #include "time_interface.h"
 #include "state.h"
+#include "action_motor.h"
 
 #ifdef GTEST_FOUND
 #include <gtest/gtest_prod.h>
@@ -53,13 +54,15 @@ class CommandWrangler: public ActionInterface
   /// @param[in] netArg       - Interface to the network
   /// @param[in] hardwareArg  - Interface to the Hardware
   /// @param[in] debugArg     - Interface to the debug logger.
-  /// @param[in] params       - Hardware Parameters 
+  /// @param[in] timeArg      - A simple time interfaced
+  /// @param[in] motorArg     - The class that controls "motor a"
   ///
   CommandWrangler( 
 		std::shared_ptr<NetInterface> netArg,
 		std::shared_ptr<HWI> hardwareArg,
 		std::shared_ptr<DebugInterface> debugArg,
-		std::shared_ptr<TimeInterface>timeArg 
+		std::shared_ptr<TimeInterface> timeArg,
+		std::shared_ptr<Action::Motor> motorArg
 	);
 
   ///
@@ -109,6 +112,7 @@ class CommandWrangler: public ActionInterface
   unsigned int stateDoingPing( void );
 
   void doPing( CommandParser::CommandPacket );
+  void doSetMotorA( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
@@ -116,7 +120,7 @@ class CommandWrangler: public ActionInterface
   std::shared_ptr<DebugInterface> debugLog;
   std::shared_ptr<TimeInterface> timeMgr;
   
-  /// @brief CommandWrangler.g uptime in MS
+  /// @brief CommandWrangler uptime in MS
   unsigned int time;
 
   /// @brief For computing time in CommandWrangler.g::loop
@@ -124,6 +128,9 @@ class CommandWrangler: public ActionInterface
 
   /// @brief Time the last command that could have caused an interrupt happened
   unsigned int timeLastInterruptingCommandOccured;
+
+  /// @brief Interface to Motor A
+  std::shared_ptr<Action::Motor> motorA;
 };
 
 };  // end fs namespace

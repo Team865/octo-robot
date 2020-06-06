@@ -29,13 +29,13 @@ void setup() {
   auto hardware  = std::make_shared<HardwareESP8266>();
   auto timeNNTP  = std::make_shared<TimeESP8266>( debug );
   auto time      = std::make_shared<TimeManager>( timeNNTP );
-//  auto temp      = std::make_shared<TempDH11>( 0 );
-  auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time );
-//  auto datamover = std::make_shared<DataMover>( WifiSecrets::hostname, temp, wifi );
+  auto motor = std::make_shared<Action::Motor>(
+      hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
+  auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time, motor );
 
   action_manager = std::make_shared<ActionManager>( wifi, hardware, debug );
   action_manager->addAction( commandWrangler );
   action_manager->addAction( time );
- // action_manager->addAction( datamover );
+  action_manager->addAction( motor );
   action_manager->addAction( wifi );
 }

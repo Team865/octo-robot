@@ -9,6 +9,7 @@
 #include "command_wrangler.h"
 #include "hardware_interface.h"
 #include "action_manager.h"
+#include "action_motor.h"
 #include "time_interface.h"
 #include "time_manager.h"
 
@@ -132,22 +133,6 @@ class HWISim: public HWI
   }
 };
 
-#ifdef TODO
-class TempSim: public TempInterface {
-  public:
-  float readTemperature() override
-  {
-    static float angle = 0.0f;
-    angle += .5;
-    return 20.0 + sin( angle );
-  }
-  float readHumidity() override
-  {
-    return 50.0f;
-  }
-};
-#endif
-
 class DebugInterfaceSim: public DebugInterface
 {
   struct category: virtual beefocus_tag {};
@@ -174,14 +159,14 @@ void setup() {
   auto hardware  = std::make_shared<HWISim>();
   auto timeSim   = std::make_shared<TimeInterfaceSim>();
   auto time      = std::make_shared<TimeManager>( timeSim );
-  auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time );
-  //auto temp      = std::make_shared<TempSim>();
-  //auto datamover = std::make_shared<DataMover>( "sim", temp, wifi );
+  auto motorSim  = std::make_shared<Action::Motor>( 
+      hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
+  auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time, motorSim  );
 
   action_manager = std::make_shared<ActionManager>( wifi, hardware, debug );
   action_manager->addAction( commandWrangler );
   action_manager->addAction( time );
-  //action_manager->addAction( datamover );
+  action_manager->addAction( motorSim );
   action_manager->addAction( wifi );
 }
 
