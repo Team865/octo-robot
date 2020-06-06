@@ -1,38 +1,38 @@
 #include <gtest/gtest.h>
 
-#include "sample_sound.h"
+#include "command_wrangler.h"
 
-TEST( SSOUND_ENUM, allCommandsHaveInterruptStatus)
+namespace FS {
+
+TEST( COMMAND_WRANGLER, allCommandsHaveInterruptStatus)
 {
   for ( CommandParser::Command c = CommandParser::Command::StartOfCommands;
         c < CommandParser::Command::EndOfCommands; ++c )
   {
-    ASSERT_NE( FS::doesCommandInterrupt.find( c ),
-               FS::doesCommandInterrupt.end());
+    ASSERT_NE( FS::CommandWrangler::doesCommandInterrupt.find( c ),
+               FS::CommandWrangler::doesCommandInterrupt.end());
   }
 }
 
-namespace FS {
-
-TEST( SSOUND_ENUM, allCommandsHaveImplementations )
+TEST( COMMAND_WRANGLER, allCommandsHaveImplementations )
 {
   for ( CommandParser::Command c = CommandParser::Command::StartOfCommands;
         c < CommandParser::Command::EndOfCommands; ::operator++(c) )
   {
     ASSERT_NE(
-      FS::SSound::commandImpl.find( c ),
-      FS::SSound::commandImpl.end());
+      FS::CommandWrangler::commandImpl.find( c ),
+      FS::CommandWrangler::commandImpl.end());
   }
 }
 
-TEST( SSOUND_ENUM, allStatesHaveImplementations )
+TEST( COMMAND_WRANGLER, allStatesHaveImplementations )
 {
-  for ( FS::State s = FS::State::START_OF_STATES;
-        s < FS::State::END_OF_STATES; ++s )
+  for ( FS::CommandState s = FS::CommandState::START_OF_STATES;
+        s < FS::CommandState::END_OF_STATES; ++s )
   {
     ASSERT_NE(
-      FS::SSound::stateImpl.find( s ),
-      FS::SSound::stateImpl.end());
+      FS::CommandWrangler::stateImpl.find( s ),
+      FS::CommandWrangler::stateImpl.end());
   }
 }
 
@@ -40,12 +40,12 @@ TEST( SSOUND_ENUM, allStatesHaveImplementations )
 
 TEST( SSOUND_EnUM, allStatesHaveDebugNames )
 {
-  for ( FS::State s = FS::State::START_OF_STATES;
-        s < FS::State::END_OF_STATES; ++s )
+  for ( FS::CommandState s = FS::CommandState::START_OF_STATES;
+        s < FS::CommandState::END_OF_STATES; ++s )
   {
     ASSERT_NE(
-      FS::stateNames.find( s ),
-      FS::stateNames.end());
+      FS::CommandStateStack::stateNames.find( s ),
+      FS::CommandStateStack::stateNames.end());
   }
 }
 

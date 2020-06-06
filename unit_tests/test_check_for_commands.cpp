@@ -34,16 +34,14 @@ TEST( COMMAND_PARSER, checkForCommands)
   NetMockSimpleTimed junk("junk");
   ASSERT_EQ( checkForCommands(dbgmock, junk), CommandPacket());
 
-  NetMockSimpleTimed abort("abort");
-  ASSERT_EQ( checkForCommands(dbgmock, abort), CommandPacket( Command::Abort));
+  NetMockSimpleTimed abort("ping");
+  ASSERT_EQ( checkForCommands(dbgmock, abort), CommandPacket( Command::Ping));
 
-  NetMockSimpleTimed status("Status");
-  ASSERT_EQ( checkForCommands(dbgmock, status), CommandPacket( Command::Status ));
-
-  NetMockSimpleTimed status2("Status with training garbage");
-  ASSERT_EQ( checkForCommands(dbgmock, status2), CommandPacket( Command::Status ));
+  NetMockSimpleTimed status2("Ping with training garbage");
+  ASSERT_EQ( checkForCommands(dbgmock, status2), CommandPacket( Command::Ping));
 }
 
+#ifdef TODO
 TEST( COMMAND_PARSER, testGot)
 {
   DebugInterfaceIgnoreMock dbgmock;
@@ -70,6 +68,7 @@ TEST( COMMAND_PARSER, testGot)
   // Compare.
   ASSERT_EQ( golden, netMock.getOutput() ); 
 }
+#endif
 
 }
 

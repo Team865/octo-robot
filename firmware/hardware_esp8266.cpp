@@ -2,11 +2,15 @@
 #include "hardware_esp8266.h"
 
 const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap = {
+  { MOTOR0_FORWARD_REVERSE,   14 },
+  { MOTOR0_DRIVE              4 }
 };
 
 const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {
-  //{ PinState::HOME_INACTIVE,  HIGH },    // Active low
-  //{ PinState::HOME_ACTIVE,    LOW},      // Active low
+  { PinState::MOTOR_ON,       HIGH  },
+  { PinState::MOTOR_OFF,      LOW   },
+  { PinState::DIR_FORWARD,    LOW   },
+  { PinState::DIR_BACKWARD,   HIGH  }
 };
 
 void HardwareESP8266::DigitalWrite( Pin pin, PinState state )

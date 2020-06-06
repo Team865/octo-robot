@@ -13,9 +13,7 @@ namespace CommandParser {
 
   enum class Command {
     StartOfCommands = 0,  ///<  Start of the command list
-    Abort = 0,            ///<  Abort a move
-    Status,               ///<  Return current status
-    HReset,               ///<  Hard Reset the current histogram
+    Ping            = 0,  ///<  Send a pong
     NoCommand,            ///<  No command was specified.
     EndOfCommands         ///<  End of the comand list.
   };
@@ -68,6 +66,8 @@ inline CommandParser::Command& operator++( CommandParser::Command &c )
 {
   return BeeFocus::advance< CommandParser::Command, CommandParser::Command::EndOfCommands >(c);
 }
+
+using CommandToBool = std::unordered_map< CommandParser::Command, bool >;
 
 #endif
 

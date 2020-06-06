@@ -4,6 +4,7 @@
 #include <memory>
 #include "action_interface.h"
 
+#ifdef TODO
 class TempInterface;
 class NetInterface;
 
@@ -27,6 +28,7 @@ class DataMover: public ActionInterface {
   std::shared_ptr<NetInterface> net;
   std::string deviceName;
 };
+#endif
 
 #endif
 

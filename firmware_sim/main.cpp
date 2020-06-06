@@ -5,9 +5,8 @@
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
 
-#include "temperature_interface.h"
 #include "data_mover.h"
-#include "sample_sound.h"
+#include "command_wrangler.h"
 #include "hardware_interface.h"
 #include "action_manager.h"
 #include "time_interface.h"
@@ -133,6 +132,7 @@ class HWISim: public HWI
   }
 };
 
+#ifdef TODO
 class TempSim: public TempInterface {
   public:
   float readTemperature() override
@@ -146,6 +146,7 @@ class TempSim: public TempInterface {
     return 50.0f;
   }
 };
+#endif
 
 class DebugInterfaceSim: public DebugInterface
 {
@@ -173,14 +174,14 @@ void setup() {
   auto hardware  = std::make_shared<HWISim>();
   auto timeSim   = std::make_shared<TimeInterfaceSim>();
   auto time      = std::make_shared<TimeManager>( timeSim );
-  auto temp      = std::make_shared<TempSim>();
-  //auto sound     = std::make_shared<FS::SSound>( wifi, hardware, debug, time );
-  auto datamover = std::make_shared<DataMover>( "sim", temp, wifi );
+  auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time );
+  //auto temp      = std::make_shared<TempSim>();
+  //auto datamover = std::make_shared<DataMover>( "sim", temp, wifi );
 
   action_manager = std::make_shared<ActionManager>( wifi, hardware, debug );
-  //action_manager->addAction( sound );
+  action_manager->addAction( commandWrangler );
   action_manager->addAction( time );
-  action_manager->addAction( datamover );
+  //action_manager->addAction( datamover );
   action_manager->addAction( wifi );
 }
 

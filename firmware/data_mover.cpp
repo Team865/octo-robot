@@ -1,6 +1,7 @@
+#ifdef TODO
+
 #include "data_mover.h"
 #include "net_interface.h"
-#include "temperature_interface.h"
 #include "wifi_ostream.h"
 
 DataMover::DataMover(
@@ -22,9 +23,12 @@ void DataMover::packageData( const char *type, unsigned int data )
 
 unsigned int DataMover::loop() 
 {
-  float t = temp->readTemperature();
+//  float t = temp->readTemperature();
+  float t = 0.0f;
   int t_int = t*10.0f;
   packageData("Temp", t_int );
   return 1000000;
 }
+
+#endif
 

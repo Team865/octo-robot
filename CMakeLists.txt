@@ -37,7 +37,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/firmware )
 
 set (FIRMWARE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_parser.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/sample_sound.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_wrangler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/hardware_interface.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/action_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/time_manager.cpp

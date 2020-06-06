@@ -1,3 +1,4 @@
+#ifdef TODO_REUSE_OR_DELETE
 
 #include <iterator>
 #include <vector>
@@ -320,5 +321,7 @@ unsigned int SSound::stateError()
   log << "hep hep hep error error error\n";
   return 10*1000*1000; // 10 sec pause 
 }
+
+#endif
 
 
