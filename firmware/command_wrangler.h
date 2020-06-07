@@ -9,7 +9,6 @@
 #include "command_parser.h"
 #include "net_interface.h"
 #include "hardware_interface.h"
-#include "histogram.h"
 #include "time_interface.h"
 #include "action_motor.h"
 
