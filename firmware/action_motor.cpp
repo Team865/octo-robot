@@ -11,10 +11,40 @@ Motor::Motor( std::shared_ptr<HWI> hwiArg, std::shared_ptr<DebugInterface> debug
       pin1{ pin1Arg},
       dir { Motor::Dir::FORWARD },
       speed{ 0 },
-      counter{ 0 }
+      counter{ 0 },
+      lastPulse{ Pulse::NONE }
 {
   hwi->PinMode(pin0,  HWI::PinIOMode::M_OUTPUT );
   hwi->PinMode(pin1,  HWI::PinIOMode::M_OUTPUT );
+  doPulse( Pulse::NONE );
+}
+
+void Motor::doPulse( Motor::Pulse pulse )
+{
+  switch( pulse ) 
+  {
+    case Pulse::FORWARD:
+      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_POS );
+      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_NEG );
+      break;
+    case Pulse::BACKWARD:
+      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
+      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_POS );
+      break;
+    case Pulse::NONE:
+      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
+      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_NEG );
+      break;
+  }
+  lastPulse = pulse;
+}
+
+void Motor::doPulseIfChanged( Motor::Pulse pulse )
+{
+  if ( lastPulse != pulse )
+  {
+    doPulse( pulse );
+  }
 }
 
 unsigned int Motor::loop() 
@@ -29,17 +59,14 @@ unsigned int Motor::loop()
   }
 
   if ( !pulse_high ) {
-    hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
-    hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_NEG );
+    doPulseIfChanged( Pulse::NONE );
   }
   else {
     if ( dir == Motor::Dir::FORWARD ) {
-      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_POS );
-      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_NEG );
+      doPulseIfChanged( Pulse::FORWARD );
     }
     else {
-      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
-      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_POS );
+      doPulseIfChanged( Pulse::BACKWARD );
     }
   }
 

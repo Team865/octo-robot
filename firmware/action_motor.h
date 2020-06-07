@@ -24,6 +24,15 @@ class Motor: public Interface {
     BACKWARDS
   };
 
+  enum class Pulse {
+    FORWARD,
+    BACKWARD,
+    NONE
+  };
+
+  void doPulse( Pulse pulse );
+  void doPulseIfChanged( Pulse pulse );
+
   private:
 
   std::shared_ptr<HWI> hwi;
@@ -35,6 +44,7 @@ class Motor: public Interface {
   Dir dir;
   unsigned speed;
   int counter;
+  Pulse lastPulse;
 };
 
 };
