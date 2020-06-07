@@ -26,23 +26,15 @@ CommandWrangler::CommandWrangler(
   DebugInterface& dlog = *debugLog;
   dlog << "Bringing up net interface\n";
   
-  // Bring up the interface to the controlling computer
-
-  //net->setup( dlog );
   WifiDebugOstream log( debugLog.get(), net.get() );
 
-  //hardware->PinMode(HWI::Pin::STEP,       HWI::PinIOMode::M_OUTPUT );  
- 
-  //hardware->DigitalWrite( HWI::Pin::DIR, HWI::PinCommandState::DIR_FORWARD); 
-
-  log << "CommandWrangler is up\n";
+  log << "Urban-Octo-Robot is accepting commands\n";
 }
 
 unsigned int CommandWrangler::loop()
 {
   WifiDebugOstream log( debugLog.get(), net.get() );
-  ptrToMember function = stateImpl.at( stateStack.topState() );
-  const unsigned uSecToNextCall = (this->*function)();
+  const unsigned uSecToNextCall = CommandWrangler::stateAcceptCommands();
   uSecRemainder += uSecToNextCall;
   time += uSecRemainder / 1000;
   uSecRemainder = uSecRemainder % 1000;
@@ -70,24 +62,6 @@ unsigned int CommandWrangler::loop()
 //
 /////////////////////////////////////////////////////////////////////////
 
-// What does the focuser execute if it's in a particular state?
-const std::unordered_map<CommandState,unsigned int (CommandWrangler::*)( void ),EnumHash>
-  CommandWrangler::stateImpl =
-{
-  { CommandState::ACCEPT_COMMANDS,           &CommandWrangler::stateAcceptCommands },
-  { CommandState::DO_PING,                   &CommandWrangler::stateDoingPing},
-  { CommandState::ERROR_STATE,               &CommandWrangler::stateError }
-};
-
-// Bind CommandState Enums to Human Readable Debug Names
-template<>
-const CommandStateStack::StateToString CommandStateStack::stateNames =
-{
-  { CommandState::ACCEPT_COMMANDS,               "ACCEPTING_COMMANDS" },
-  { CommandState::DO_PING,                       "SENDING_PING" },
-  { CommandState::ERROR_STATE,                   "ERROR ERROR ERROR"  },
-};
-
 // Implementation of the commands that the CommandWrangler Supports 
 const std::unordered_map<CommandParser::Command,
   void (CommandWrangler::*)( CommandParser::CommandPacket),EnumHash> 
@@ -96,14 +70,6 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::Ping,       &CommandWrangler::doPing},
   { CommandParser::Command::SetMotorA,  &CommandWrangler::doSetMotorA},
   { CommandParser::Command::NoCommand,  &CommandWrangler::doError},
-};
-
-// Can a command be interrupted/aborted?
-const CommandToBool CommandWrangler::doesCommandInterrupt= 
-{
-  { CommandParser::Command::Ping,          false  },
-  { CommandParser::Command::NoCommand,     false  },
-  { CommandParser::Command::SetMotorA,     false  },
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -115,24 +81,22 @@ const CommandToBool CommandWrangler::doesCommandInterrupt=
 // Entry point for all commands
 void CommandWrangler::processCommand( CommandParser::CommandPacket cp )
 {
-  if ( doesCommandInterrupt.at( cp.command ))
-  {
-    timeLastInterruptingCommandOccured = time;
-  }
   auto function = commandImpl.at( cp.command );
   (this->*function)( cp );
-}
-
-void CommandWrangler::doError( CommandParser::CommandPacket cp )
-{
-  (void) cp;
-  stateStack.push( CommandState::ERROR_STATE, __LINE__ );   
 }
 
 void CommandWrangler::doPing( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  stateStack.push( CommandState::DO_PING, __LINE__ ); 
+  WifiDebugOstream log( debugLog.get(), net.get() );
+  log << "PONG\n";
+}
+
+void CommandWrangler::doError( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  WifiDebugOstream log( debugLog.get(), net.get() );
+  log << "ERROR!!!!\n";
 }
 
 void CommandWrangler::doSetMotorA( CommandParser::CommandPacket cp )
@@ -164,15 +128,6 @@ unsigned int CommandWrangler::stateAcceptCommands()
 
   // 50 possible updates per second.
   return 20*1000;
-}
-
-unsigned int CommandWrangler::stateDoingPing()
-{
-  WifiDebugOstream log( debugLog.get(), net.get() );
-  log << "PONG\n";
-  stateStack.pop();
-  
-  return 1000*1000;
 }
 
 unsigned int CommandWrangler::stateError()

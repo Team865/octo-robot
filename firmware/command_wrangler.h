@@ -20,24 +20,6 @@
 
 #include "action_interface.h"
 
-///
-/// @brief CommandWrangler.g Namespace
-/// 
-namespace FS {
-
-/// @brief CommandWrangler.g's State Enum
-///
-enum class CommandState 
-{
-  START_OF_STATES = 0,        ///< Start of States
-  ACCEPT_COMMANDS = 0,        ///< Accepting commands from the net interface
-  DO_PING,                    ///< Send a ping
-  ERROR_STATE,                ///< Error Errror Error
-  END_OF_STATES               ///< End of States
-};
-
-using CommandStateStack = StateStack< CommandState, CommandState::ACCEPT_COMMANDS >;
-
 /// @brief Main Command Wrangler Class
 ///
 /// Command wrangler jobs:
@@ -79,9 +61,7 @@ class CommandWrangler: public Action::Interface
 #ifdef GTEST_FOUND
   // So we can unit test the consistency of the class's constant - static 
   // data without exposing it to everybody
-  FRIEND_TEST(COMMAND_WRANGLER, allStatesHaveImplementations );
   FRIEND_TEST(COMMAND_WRANGLER, allCommandsHaveImplementations);
-  FRIEND_TEST(COMMAND_WRANGLER, allCommandsHaveInterruptStatus );
 #endif
 
   static const std::unordered_map<CommandParser::Command,
@@ -89,7 +69,6 @@ class CommandWrangler: public Action::Interface
     commandImpl;
 
   using ptrToMember = unsigned int ( CommandWrangler::*) ( void );
-  static const std::unordered_map< CommandState, ptrToMember, EnumHash > stateImpl;
 
   /// @brief Deleted copy constructor
   CommandWrangler( const CommandWrangler& other ) = delete;
@@ -98,18 +77,12 @@ class CommandWrangler: public Action::Interface
   /// @brief Deleted assignment operator
   CommandWrangler& operator=( const CommandWrangler& ) = delete;
   
-  CommandStateStack stateStack;
-
   void processCommand( CommandParser::CommandPacket cp );
-
-  static const CommandToBool doesCommandInterrupt;
 
   /// @brief Wait for commands from the network interface
   unsigned int stateAcceptCommands( void ); 
   /// @brief If we land in this state, complain a lot.
   unsigned int stateError( void );
-  /// @brief Sending a ping request.
-  unsigned int stateDoingPing( void );
 
   void doPing( CommandParser::CommandPacket );
   void doSetMotorA( CommandParser::CommandPacket );
@@ -123,25 +96,12 @@ class CommandWrangler: public Action::Interface
   /// @brief CommandWrangler uptime in MS
   unsigned int time;
 
-  /// @brief For computing time in CommandWrangler.g::loop
+  /// @brief For computing time in CommandWranger::loop
   unsigned int uSecRemainder;
-
-  /// @brief Time the last command that could have caused an interrupt happened
-  unsigned int timeLastInterruptingCommandOccured;
 
   /// @brief Interface to Motor A
   std::shared_ptr<Action::Motor> motorA;
 };
-
-};  // end fs namespace
-
-/// @brief Increment operator for State enum
-///
-inline FS::CommandState& operator++( FS::CommandState& s )
-{
-  return BeeFocus::advance< FS::CommandState, FS::CommandState::END_OF_STATES>(s);
-}
-
 
 #endif
 

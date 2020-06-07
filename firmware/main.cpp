@@ -31,7 +31,7 @@ void setup() {
   auto time      = std::make_shared<TimeManager>( timeNNTP );
   auto motor = std::make_shared<Action::Motor>(
       hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
-  auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time, motor );
+  auto commandWrangler = std::make_shared<CommandWrangler>( wifi, hardware, debug, time, motor );
 
   action_manager = std::make_shared<Action::Manager>( wifi, hardware, debug );
   action_manager->addAction( commandWrangler );
