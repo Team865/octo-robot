@@ -5,7 +5,6 @@
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
 
-#include "data_mover.h"
 #include "command_wrangler.h"
 #include "hardware_interface.h"
 #include "action_manager.h"

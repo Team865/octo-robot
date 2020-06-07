@@ -7,8 +7,6 @@
 #include "command_wrangler.h"
 #include "time_manager.h"
 
-using namespace FS;
-
 /////////////////////////////////////////////////////////////////////////
 //
 // Public Interfaces

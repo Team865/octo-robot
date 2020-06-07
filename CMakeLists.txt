@@ -42,7 +42,6 @@ set (FIRMWARE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/action_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/action_motor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/time_manager.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/data_mover.cpp
 )
 
 add_library( firmware_lib STATIC ${FIRMWARE_SOURCES} )

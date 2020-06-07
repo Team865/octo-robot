@@ -11,7 +11,6 @@
 #include "hardware_interface.h"
 #include "histogram.h"
 #include "time_interface.h"
-#include "state.h"
 #include "action_motor.h"
 
 #ifdef GTEST_FOUND
