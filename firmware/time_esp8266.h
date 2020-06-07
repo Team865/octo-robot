@@ -11,7 +11,7 @@ class TimeESP8266: public Time::Interface {
 
   TimeESP8266( std::shared_ptr<DebugInterface> debugArg );
 
-  virtual unsigned int secondsSince1970() override final;
+  virtual Time::RealTimeS secondsSince1970() override final;
   virtual Time::DeviceTimeMS msSinceDeviceStart() override final;
 
   private:

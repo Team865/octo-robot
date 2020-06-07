@@ -17,7 +17,7 @@ std::shared_ptr<Action::Manager> action_manager;
 class TimeInterfaceSim: public Time::Interface {
   public:
  
-  unsigned int secondsSince1970() override {
+  Time::RealTimeS secondsSince1970() override {
     return time(nullptr);
   } 
 

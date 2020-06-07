@@ -13,7 +13,7 @@ void Manager::baseInterfaceCheckForTimeSync( DeviceTimeMS msSinceDevStart )
   timeQueriedAt = msSinceDevStart;
 }
 
-unsigned int Manager::secondsSince1970()
+RealTimeS Manager::secondsSince1970()
 {
   DeviceTimeMS msSinceDevStart = baseInterface->msSinceDeviceStart();
   baseInterfaceCheckForTimeSync( msSinceDevStart );

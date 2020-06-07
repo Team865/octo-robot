@@ -18,7 +18,7 @@ class Manager: public Interface, public Action::Interface {
   {
   }
 
-  virtual unsigned int secondsSince1970() override final;
+  virtual Time::RealTimeS secondsSince1970() override final;
   virtual Time::DeviceTimeMS msSinceDeviceStart() override final;
   virtual unsigned int loop() override final;
   virtual const char* debugName() override final { return "Manager"; }
@@ -29,7 +29,7 @@ class Manager: public Interface, public Action::Interface {
   bool timeQueried;
 
   DeviceTimeMS timeQueriedAt;
-  unsigned int queryTime;
+  RealTimeS queryTime;
 
   void baseInterfaceCheckForTimeSync( DeviceTimeMS msSinceDevStart );
 

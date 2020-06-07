@@ -70,7 +70,7 @@ unsigned int TimeESP8266::secondsSince1970Raw()
   return 0;
 }
 
-unsigned int TimeESP8266::secondsSince1970()
+Time::RealTimeS TimeESP8266::secondsSince1970()
 {
   unsigned int secsSince1970 = 0;
   for ( int i = 0; i < 5 && secsSince1970 == 0; ++i ) {

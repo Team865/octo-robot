@@ -38,6 +38,7 @@ namespace UrbanRobot
     TypeSafeNumber( BaseNumber numArg ) : num{ numArg } {}
     bool operator<( BaseNumber rhs ) { return num < rhs.num; }
     BaseNumber operator-( TypeSafeNumber rhs ) { return num - rhs.num; }
+    BaseNumber operator+( TypeSafeNumber rhs ) { return num + rhs.num; }
 
     private:
       BaseNumber num;
