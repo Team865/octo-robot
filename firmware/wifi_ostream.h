@@ -1,6 +1,7 @@
 #ifndef __WifiOstream_H__
 #define __WifiOstream_H__
 
+#include "net_interface.h"
 #include "simple_ostream.h"
 
 class WifiOstream {
@@ -32,7 +33,7 @@ class WifiOstream {
     }
   }
 
-    NetConnection* m_connectedClient;
+  NetConnection* m_connectedClient;
 };
 
 #endif

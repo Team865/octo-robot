@@ -18,6 +18,9 @@
 
 #include "action_interface.h"
 
+namespace Action
+{
+
 /// @brief Main Command Wrangler Class
 ///
 /// Command wrangler jobs:
@@ -25,11 +28,11 @@
 /// 1.  Sends commands to individual hardware blocks
 /// 2.  Gets responses from hardware blocks and sends them to the network
 ///
-class CommandWrangler: public Action::Interface
+class ProcessCommand: public Interface
 {
   public:
  
-  /// @brief CommandWrangler Constructor
+  /// @brief ProcessCommand Constructor
   ///
   /// @param[in] netArg       - Interface to the network
   /// @param[in] hardwareArg  - Interface to the Hardware
@@ -37,7 +40,7 @@ class CommandWrangler: public Action::Interface
   /// @param[in] timeArg      - A simple time interfaced
   /// @param[in] motorArg     - The class that controls "motor a"
   ///
-  CommandWrangler( 
+  ProcessCommand( 
 		std::shared_ptr<NetInterface> netArg,
 		std::shared_ptr<HWI> hardwareArg,
 		std::shared_ptr<DebugInterface> debugArg,
@@ -53,27 +56,27 @@ class CommandWrangler: public Action::Interface
   ///
   virtual unsigned int loop() override final;
 
-  virtual const char* debugName() override final { return "CommandWrangler"; } 
+  virtual const char* debugName() override final { return "ProcessCommand"; } 
   private:
 
 #ifdef GTEST_FOUND
   // So we can unit test the consistency of the class's constant - static 
   // data without exposing it to everybody
-  FRIEND_TEST(COMMAND_WRANGLER, allCommandsHaveImplementations);
+  FRIEND_TEST(ACTION_PROCESS_COMMAND, allCommandsHaveImplementations);
 #endif
 
   static const std::unordered_map<CommandParser::Command,
-    void (CommandWrangler::*)( CommandParser::CommandPacket),EnumHash> 
+    void (ProcessCommand::*)( CommandParser::CommandPacket),EnumHash> 
     commandImpl;
 
-  using ptrToMember = unsigned int ( CommandWrangler::*) ( void );
+  using ptrToMember = unsigned int ( ProcessCommand::*) ( void );
 
   /// @brief Deleted copy constructor
-  CommandWrangler( const CommandWrangler& other ) = delete;
+  ProcessCommand( const ProcessCommand& other ) = delete;
   /// @brief Deleted default constructor
-  CommandWrangler() = delete;
+  ProcessCommand() = delete;
   /// @brief Deleted assignment operator
-  CommandWrangler& operator=( const CommandWrangler& ) = delete;
+  ProcessCommand& operator=( const ProcessCommand& ) = delete;
   
   void processCommand( CommandParser::CommandPacket cp );
 
@@ -91,7 +94,7 @@ class CommandWrangler: public Action::Interface
   std::shared_ptr<DebugInterface> debugLog;
   std::shared_ptr<TimeInterface> timeMgr;
   
-  /// @brief CommandWrangler uptime in MS
+  /// @brief ProcessCommand uptime in MS
   unsigned int time;
 
   /// @brief For computing time in CommandWranger::loop
@@ -100,6 +103,7 @@ class CommandWrangler: public Action::Interface
   /// @brief Interface to Motor A
   std::shared_ptr<Action::Motor> motorA;
 };
+}; // end namespace action
 
 #endif
 

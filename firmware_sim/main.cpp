@@ -5,10 +5,10 @@
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
 
-#include "command_wrangler.h"
-#include "hardware_interface.h"
 #include "action_manager.h"
 #include "action_motor.h"
+#include "action_process_command.h"
+#include "hardware_interface.h"
 #include "time_interface.h"
 #include "time_manager.h"
 
@@ -160,10 +160,10 @@ void setup() {
   auto time      = std::make_shared<TimeManager>( timeSim );
   auto motorSim  = std::make_shared<Action::Motor>( 
       hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
-  auto commandWrangler = std::make_shared<CommandWrangler>( wifi, hardware, debug, time, motorSim  );
+  auto commandProcessor= std::make_shared<Action::ProcessCommand>( wifi, hardware, debug, time, motorSim  );
 
   action_manager = std::make_shared<Action::Manager>( wifi, hardware, debug );
-  action_manager->addAction( commandWrangler );
+  action_manager->addAction( commandProcessor );
   action_manager->addAction( time );
   action_manager->addAction( motorSim );
   action_manager->addAction( wifi );

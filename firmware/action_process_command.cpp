@@ -4,7 +4,7 @@
 #include <memory>
 #include "command_parser.h"
 #include "wifi_debug_ostream.h"
-#include "command_wrangler.h"
+#include "action_process_command.h"
 #include "time_manager.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,9 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-CommandWrangler::CommandWrangler(
+namespace Action {
+
+ProcessCommand::ProcessCommand(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg,
@@ -29,10 +31,10 @@ CommandWrangler::CommandWrangler(
   log << "Urban-Octo-Robot is accepting commands\n";
 }
 
-unsigned int CommandWrangler::loop()
+unsigned int ProcessCommand::loop()
 {
   WifiDebugOstream log( debugLog.get(), net.get() );
-  const unsigned uSecToNextCall = CommandWrangler::stateAcceptCommands();
+  const unsigned uSecToNextCall = ProcessCommand::stateAcceptCommands();
   uSecRemainder += uSecToNextCall;
   time += uSecRemainder / 1000;
   uSecRemainder = uSecRemainder % 1000;
@@ -60,14 +62,14 @@ unsigned int CommandWrangler::loop()
 //
 /////////////////////////////////////////////////////////////////////////
 
-// Implementation of the commands that the CommandWrangler Supports 
+// Implementation of the commands that the ProcessCommand Supports 
 const std::unordered_map<CommandParser::Command,
-  void (CommandWrangler::*)( CommandParser::CommandPacket),EnumHash> 
-  CommandWrangler::commandImpl = 
+  void (ProcessCommand::*)( CommandParser::CommandPacket),EnumHash> 
+  ProcessCommand::commandImpl = 
 {
-  { CommandParser::Command::Ping,       &CommandWrangler::doPing},
-  { CommandParser::Command::SetMotorA,  &CommandWrangler::doSetMotorA},
-  { CommandParser::Command::NoCommand,  &CommandWrangler::doError},
+  { CommandParser::Command::Ping,       &ProcessCommand::doPing},
+  { CommandParser::Command::SetMotorA,  &ProcessCommand::doSetMotorA},
+  { CommandParser::Command::NoCommand,  &ProcessCommand::doError},
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -77,27 +79,27 @@ const std::unordered_map<CommandParser::Command,
 /////////////////////////////////////////////////////////////////////////
 
 // Entry point for all commands
-void CommandWrangler::processCommand( CommandParser::CommandPacket cp )
+void ProcessCommand::processCommand( CommandParser::CommandPacket cp )
 {
   auto function = commandImpl.at( cp.command );
   (this->*function)( cp );
 }
 
-void CommandWrangler::doPing( CommandParser::CommandPacket cp )
+void ProcessCommand::doPing( CommandParser::CommandPacket cp )
 {
   (void) cp;
   WifiDebugOstream log( debugLog.get(), net.get() );
   log << "PONG\n";
 }
 
-void CommandWrangler::doError( CommandParser::CommandPacket cp )
+void ProcessCommand::doError( CommandParser::CommandPacket cp )
 {
   (void) cp;
   WifiDebugOstream log( debugLog.get(), net.get() );
   log << "ERROR!!!!\n";
 }
 
-void CommandWrangler::doSetMotorA( CommandParser::CommandPacket cp )
+void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
 {
   WifiDebugOstream log( debugLog.get(), net.get() );
   log << cp.optionalArg << "\n";
@@ -113,7 +115,7 @@ void CommandWrangler::doSetMotorA( CommandParser::CommandPacket cp )
 /////////////////////////////////////////////////////////////////////////
 
 
-unsigned int CommandWrangler::stateAcceptCommands()
+unsigned int ProcessCommand::stateAcceptCommands()
 {
   DebugInterface& log = *debugLog;
   auto cp = CommandParser::checkForCommands( log, *net );
@@ -128,11 +130,12 @@ unsigned int CommandWrangler::stateAcceptCommands()
   return 20*1000;
 }
 
-unsigned int CommandWrangler::stateError()
+unsigned int ProcessCommand::stateError()
 {
   WifiDebugOstream log( debugLog.get(), net.get() );
   log << "hep hep hep error error error\n";
   return 10*1000*1000; // 10 sec pause 
 }
 
+}
 
