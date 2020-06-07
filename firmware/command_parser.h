@@ -65,7 +65,7 @@ namespace CommandParser {
 ///
 inline CommandParser::Command& operator++( CommandParser::Command &c )
 {
-  return BeeFocus::advance< CommandParser::Command, CommandParser::Command::EndOfCommands >(c);
+  return UrbanRobot::advance< CommandParser::Command, CommandParser::Command::EndOfCommands >(c);
 }
 
 using CommandToBool = std::unordered_map< CommandParser::Command, bool, EnumHash >;

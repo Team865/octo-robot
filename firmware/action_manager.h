@@ -9,10 +9,11 @@
 #include "net_interface.h"
 #include "debug_interface.h"
 #include "hardware_interface.h"
+#include "time_interface.h"
 
 namespace Action {
 
-class Manager : public Interface {
+class Manager : Interface {
   public:
 
   Manager(
@@ -26,18 +27,24 @@ class Manager : public Interface {
 
   private:
 
-  using PriorityAndTaskSlot = std::pair<unsigned, size_t >;
+  using PriorityAndActionSlot = std::pair<unsigned int, size_t >;
 
   std::shared_ptr<NetInterface> net;
   std::shared_ptr<HWI> hardware;
   std::shared_ptr<DebugInterface> debug;
 
-  std::vector< std::shared_ptr< Interface >> interfaces;
+  std::vector< std::shared_ptr< Interface >> actions;
 
+  //
+  // keep the actions in "next action to run" order.  probably safe from
+  // memory fragmentation - the std::priority_queue is a container wrapper
+  // that probably just maintains a heap on the vector.  The max size of
+  // the vector won't change during runtime.
+  //
   std::priority_queue< 
-    PriorityAndTaskSlot, 
-    std::vector<PriorityAndTaskSlot>, 
-    std::greater<PriorityAndTaskSlot> > taskList;
+    PriorityAndActionSlot, 
+    std::vector<PriorityAndActionSlot>, 
+    std::greater<PriorityAndActionSlot> > nextActionQueue;
   unsigned long long timeInUs;
 };
 

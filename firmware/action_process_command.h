@@ -44,7 +44,7 @@ class ProcessCommand: public Interface
 		std::shared_ptr<NetInterface> netArg,
 		std::shared_ptr<HWI> hardwareArg,
 		std::shared_ptr<DebugInterface> debugArg,
-		std::shared_ptr<TimeInterface> timeArg,
+		std::shared_ptr<Time::Interface> timeArg,
 		std::shared_ptr<Action::Motor> motorArg
 	);
 
@@ -92,7 +92,7 @@ class ProcessCommand: public Interface
   std::shared_ptr<NetInterface> net;
   std::shared_ptr<HWI> hardware;
   std::shared_ptr<DebugInterface> debugLog;
-  std::shared_ptr<TimeInterface> timeMgr;
+  std::shared_ptr<Time::Interface> timeMgr;
   
   /// @brief ProcessCommand uptime in MS
   unsigned int time;

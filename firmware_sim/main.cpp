@@ -14,14 +14,14 @@
 
 std::shared_ptr<Action::Manager> action_manager;
 
-class TimeInterfaceSim: public TimeInterface {
+class TimeInterfaceSim: public Time::Interface {
   public:
  
   unsigned int secondsSince1970() override {
     return time(nullptr);
   } 
 
-  unsigned int msSinceDeviceStart() override {
+  Time::DeviceTimeMS msSinceDeviceStart() override {
     timespec t;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t );
     const unsigned int msFromS  = t.tv_sec * 1000;
@@ -157,7 +157,7 @@ void setup() {
   auto wifi      = std::make_shared<NetInterfaceSim>( debug );
   auto hardware  = std::make_shared<HWISim>();
   auto timeSim   = std::make_shared<TimeInterfaceSim>();
-  auto time      = std::make_shared<TimeManager>( timeSim );
+  auto time      = std::make_shared<Time::Manager>( timeSim );
   auto motorSim  = std::make_shared<Action::Motor>( 
       hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
   auto commandProcessor= std::make_shared<Action::ProcessCommand>( wifi, hardware, debug, time, motorSim  );

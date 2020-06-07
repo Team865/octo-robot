@@ -16,20 +16,20 @@ Manager::Manager(
 void Manager::addAction( std::shared_ptr< Interface > interface )
 {
   (*net) << "Action " << interface->debugName() << " added\n";
-  size_t slot = interfaces.size();
-  interfaces.push_back( interface );
-  taskList.push( PriorityAndTaskSlot( timeInUs, slot ));
+  size_t slot = actions.size();
+  actions.push_back( interface );
+  nextActionQueue.push( PriorityAndActionSlot( timeInUs, slot ));
 }
 
 unsigned int Manager::loop() 
 {
-  PriorityAndTaskSlot current = taskList.top();
-  taskList.pop();
+  PriorityAndActionSlot current = nextActionQueue.top();
+  nextActionQueue.pop();
   timeInUs = current.first;
-  unsigned rescheduleAt = interfaces.at( current.second )->loop() + timeInUs;
-  taskList.push( PriorityAndTaskSlot( rescheduleAt, current.second ));
-  //(*net) << "Ran " << interfaces.at( current.second )->debugName() << " new time " << rescheduleAt << "\n"; 
-  return taskList.top().first - timeInUs;
+  unsigned int rescheduleAt = actions.at( current.second )->loop() + timeInUs;
+  nextActionQueue.push( PriorityAndActionSlot( rescheduleAt, current.second ));
+  //(*net) << "Ran " << actions.at( current.second )->debugName() << " new time " << rescheduleAt << "\n"; 
+  return nextActionQueue.top().first - timeInUs;
 }
 
 } // end Action namespace

@@ -6,7 +6,7 @@
 #include <string>
 #include <ios>      // for std::streamsize
 #include <type_traits>
-#include "basic_types.h"  // for BeeFocus::IpAddress.
+#include "basic_types.h"  // for UrbanRobot::IpAddress.
 
 //
 // Like std::enable_if_t, but works in C++ 11.
@@ -57,7 +57,7 @@ struct is_beefocus_sink< T, decltype(
 /// @brief Output a WIFI IP address
 template <class T,
   typename = my_enable_if_t<is_beefocus_sink<T>::value>>
-T& operator<<( T& sink, const BeeFocus::IpAddress& address )
+T& operator<<( T& sink, const UrbanRobot::IpAddress& address )
 {
   sink << address[0] << "." << address[1] << "." << address[2] << "." << address[3];
   return sink;

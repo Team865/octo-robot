@@ -62,7 +62,7 @@ class HWI
 //
 inline HWI::Pin& operator++( HWI::Pin &pin ) 
 {
-  return BeeFocus::advance< HWI::Pin, HWI::Pin::END_OF_PINS >( pin );
+  return UrbanRobot::advance< HWI::Pin, HWI::Pin::END_OF_PINS >( pin );
 }
 
 // @brief Increment operator for Hardware Interface Pin State
@@ -72,7 +72,7 @@ inline HWI::Pin& operator++( HWI::Pin &pin )
 // 
 inline HWI::PinState& operator++( HWI::PinState &pin ) 
 {
-  return BeeFocus::advance< HWI::PinState, HWI::PinState::END_OF_PIN_STATES >( pin );
+  return UrbanRobot::advance< HWI::PinState, HWI::PinState::END_OF_PIN_STATES >( pin );
 }
 
 // @brief Increment operator for Hardware Interface Pin IO Mode
@@ -82,7 +82,7 @@ inline HWI::PinState& operator++( HWI::PinState &pin )
 // 
 inline HWI::PinIOMode& operator++( HWI::PinIOMode &pin ) 
 {
-  return BeeFocus::advance< HWI::PinIOMode, HWI::PinIOMode::END_OF_IO_MODES >( pin );
+  return UrbanRobot::advance< HWI::PinIOMode, HWI::PinIOMode::END_OF_IO_MODES >( pin );
 }
 
 #endif

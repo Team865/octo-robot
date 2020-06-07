@@ -5,36 +5,38 @@
 #include "time_interface.h"
 #include "action_interface.h"
 
-class TimeManager: public TimeInterface, public Action::Interface {
+namespace Time {
+
+class Manager: public Interface, public Action::Interface {
   public:
 
   /// Query time every 8 hours.
   static constexpr unsigned int msBetweenTimeQueries = 1000 * 60 * 60 * 8;
 
-  TimeManager( std::shared_ptr< TimeInterface > baseInterfaceArg )
-    : baseInterface{ baseInterfaceArg },
-      timeQueried{ false }
+  Manager( std::shared_ptr< Time::Interface > baseInterfaceArg )
+    : baseInterface{ baseInterfaceArg }
   {
   }
 
   virtual unsigned int secondsSince1970() override final;
-  virtual unsigned int msSinceDeviceStart() override final;
+  virtual Time::DeviceTimeMS msSinceDeviceStart() override final;
   virtual unsigned int loop() override final;
-  virtual const char* debugName() override final { return "TimeManager"; }
+  virtual const char* debugName() override final { return "Manager"; }
 
   private:
 
-  std::shared_ptr<TimeInterface> baseInterface;
+  std::shared_ptr< Time::Interface> baseInterface;
   bool timeQueried;
 
-  unsigned int timeQueriedAt;
+  DeviceTimeMS timeQueriedAt;
   unsigned int queryTime;
 
-  void baseInterfaceCheckForTimeSync( unsigned int msSinceDevStart );
+  void baseInterfaceCheckForTimeSync( DeviceTimeMS msSinceDevStart );
 
 };
 
 void intTimeToString( std::string& outString, unsigned int secondsSince1970 );
+} // End Time Namespace
 
 #endif
 

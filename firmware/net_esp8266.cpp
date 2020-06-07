@@ -36,7 +36,7 @@ WifiInterfaceEthernet::WifiInterfaceEthernet(
   (*log) << "Server started\n";
 
   // Print the IP address
-  BeeFocus::IpAddress adr;
+  UrbanRobot::IpAddress adr;
   auto dsIP = WiFi.localIP();
   for ( int i = 0; i < 4; ++ i )
     adr[i] = dsIP[i];

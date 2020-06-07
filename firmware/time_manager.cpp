@@ -1,6 +1,8 @@
 #include "time_manager.h"
 
-void TimeManager::baseInterfaceCheckForTimeSync( unsigned int msSinceDevStart )
+namespace Time {
+
+void Manager::baseInterfaceCheckForTimeSync( DeviceTimeMS msSinceDevStart )
 {
   if ( timeQueried && ( msSinceDevStart - timeQueriedAt ) < msBetweenTimeQueries ) 
   {
@@ -11,22 +13,22 @@ void TimeManager::baseInterfaceCheckForTimeSync( unsigned int msSinceDevStart )
   timeQueriedAt = msSinceDevStart;
 }
 
-unsigned int TimeManager::secondsSince1970()
+unsigned int Manager::secondsSince1970()
 {
-  unsigned int msSinceDevStart = baseInterface->msSinceDeviceStart();
+  DeviceTimeMS msSinceDevStart = baseInterface->msSinceDeviceStart();
   baseInterfaceCheckForTimeSync( msSinceDevStart );
 
   return queryTime + ( msSinceDevStart - timeQueriedAt ) / 1000;
 }
 
-unsigned int TimeManager::msSinceDeviceStart()
+DeviceTimeMS Manager::msSinceDeviceStart()
 {
   return baseInterface->msSinceDeviceStart();
 }
 
-unsigned int TimeManager::loop()
+unsigned int Manager::loop()
 {
-  unsigned int msSinceDevStart = baseInterface->msSinceDeviceStart();
+  DeviceTimeMS msSinceDevStart = baseInterface->msSinceDeviceStart();
   baseInterfaceCheckForTimeSync( msSinceDevStart );
   return 5000000;
 }
@@ -51,5 +53,6 @@ void intTimeToString( std::string& outString, unsigned int secondsSince1970 )
   outString.push_back( '0' + secs % 10 );
 }
 
+}
 
 

@@ -27,7 +27,7 @@ void setup() {
   auto wifi      = std::make_shared<WifiInterfaceEthernet>(debug);
   auto hardware  = std::make_shared<HardwareESP8266>();
   auto timeNNTP  = std::make_shared<TimeESP8266>( debug );
-  auto time      = std::make_shared<TimeManager>( timeNNTP );
+  auto time      = std::make_shared<Time::Manager>( timeNNTP );
   auto motor = std::make_shared<Action::Motor>(
       hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
   auto commandProcessor= std::make_shared<Action::ProcessCommand>( wifi, hardware, debug, time, motor );

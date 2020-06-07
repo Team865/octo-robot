@@ -3,7 +3,7 @@
 
 #include <array>
 
-namespace BeeFocus
+namespace UrbanRobot
 {
 	const int noValue= -1;
 	using IpAddress = std::array<int,4>;
@@ -25,6 +25,23 @@ namespace BeeFocus
     }
     return e;
   }
+
+  ///
+  /// @brief For making sure your integer based types are actually typesafe
+  /// 
+  template< typename BaseNumber, const char* label >
+  class TypeSafeNumber
+  {
+    public:
+
+    TypeSafeNumber( ) : num{ 0 } {}
+    TypeSafeNumber( BaseNumber numArg ) : num{ numArg } {}
+    bool operator<( BaseNumber rhs ) { return num < rhs.num; }
+    BaseNumber operator-( TypeSafeNumber rhs ) { return num - rhs.num; }
+
+    private:
+      BaseNumber num;
+  };
 };
 
 

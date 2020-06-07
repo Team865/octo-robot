@@ -6,13 +6,13 @@
 
 class IPAddress;
 
-class TimeESP8266: public TimeInterface {
+class TimeESP8266: public Time::Interface {
   public:
 
   TimeESP8266( std::shared_ptr<DebugInterface> debugArg );
 
   virtual unsigned int secondsSince1970() override final;
-  virtual unsigned int msSinceDeviceStart() override final;
+  virtual Time::DeviceTimeMS msSinceDeviceStart() override final;
 
   private:
   std::shared_ptr<DebugInterface> debug;

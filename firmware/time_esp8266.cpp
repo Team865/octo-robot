@@ -79,7 +79,7 @@ unsigned int TimeESP8266::secondsSince1970()
   return secsSince1970;
 }
 
-unsigned int TimeESP8266::msSinceDeviceStart() 
+Time::DeviceTimeMS TimeESP8266::msSinceDeviceStart() 
 {
   return millis();
 }
