@@ -13,6 +13,8 @@
 
 namespace Action {
 
+extern const char ActionSlotIndexTag[];
+
 class Manager : Interface {
   public:
 
@@ -27,7 +29,10 @@ class Manager : Interface {
 
   private:
 
-  using PriorityAndActionSlot = std::pair<Time::DeviceTimeUS, size_t >;
+  using ActionSlotIndex = UrbanRobot::TypeSafeNumber< size_t, ActionSlotIndexTag >;
+
+
+  using PriorityAndActionSlot = std::pair<Time::DeviceTimeUS, ActionSlotIndex >;
 
   std::shared_ptr<NetInterface> net;
   std::shared_ptr<HWI> hardware;

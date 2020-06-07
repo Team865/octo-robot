@@ -18,19 +18,39 @@ void Manager::addAction( std::shared_ptr< Interface > interface )
   (*net) << "Action " << interface->debugName() << " added\n";
   size_t slot = actions.size();
   actions.push_back( interface );
-  nextActionQueue.push( PriorityAndActionSlot( timeInUs, slot ));
+  nextActionQueue.push( PriorityAndActionSlot( timeInUs, ActionSlotIndex( slot )));
 }
 
+//
+// 1. Pop the next action to be executed from the priority queue
+// 2. Update manager time (caller was responsible for doing the actual delay )
+// 3. Run the Action
+// 4. Figure out the next time the action should be run
+// 5. Add the action back into the queue, at the new time
+// 6. Figure out when the next action will be run & return the value
+//
 Time::TimeUS Manager::periodic() 
 {
+  // 1. Pop the next action to be executed from the priority queue
   PriorityAndActionSlot current = nextActionQueue.top();
   nextActionQueue.pop();
+
+  // 2. Update manager time (caller was responsible for doing the actual delay )
   timeInUs = current.first;
-  Time::TimeUS actionDelayRequestUs = actions.at( current.second )->periodic();
+
+  // 3. Run the Action
+  ActionSlotIndex index = current.second;
+  Time::TimeUS actionDelayRequestUs = actions.at( index.get() )->periodic();
+
+  // 4. Figure out the next time the action should be run
   Time::DeviceTimeUS rescheduleAt = timeInUs + actionDelayRequestUs;
+
+  // 5. Add the action back into the queue, at the new time
   nextActionQueue.push( PriorityAndActionSlot( rescheduleAt, current.second ));
-  //(*net) << "Ran " << actions.at( current.second )->debugName() << " new time " << rescheduleAt << "\n"; 
-  return Time::TimeUS (nextActionQueue.top().first - timeInUs );
+
+  // 6. Figure out when the next action will be run & return the value
+  Time::TimeUS delay_to_next_action(nextActionQueue.top().first - timeInUs );
+  return delay_to_next_action;
 }
 
 } // end Action namespace
