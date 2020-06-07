@@ -35,10 +35,11 @@ namespace UrbanRobot
     public:
 
     TypeSafeNumber( ) : num{ 0 } {}
-    TypeSafeNumber( BaseNumber numArg ) : num{ numArg } {}
-    bool operator<( BaseNumber rhs ) { return num < rhs.num; }
-    BaseNumber operator-( TypeSafeNumber rhs ) { return num - rhs.num; }
-    BaseNumber operator+( TypeSafeNumber rhs ) { return num + rhs.num; }
+    explicit TypeSafeNumber( BaseNumber numArg ) : num{ numArg } {}
+    bool operator<( TypeSafeNumber rhs ) const { return num < rhs.num; }
+    BaseNumber operator-( TypeSafeNumber rhs ) const { return num - rhs.num; }
+    TypeSafeNumber operator+( BaseNumber rhs ) const { return TypeSafeNumber( num + rhs ); }
+    BaseNumber get() const { return num; }
 
     private:
       BaseNumber num;

@@ -18,7 +18,7 @@ class TimeInterfaceSim: public Time::Interface {
   public:
  
   Time::RealTimeS secondsSince1970() override {
-    return time(nullptr);
+    return Time::RealTimeS(time(nullptr));
   } 
 
   Time::DeviceTimeMS msSinceDeviceStart() override {
@@ -26,7 +26,7 @@ class TimeInterfaceSim: public Time::Interface {
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t );
     const unsigned int msFromS  = t.tv_sec * 1000;
     const unsigned int msFromNs = t.tv_nsec / 1000000;
-    return msFromS + msFromNs; 
+    return Time::DeviceTimeMS( msFromS + msFromNs ); 
   }
 };
 

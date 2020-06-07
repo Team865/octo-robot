@@ -27,7 +27,7 @@ class Manager : Interface {
 
   private:
 
-  using PriorityAndActionSlot = std::pair<unsigned int, size_t >;
+  using PriorityAndActionSlot = std::pair<Time::DeviceTimeUS, size_t >;
 
   std::shared_ptr<NetInterface> net;
   std::shared_ptr<HWI> hardware;
@@ -45,7 +45,7 @@ class Manager : Interface {
     PriorityAndActionSlot, 
     std::vector<PriorityAndActionSlot>, 
     std::greater<PriorityAndActionSlot> > nextActionQueue;
-  unsigned long long timeInUs;
+  Time::DeviceTimeUS timeInUs;
 };
 
 } // end namespace Action

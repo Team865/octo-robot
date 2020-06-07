@@ -26,7 +26,8 @@ unsigned int Manager::loop()
   PriorityAndActionSlot current = nextActionQueue.top();
   nextActionQueue.pop();
   timeInUs = current.first;
-  unsigned int rescheduleAt = actions.at( current.second )->loop() + timeInUs;
+  Time::TimeUS actionDelayRequestUs = Time::TimeUS( actions.at( current.second )->loop() );
+  Time::DeviceTimeUS rescheduleAt = timeInUs + actionDelayRequestUs;
   nextActionQueue.push( PriorityAndActionSlot( rescheduleAt, current.second ));
   //(*net) << "Ran " << actions.at( current.second )->debugName() << " new time " << rescheduleAt << "\n"; 
   return nextActionQueue.top().first - timeInUs;

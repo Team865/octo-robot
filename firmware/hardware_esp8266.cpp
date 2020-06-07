@@ -28,11 +28,13 @@ void HardwareESP8266::PinMode( Pin pin, PinIOMode mode )
 HWI::PinState HardwareESP8266::DigitalRead( Pin pin)
 {
   int actualPin = pinMap.at( pin );
+  (void) actualPin;
   return PinState::DUMMY_INACTIVE;
 }
 
 unsigned int HardwareESP8266::AnalogRead( Pin pin)
 {
+  (void) pin;
   return analogRead( A0 );
 }
 
