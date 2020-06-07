@@ -12,13 +12,13 @@
 std::shared_ptr<Action::Manager> action_manager;
 
 void loop() {
-  unsigned int pause = action_manager->loop();
-  if ( pause != 0 )
+  Time::TimeUS pause = action_manager->periodic();
+  if ( pause != Time::TimeUS(0) )
   {
-    int ms = pause / 1000;
-    int usRemainder = pause % 1000;
-    delay( ms );
-    delayMicroseconds( usRemainder );
+    Time::TimeMS ms = Time::UStoMS( pause );
+    Time::TimeUS usRemainder = Time::TimeUS( pause - Time::MStoUS(ms ));
+    delay( ms.get() );
+    delayMicroseconds( usRemainder.get() );
   }
 }
 

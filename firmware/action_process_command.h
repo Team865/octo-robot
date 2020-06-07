@@ -54,7 +54,7 @@ class ProcessCommand: public Interface
   /// @return The amount of time the caller should wait (in microseconds)
   ///         before calling loop again.
   ///
-  virtual unsigned int loop() override final;
+  Time::TimeUS periodic() override final;
 
   virtual const char* debugName() override final { return "ProcessCommand"; } 
   private:
@@ -81,9 +81,9 @@ class ProcessCommand: public Interface
   void processCommand( CommandParser::CommandPacket cp );
 
   /// @brief Wait for commands from the network interface
-  unsigned int stateAcceptCommands( void ); 
+  Time::TimeUS stateAcceptCommands( void ); 
   /// @brief If we land in this state, complain a lot.
-  unsigned int stateError( void );
+  Time::TimeUS stateError( void );
 
   void doPing( CommandParser::CommandPacket );
   void doSetMotorA( CommandParser::CommandPacket );
@@ -94,12 +94,6 @@ class ProcessCommand: public Interface
   std::shared_ptr<DebugInterface> debugLog;
   std::shared_ptr<Time::Interface> timeMgr;
   
-  /// @brief ProcessCommand uptime in MS
-  unsigned int time;
-
-  /// @brief For computing time in CommandWranger::loop
-  unsigned int uSecRemainder;
-
   /// @brief Interface to Motor A
   std::shared_ptr<Action::Motor> motorA;
 };

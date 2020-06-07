@@ -35,11 +35,21 @@ namespace UrbanRobot
     public:
 
     TypeSafeNumber( ) : num{ 0 } {}
+
+    // Don't allow implicit conversions. 
     explicit TypeSafeNumber( BaseNumber numArg ) : num{ numArg } {}
+
+    // Get the wrapped number, for special cases.
+    BaseNumber get() const { return num; }
+
+    // Wrapper McWrapperson
     bool operator<( TypeSafeNumber rhs ) const { return num < rhs.num; }
     BaseNumber operator-( TypeSafeNumber rhs ) const { return num - rhs.num; }
     TypeSafeNumber operator+( BaseNumber rhs ) const { return TypeSafeNumber( num + rhs ); }
-    BaseNumber get() const { return num; }
+    bool operator==( TypeSafeNumber rhs ) const { return num == rhs.num; };
+    bool operator!=( TypeSafeNumber rhs ) const { return num != rhs.num; };
+    bool operator>(TypeSafeNumber rhs ) const { return num > rhs.num; };
+    TypeSafeNumber& operator+=(TypeSafeNumber rhs ) { num += rhs.num; return *this; }
 
     private:
       BaseNumber num;

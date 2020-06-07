@@ -10,6 +10,9 @@ namespace Time
 extern const char deviceTimeMSTag[];
 using DeviceTimeMS = UrbanRobot::TypeSafeNumber< unsigned int, deviceTimeMSTag >;
 
+extern const char timeMSTag[];
+using TimeMS = UrbanRobot::TypeSafeNumber< unsigned int, timeMSTag >;
+
 extern const char realTimeSTag[];
 using RealTimeS = UrbanRobot::TypeSafeNumber< unsigned int, realTimeSTag >;
 
@@ -26,6 +29,12 @@ class Interface {
   virtual DeviceTimeMS  msSinceDeviceStart() = 0;
 };
 
+inline TimeMS UStoMS( TimeUS in ) { return TimeMS( in.get() / 1000 ); }
+inline TimeUS MStoUS( TimeMS in ) { return TimeUS( in.get() * 1000 ); }
+
+constexpr unsigned int USPerMs = 1000;
+constexpr unsigned int USPerS = 1000000;
+
 } // end Time namespace
 
 inline Time::DeviceTimeUS operator+( Time::DeviceTimeUS lhs, Time::TimeUS rhs ) {
@@ -35,6 +44,8 @@ inline Time::DeviceTimeUS operator+( Time::DeviceTimeUS lhs, Time::TimeUS rhs ) 
 inline Time::DeviceTimeUS operator+( Time::TimeUS lhs, Time::DeviceTimeUS rhs ) {
   return rhs + lhs.get();
 }
+
+
 
 #endif
 

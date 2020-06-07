@@ -31,13 +31,9 @@ ProcessCommand::ProcessCommand(
   log << "Urban-Octo-Robot is accepting commands\n";
 }
 
-unsigned int ProcessCommand::loop()
+Time::TimeUS ProcessCommand::periodic()
 {
-  WifiDebugOstream log( debugLog.get(), net.get() );
-  const unsigned uSecToNextCall = ProcessCommand::stateAcceptCommands();
-  uSecRemainder += uSecToNextCall;
-  time += uSecRemainder / 1000;
-  uSecRemainder = uSecRemainder % 1000;
+  const Time::TimeUS uSecToNextCall = ProcessCommand::stateAcceptCommands();
   net->flush();
   return uSecToNextCall;
 }
@@ -115,7 +111,7 @@ void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
 /////////////////////////////////////////////////////////////////////////
 
 
-unsigned int ProcessCommand::stateAcceptCommands()
+Time::TimeUS ProcessCommand::stateAcceptCommands()
 {
   DebugInterface& log = *debugLog;
   auto cp = CommandParser::checkForCommands( log, *net );
@@ -123,18 +119,18 @@ unsigned int ProcessCommand::stateAcceptCommands()
   if ( cp.command != CommandParser::Command::NoCommand )
   {
     processCommand( cp );
-    return 0;
+    return Time::TimeUS(0);
   }
 
   // 50 possible updates per second.
-  return 20*1000;
+  return Time::TimeUS( 20* Time::USPerMs );
 }
 
-unsigned int ProcessCommand::stateError()
+Time::TimeUS ProcessCommand::stateError()
 {
   WifiDebugOstream log( debugLog.get(), net.get() );
   log << "hep hep hep error error error\n";
-  return 10*1000*1000; // 10 sec pause 
+  return Time::TimeUS( 10 * Time::USPerS );
 }
 
 }

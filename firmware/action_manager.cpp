@@ -21,16 +21,16 @@ void Manager::addAction( std::shared_ptr< Interface > interface )
   nextActionQueue.push( PriorityAndActionSlot( timeInUs, slot ));
 }
 
-unsigned int Manager::loop() 
+Time::TimeUS Manager::periodic() 
 {
   PriorityAndActionSlot current = nextActionQueue.top();
   nextActionQueue.pop();
   timeInUs = current.first;
-  Time::TimeUS actionDelayRequestUs = Time::TimeUS( actions.at( current.second )->loop() );
+  Time::TimeUS actionDelayRequestUs = actions.at( current.second )->periodic();
   Time::DeviceTimeUS rescheduleAt = timeInUs + actionDelayRequestUs;
   nextActionQueue.push( PriorityAndActionSlot( rescheduleAt, current.second ));
   //(*net) << "Ran " << actions.at( current.second )->debugName() << " new time " << rescheduleAt << "\n"; 
-  return nextActionQueue.top().first - timeInUs;
+  return Time::TimeUS (nextActionQueue.top().first - timeInUs );
 }
 
 } // end Action namespace

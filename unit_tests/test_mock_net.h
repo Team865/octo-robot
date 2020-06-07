@@ -161,8 +161,8 @@ class NetMockSimpleTimed: public NetInterface
   }
 
   const char* debugName() override { return "NetMockSimpleTimed"; }
-  unsigned int loop() override {
-    return 5000000;
+  Time::TimeUS periodic() override {
+    return Time::TimeUS( 5 * Time::USPerS );
   }
 
   std::streamsize write( const char_type* s, std::streamsize n) override

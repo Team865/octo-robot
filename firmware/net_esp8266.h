@@ -82,7 +82,7 @@ class WifiInterfaceEthernet: public NetInterface {
   std::streamsize write( const char_type* s, std::streamsize n ) override;
   void flush() override;
 
-  unsigned int loop() override;
+  Time::TimeUS periodic() override;
   const char* debugName() override
   {
     return "WifiInterfaceEthernet";

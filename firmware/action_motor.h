@@ -14,7 +14,7 @@ class Motor: public Interface {
 
   Motor( std::shared_ptr<HWI> hwiArg, std::shared_ptr<DebugInterface> debugArg, std::shared_ptr<NetInterface> netArg, HWI::Pin pin0,  HWI::Pin pin1);
 
-  virtual unsigned int loop() override;
+  virtual Time::TimeUS periodic() override;
   virtual const char* debugName() override;
 
   void setSpeed( int percent );

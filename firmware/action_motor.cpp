@@ -47,14 +47,16 @@ void Motor::doPulseIfChanged( Motor::Pulse pulse )
   }
 }
 
-unsigned int Motor::loop() 
+Time::TimeUS Motor::periodic() 
 {
   counter = counter + 1;
 
   const bool pulse_high = counter & 1;
-  const int current_pulse = pulse_high ? speed : 100-speed;
+  Time::TimeUS current_pulse = pulse_high ? 
+      Time::TimeUS( speed * 500 ) : 
+      Time::TimeUS( ( 100-speed ) * 500 );
 
-  if ( current_pulse == 0 ) {
+  if ( current_pulse == Time::TimeUS( 0 ) ) {
     return current_pulse;
   }
 
@@ -70,7 +72,7 @@ unsigned int Motor::loop()
     }
   }
 
-  return current_pulse * 500;
+  return current_pulse;
 }
 
 void Motor::setSpeed( int percent )

@@ -92,8 +92,8 @@ class NetInterfaceSim: public NetInterface {
   {
   }
   const char* debugName() override { return "NetInterfaceSim"; }
-  unsigned int loop() override {
-    return 5000000;
+  Time::TimeUS periodic() override {
+    return Time::TimeUS( 5 * Time::USPerS );
   }
   std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port ) override
   {
@@ -148,8 +148,8 @@ class DebugInterfaceSim: public DebugInterface
   }
 };
 
-unsigned int loop() {
-  return action_manager->loop();
+Time::TimeUS loop() {
+  return action_manager->periodic();
 }
 
 void setup() {
@@ -174,8 +174,8 @@ int main(int argc, char* argv[])
   setup();
   for ( ;; ) 
   {
-    unsigned int delay = loop();
-    usleep( delay );
+    Time::TimeUS delay = loop();
+    usleep( delay.get() );
   }
 }
 

@@ -26,11 +26,11 @@ DeviceTimeMS Manager::msSinceDeviceStart()
   return baseInterface->msSinceDeviceStart();
 }
 
-unsigned int Manager::loop()
+Time::TimeUS Manager::periodic()
 {
   DeviceTimeMS msSinceDevStart = baseInterface->msSinceDeviceStart();
   baseInterfaceCheckForTimeSync( msSinceDevStart );
-  return 5000000;
+  return Time::TimeUS( 5 * Time::USPerS ); 
 }
 
 void intTimeToString( std::string& outString, unsigned int secondsSince1970 )

@@ -55,11 +55,12 @@ bool WifiInterfaceEthernet::getString( std::string& string )
   });
 }
 
-unsigned int WifiInterfaceEthernet::loop()
+Time::TimeUS WifiInterfaceEthernet::periodic()
 {
   handleNewConnections();
   flush();
-  return 500000;
+  // TODO - pretty sure I want a faster update.
+  return Time::TimeUS( 500 * Time::USPerMs );
 } 
 
 void WifiInterfaceEthernet::handleNewConnections()

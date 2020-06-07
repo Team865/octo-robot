@@ -22,7 +22,7 @@ class Manager : Interface {
     std::shared_ptr<DebugInterface> debugArg );
 
   void addAction( std::shared_ptr< Interface > interface );
-  virtual unsigned int loop() override final;
+  virtual Time::TimeUS periodic() override final;
   virtual const char* debugName() override { return "ActionManager"; }
 
   private:
