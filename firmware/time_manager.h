@@ -5,7 +5,7 @@
 #include "time_interface.h"
 #include "action_interface.h"
 
-class TimeManager: public TimeInterface, public ActionInterface {
+class TimeManager: public TimeInterface, public Action::Interface {
   public:
 
   /// Query time every 8 hours.

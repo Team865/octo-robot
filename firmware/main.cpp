@@ -10,7 +10,7 @@
 #include "data_mover.h"
 #include "wifi_secrets.h"
 
-std::shared_ptr<ActionManager> action_manager;
+std::shared_ptr<Action::Manager> action_manager;
 
 void loop() {
   unsigned int pause = action_manager->loop();
@@ -33,7 +33,7 @@ void setup() {
       hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
   auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time, motor );
 
-  action_manager = std::make_shared<ActionManager>( wifi, hardware, debug );
+  action_manager = std::make_shared<Action::Manager>( wifi, hardware, debug );
   action_manager->addAction( commandWrangler );
   action_manager->addAction( time );
   action_manager->addAction( motor );

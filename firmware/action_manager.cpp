@@ -1,6 +1,8 @@
 #include "action_manager.h"
 
-ActionManager::ActionManager(
+namespace Action {
+
+Manager::Manager(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg ) :
@@ -11,7 +13,7 @@ ActionManager::ActionManager(
 {
 }
 
-void ActionManager::addAction( std::shared_ptr< ActionInterface > interface )
+void Manager::addAction( std::shared_ptr< Interface > interface )
 {
   (*net) << "Action " << interface->debugName() << " added\n";
   size_t slot = interfaces.size();
@@ -19,7 +21,7 @@ void ActionManager::addAction( std::shared_ptr< ActionInterface > interface )
   taskList.push( PriorityAndTaskSlot( timeInUs, slot ));
 }
 
-unsigned int ActionManager::loop() 
+unsigned int Manager::loop() 
 {
   PriorityAndTaskSlot current = taskList.top();
   taskList.pop();
@@ -29,4 +31,7 @@ unsigned int ActionManager::loop()
   //(*net) << "Ran " << interfaces.at( current.second )->debugName() << " new time " << rescheduleAt << "\n"; 
   return taskList.top().first - timeInUs;
 }
+
+} // end Action namespace
+
 

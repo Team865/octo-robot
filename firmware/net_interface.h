@@ -34,7 +34,9 @@ class NetConnection {
 ///
 /// This class's one job is to provide an interface to the client.
 ///
-class NetInterface: public ActionInterface {
+/// TODO - make it an action?
+///
+class NetInterface: public Action::Interface {
   public:
 
   struct category : public beefocus_tag {};

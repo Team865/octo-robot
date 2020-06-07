@@ -10,15 +10,17 @@
 #include "debug_interface.h"
 #include "hardware_interface.h"
 
-class ActionManager : public ActionInterface {
+namespace Action {
+
+class Manager : public Interface {
   public:
 
-  ActionManager(
+  Manager(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg );
 
-  void addAction( std::shared_ptr< ActionInterface > interface );
+  void addAction( std::shared_ptr< Interface > interface );
   virtual unsigned int loop() override final;
   virtual const char* debugName() override { return "ActionManager"; }
 
@@ -30,7 +32,7 @@ class ActionManager : public ActionInterface {
   std::shared_ptr<HWI> hardware;
   std::shared_ptr<DebugInterface> debug;
 
-  std::vector< std::shared_ptr< ActionInterface >> interfaces;
+  std::vector< std::shared_ptr< Interface >> interfaces;
 
   std::priority_queue< 
     PriorityAndTaskSlot, 
@@ -38,6 +40,8 @@ class ActionManager : public ActionInterface {
     std::greater<PriorityAndTaskSlot> > taskList;
   unsigned long long timeInUs;
 };
+
+} // end namespace Action
 
 #endif
 

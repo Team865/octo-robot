@@ -9,7 +9,7 @@
 
 namespace Action {
 
-class Motor: public ActionInterface {
+class Motor: public Interface {
   public:
 
   Motor( std::shared_ptr<HWI> hwiArg, std::shared_ptr<DebugInterface> debugArg, std::shared_ptr<NetInterface> netArg, HWI::Pin pin0,  HWI::Pin pin1);

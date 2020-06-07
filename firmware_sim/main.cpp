@@ -13,7 +13,7 @@
 #include "time_interface.h"
 #include "time_manager.h"
 
-std::shared_ptr<ActionManager> action_manager;
+std::shared_ptr<Action::Manager> action_manager;
 
 class TimeInterfaceSim: public TimeInterface {
   public:
@@ -163,7 +163,7 @@ void setup() {
       hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
   auto commandWrangler = std::make_shared<FS::CommandWrangler>( wifi, hardware, debug, time, motorSim  );
 
-  action_manager = std::make_shared<ActionManager>( wifi, hardware, debug );
+  action_manager = std::make_shared<Action::Manager>( wifi, hardware, debug );
   action_manager->addAction( commandWrangler );
   action_manager->addAction( time );
   action_manager->addAction( motorSim );

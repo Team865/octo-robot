@@ -45,7 +45,7 @@ using CommandStateStack = StateStack< CommandState, CommandState::ACCEPT_COMMAND
 /// 1.  Sends commands to individual hardware blocks
 /// 2.  Gets responses from hardware blocks and sends them to the network
 ///
-class CommandWrangler: public ActionInterface
+class CommandWrangler: public Action::Interface
 {
   public:
  
