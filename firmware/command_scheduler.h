@@ -13,8 +13,6 @@
 
 namespace Command {
 
-extern const char CommandSlotIndexTag[];
-
 // TODO - document
 
 class Scheduler: Base {
@@ -31,6 +29,7 @@ class Scheduler: Base {
 
   private:
 
+  struct CommandSlotIndexTag {};
   using CommandSlotIndex = UrbanRobot::TypeSafeNumber< size_t, CommandSlotIndexTag >;
 
 

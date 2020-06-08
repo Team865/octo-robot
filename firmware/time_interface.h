@@ -13,19 +13,19 @@ namespace Time
 /// 24 days.  a 32 bit microsecond variable will overflow every in 35
 /// minutes (signed) or 70 minutes (unsigned).
 ///
-extern const char deviceTimeMSTag[];
+struct deviceTimeMSTag{};
 using DeviceTimeMS = UrbanRobot::TypeSafeNumber< unsigned int, deviceTimeMSTag >;
 
-extern const char timeMSTag[];
+struct timeMSTag{};
 using TimeMS = UrbanRobot::TypeSafeNumber< unsigned int, timeMSTag >;
 
-extern const char realTimeSTag[];
+struct realTimeSTag{};
 using RealTimeS = UrbanRobot::TypeSafeNumber< unsigned int, realTimeSTag >;
 
-extern const char deviceTimeUSTag[];
+struct deviceTimeUSTag{};
 using DeviceTimeUS = UrbanRobot::TypeSafeNumber< unsigned long long, deviceTimeUSTag>;
 
-extern const char timeUSTag[];
+struct timeUSTag{};
 using TimeUS = UrbanRobot::TypeSafeNumber< unsigned long long, timeUSTag>;
 
 // TODO - If First Robots has a similar concept, adopt their naming scheme

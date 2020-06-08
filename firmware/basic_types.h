@@ -40,28 +40,25 @@ namespace UrbanRobot
   ///
   /// Usage example:
   ///
-  /// extern const char deviceTimeMSTag[];
+  /// struct DeviceTimeMSTag {};
   /// using DeviceTimeMS = 
   ///     UrbanRobot::TypeSafeNumber< unsigned int, deviceTimeMSTag >;
   ///
   /// Creates a new type, "DeviceTimeMS", that mostly acts like an unsigned int,
   /// but won't implicitly convert to and from unsigned int, or another 
-  /// guarded type.
-  ///
-  /// TODO - I should probably just make tag a class, and do something like
-  ///
-  /// struct DeviceTimeMSTag {};
-  /// using DeviceTimeMS = 
-  ///     UrbanRobot::TypeSafeNumber< unsigned int, deviceTimeMSTag >;
+  /// guarded type.  DeviceTimeMSTag is a structure who's sole job is to help
+  /// distinguish "DeviceTimeMS" from other instantiations of the 
+  /// TypeSafeNumber template - it's a common C++ meta programm tecnnique
   ///
   /// TODO - I wonder if I could specify an base template and inherit
   /// cast functions.  
   /// 
-  template< typename BaseNumber, const char* tag >
+  template< typename BaseNumberArg, class tag >
   class TypeSafeNumber
   {
     public:
 
+    using BaseNumber = BaseNumberArg;
     TypeSafeNumber( ) : num{ 0 } {}
 
     /// @brief Constructor.  Don't allow implicit conversions. 
