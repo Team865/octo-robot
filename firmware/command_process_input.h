@@ -10,13 +10,13 @@
 #include "net_interface.h"
 #include "hardware_interface.h"
 #include "time_interface.h"
-#include "action_motor.h"
+#include "command_motor.h"
 
 #ifdef GTEST_FOUND
 #include <gtest/gtest_prod.h>
 #endif
 
-#include "action_interface.h"
+#include "command_base.h"
 
 namespace Command
 {

@@ -1,8 +1,8 @@
-#ifndef __MOTOR_H__
-#define __MOTOR_H__
+#ifndef __COMMAND_MOTOR_H__
+#define __COMMAND_MOTOR_H__
 
 #include <memory>   // for std::shared_ptr
-#include "action_interface.h"
+#include "command_base.h"
 #include "hardware_interface.h"
 #include "net_interface.h"
 #include "debug_interface.h"

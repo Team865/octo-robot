@@ -1,5 +1,5 @@
-#ifndef __ACTION_INTERFACE_H__
-#define __ACTION_INTERFACE_H__
+#ifndef __COMMAND_INTERFACE_H__
+#define __COMMAND_INTERFACE_H__
 
 #include "time_interface.h"
 

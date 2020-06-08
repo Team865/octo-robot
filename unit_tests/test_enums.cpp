@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "action_process_command.h"
+#include "command_process_input.h"
 
 namespace Command {
 

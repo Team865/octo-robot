@@ -1,4 +1,4 @@
-#include "action_manager.h"
+#include "command_scheduler.h"
 
 namespace Command {
 
@@ -18,13 +18,13 @@ void Scheduler::addCommand( std::shared_ptr< Command::Base > interface )
   (*net) << "Command " << interface->debugName() << " added\n";
   size_t slot = actions.size();
   actions.push_back( interface );
-  nextActionQueue.push( PriorityAndActionSlot( timeInUs, ActionSlotIndex( slot )));
+  nextCommandQueue.push( PriorityAndCommandSlot( timeInUs, CommandSlotIndex( slot )));
 }
 
 //
 // 1. Pop the next command to be executed from the priority queue
 // 2. Update manager time (caller was responsible for doing the actual delay )
-// 3. Run the Action
+// 3. Run the Command
 // 4. Figure out the next time the command should be run
 // 5. Add the command back into the queue, at the new time
 // 6. Figure out when the next command will be run & return the value
@@ -32,27 +32,27 @@ void Scheduler::addCommand( std::shared_ptr< Command::Base > interface )
 Time::TimeUS Scheduler::execute() 
 {
   // 1. Pop the next action to be executed from the priority queue
-  PriorityAndActionSlot current = nextActionQueue.top();
-  nextActionQueue.pop();
+  PriorityAndCommandSlot current = nextCommandQueue.top();
+  nextCommandQueue.pop();
 
   // 2. Update manager time (caller was responsible for doing the actual delay )
   timeInUs = current.first;
 
-  // 3. Run the Action
-  ActionSlotIndex index = current.second;
+  // 3. Run the Command
+  CommandSlotIndex index = current.second;
   Time::TimeUS actionDelayRequestUs = actions.at( index.get() )->execute();
 
   // 4. Figure out the next time the action should be run
   Time::DeviceTimeUS rescheduleAt = timeInUs + actionDelayRequestUs;
 
   // 5. Add the action back into the queue, at the new time
-  nextActionQueue.push( PriorityAndActionSlot( rescheduleAt, current.second ));
+  nextCommandQueue.push( PriorityAndCommandSlot( rescheduleAt, current.second ));
 
   // 6. Figure out when the next action will be run & return the value
-  Time::TimeUS delay_to_next_action(nextActionQueue.top().first - timeInUs );
+  Time::TimeUS delay_to_next_action(nextCommandQueue.top().first - timeInUs );
   return delay_to_next_action;
 }
 
-} // end Action namespace
+} // end Command namespace
 
 

@@ -5,14 +5,14 @@
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
 
-#include "action_manager.h"
-#include "action_motor.h"
-#include "action_process_command.h"
+#include "command_scheduler.h"
+#include "command_motor.h"
+#include "command_process_input.h"
 #include "hardware_interface.h"
 #include "time_interface.h"
 #include "time_manager.h"
 
-std::shared_ptr<Action::Manager> action_manager;
+std::shared_ptr<Command::Scheduler> command_scheduler;
 
 class TimeInterfaceSim: public Time::Interface {
   public:
@@ -92,7 +92,7 @@ class NetInterfaceSim: public NetInterface {
   {
   }
   const char* debugName() override { return "NetInterfaceSim"; }
-  Time::TimeUS periodic() override {
+  Time::TimeUS execute() override {
     return Time::TimeUS( 5 * Time::USPerS );
   }
   std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port ) override
@@ -149,7 +149,7 @@ class DebugInterfaceSim: public DebugInterface
 };
 
 Time::TimeUS loop() {
-  return action_manager->periodic();
+  return command_scheduler->execute();
 }
 
 void setup() {
@@ -158,15 +158,15 @@ void setup() {
   auto hardware  = std::make_shared<HWISim>();
   auto timeSim   = std::make_shared<TimeInterfaceSim>();
   auto time      = std::make_shared<Time::Manager>( timeSim );
-  auto motorSim  = std::make_shared<Action::Motor>( 
+  auto motorSim  = std::make_shared<Command::Motor>( 
       hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
-  auto commandProcessor= std::make_shared<Action::ProcessCommand>( wifi, hardware, debug, time, motorSim  );
+  auto commandProcessor= std::make_shared<Command::ProcessCommand>( wifi, hardware, debug, time, motorSim  );
 
-  action_manager = std::make_shared<Action::Manager>( wifi, hardware, debug );
-  action_manager->addAction( commandProcessor );
-  action_manager->addAction( time );
-  action_manager->addAction( motorSim );
-  action_manager->addAction( wifi );
+  command_scheduler = std::make_shared<Command::Scheduler>( wifi, hardware, debug );
+  command_scheduler->addCommand( commandProcessor );
+  command_scheduler->addCommand( time );
+  command_scheduler->addCommand( motorSim );
+  command_scheduler->addCommand( wifi );
 }
 
 int main(int argc, char* argv[])

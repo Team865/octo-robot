@@ -1,11 +1,11 @@
-#ifndef __ACTION_MANAGER_H__
-#define __ACTION_MANAGER_H__
+#ifndef __COMMAND_MANAGER_H__
+#define __COMMAND_MANAGER_H__
 
 #include <memory>     // for std::shared_ptr
 #include <vector>     // for std::vector
 #include <queue>      // for std::priority_queue
 
-#include "action_interface.h"
+#include "command_base.h"
 #include "net_interface.h"
 #include "debug_interface.h"
 #include "hardware_interface.h"
@@ -13,7 +13,7 @@
 
 namespace Command {
 
-extern const char ActionSlotIndexTag[];
+extern const char CommandSlotIndexTag[];
 
 class Scheduler: Base {
   public:
@@ -29,10 +29,10 @@ class Scheduler: Base {
 
   private:
 
-  using ActionSlotIndex = UrbanRobot::TypeSafeNumber< size_t, ActionSlotIndexTag >;
+  using CommandSlotIndex = UrbanRobot::TypeSafeNumber< size_t, CommandSlotIndexTag >;
 
 
-  using PriorityAndActionSlot = std::pair<Time::DeviceTimeUS, ActionSlotIndex >;
+  using PriorityAndCommandSlot = std::pair<Time::DeviceTimeUS, CommandSlotIndex >;
 
   std::shared_ptr<NetInterface> net;
   std::shared_ptr<HWI> hardware;
@@ -47,13 +47,13 @@ class Scheduler: Base {
   // the vector won't change during runtime.
   //
   std::priority_queue< 
-    PriorityAndActionSlot, 
-    std::vector<PriorityAndActionSlot>, 
-    std::greater<PriorityAndActionSlot> > nextActionQueue;
+    PriorityAndCommandSlot, 
+    std::vector<PriorityAndCommandSlot>, 
+    std::greater<PriorityAndCommandSlot> > nextCommandQueue;
   Time::DeviceTimeUS timeInUs;
 };
 
-} // end namespace Action
+} // end namespace Command
 
 #endif
 
