@@ -21,13 +21,16 @@
 namespace Command
 {
 
-/// @brief Main Command Wrangler Class
+/// @brief Main Processor Class
 ///
 /// Command wrangler jobs:
 /// 
 /// 1.  Sends commands to individual hardware blocks
 /// 2.  Gets responses from hardware blocks and sends them to the network
 ///
+/// TODO - change name to ProcessInput
+/// TODO - remove extra methods that are pass throughs
+/// 
 class ProcessCommand: public Base
 {
   public:
@@ -97,7 +100,7 @@ class ProcessCommand: public Base
   /// @brief Interface to Motor A
   std::shared_ptr<Command::Motor> motorA;
 };
-}; // end namespace action
+}; // end namespace Command
 
 #endif
 

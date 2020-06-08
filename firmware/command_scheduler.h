@@ -15,6 +15,8 @@ namespace Command {
 
 extern const char CommandSlotIndexTag[];
 
+// TODO - document
+
 class Scheduler: Base {
   public:
 

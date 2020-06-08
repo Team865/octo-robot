@@ -7,6 +7,12 @@ namespace Time
 {
 /// @brief A unit of time measured in ms since the device started.
 
+///
+/// TODO - change times to unsigned int, especially millisecond times.
+/// Fun fact, a 32 bit signed millisecond variable will overflow every
+/// 24 days.  a 32 bit microsecond variable will overflow every in 35
+/// minutes (signed) or 70 minutes (unsigned).
+///
 extern const char deviceTimeMSTag[];
 using DeviceTimeMS = UrbanRobot::TypeSafeNumber< unsigned int, deviceTimeMSTag >;
 
@@ -22,10 +28,22 @@ using DeviceTimeUS = UrbanRobot::TypeSafeNumber< unsigned long long, deviceTimeU
 extern const char timeUSTag[];
 using TimeUS = UrbanRobot::TypeSafeNumber< unsigned long long, timeUSTag>;
 
+// TODO - If First Robots has a similar concept, adopt their naming scheme
 class Interface {
   public:
 
+  // TODO - should probably remove this.  On the ESP8266 it works if the
+  // device is hooked up to the internet, can can't see any reason why the
+  // robot needs to know what the real time is.  It's a left over from
+  // other project.
+  //
   virtual RealTimeS     secondsSince1970() = 0;
+
+  //
+  // @brief Get the number of milliseconds since the device was turned on
+  // 
+  // @return Time "on" time in milliseconds
+  // 
   virtual DeviceTimeMS  msSinceDeviceStart() = 0;
 };
 
