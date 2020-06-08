@@ -79,14 +79,14 @@ Time::TimeUS Motor::execute()
 
   // 1. Figure out if we're turning the motor on or off.
   //
-  const bool shouldTurnMotorOn= counter & 1;
+  const bool shouldTurnMotorOn= ( counter & 1 ) == 1;
 
   // 2. Figure out the pulse duration.  This is a function of speed
   //
   const unsigned int percentOfPeriodForCurrentState= 
-      shouldTurnMotorOn ?  speedAsPercent : (100 - speedAsPercent );
+      shouldTurnMotorOn ? speedAsPercent : (100 - speedAsPercent );
   const Time::TimeUS pulseDuration= 
-      Time::TimeUS( periodInMS * Time::USPerMs * speedAsPercent / 100 ); 
+      Time::TimeUS( periodInMS * Time::USPerMs * percentOfPeriodForCurrentState / 100 ); 
 
   // 3. Early exit if we're spending no time in the current state
   // 
