@@ -122,8 +122,8 @@ Time::TimeUS ProcessCommand::stateAcceptCommands()
     return Time::TimeUS(0);
   }
 
-  // 50 possible updates per second.
-  return Time::TimeUS( 20* Time::USPerMs );
+  // 50 possible updates per second ( 20 ms )
+  return Time::TimeMS( 1000 / 50 );
 }
 
 Time::TimeUS ProcessCommand::stateError()

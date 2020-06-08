@@ -26,7 +26,19 @@ struct deviceTimeUSTag{};
 using DeviceTimeUS = UrbanRobot::TypeSafeNumber< unsigned long long, deviceTimeUSTag>;
 
 struct timeUSTag{};
-using TimeUS = UrbanRobot::TypeSafeNumber< unsigned long long, timeUSTag>;
+using TimeUSRaw = UrbanRobot::TypeSafeNumber< unsigned long long, timeUSTag>;
+
+// Proof of concept - wraps a typesafe int class and adds conversions
+class TimeUS: public TimeUSRaw {
+  public:
+  // Pass through constructors
+  explicit TimeUS( TimeUSRaw::BaseNumber num ) : TimeUSRaw{ num } {}
+  TimeUS() = default;
+  TimeUS( const TimeUSRaw& rhs ) : TimeUSRaw{ rhs } {};
+
+  // New conversion constructors
+  TimeUS( const TimeMS& rhs ) : TimeUSRaw{ rhs.get() * 1000 } {}
+};
 
 // TODO - If First Robots has a similar concept, adopt their naming scheme
 class Interface {
