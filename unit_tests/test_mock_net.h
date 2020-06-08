@@ -161,7 +161,7 @@ class NetMockSimpleTimed: public NetInterface
   }
 
   const char* debugName() override { return "NetMockSimpleTimed"; }
-  Time::TimeUS periodic() override {
+  Time::TimeUS execute() override {
     return Time::TimeUS( 5 * Time::USPerS );
   }
 

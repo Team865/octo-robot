@@ -36,7 +36,7 @@ class NetConnection {
 ///
 /// TODO - make it an action?
 ///
-class NetInterface: public Action::Interface {
+class NetInterface: public Command::Base {
   public:
 
   struct category : public beefocus_tag {};

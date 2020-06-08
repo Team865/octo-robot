@@ -18,7 +18,7 @@
 
 #include "action_interface.h"
 
-namespace Action
+namespace Command
 {
 
 /// @brief Main Command Wrangler Class
@@ -28,7 +28,7 @@ namespace Action
 /// 1.  Sends commands to individual hardware blocks
 /// 2.  Gets responses from hardware blocks and sends them to the network
 ///
-class ProcessCommand: public Interface
+class ProcessCommand: public Base
 {
   public:
  
@@ -45,7 +45,7 @@ class ProcessCommand: public Interface
 		std::shared_ptr<HWI> hardwareArg,
 		std::shared_ptr<DebugInterface> debugArg,
 		std::shared_ptr<Time::Interface> timeArg,
-		std::shared_ptr<Action::Motor> motorArg
+		std::shared_ptr<Command::Motor> motorArg
 	);
 
   ///
@@ -54,7 +54,7 @@ class ProcessCommand: public Interface
   /// @return The amount of time the caller should wait (in microseconds)
   ///         before calling loop again.
   ///
-  Time::TimeUS periodic() override final;
+  Time::TimeUS execute() override final;
 
   virtual const char* debugName() override final { return "ProcessCommand"; } 
   private:
@@ -62,7 +62,7 @@ class ProcessCommand: public Interface
 #ifdef GTEST_FOUND
   // So we can unit test the consistency of the class's constant - static 
   // data without exposing it to everybody
-  FRIEND_TEST(ACTION_PROCESS_COMMAND, allCommandsHaveImplementations);
+  FRIEND_TEST(COMMAND_PROCESS_COMMAND, allCommandsHaveImplementations);
 #endif
 
   static const std::unordered_map<CommandParser::Command,
@@ -95,7 +95,7 @@ class ProcessCommand: public Interface
   std::shared_ptr<Time::Interface> timeMgr;
   
   /// @brief Interface to Motor A
-  std::shared_ptr<Action::Motor> motorA;
+  std::shared_ptr<Command::Motor> motorA;
 };
 }; // end namespace action
 

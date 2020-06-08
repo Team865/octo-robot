@@ -1,8 +1,8 @@
 #include "action_manager.h"
 
-namespace Action {
+namespace Command {
 
-Manager::Manager(
+Scheduler::Scheduler(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg ) :
@@ -13,23 +13,23 @@ Manager::Manager(
 {
 }
 
-void Manager::addAction( std::shared_ptr< Interface > interface )
+void Scheduler::addCommand( std::shared_ptr< Command::Base > interface )
 {
-  (*net) << "Action " << interface->debugName() << " added\n";
+  (*net) << "Command " << interface->debugName() << " added\n";
   size_t slot = actions.size();
   actions.push_back( interface );
   nextActionQueue.push( PriorityAndActionSlot( timeInUs, ActionSlotIndex( slot )));
 }
 
 //
-// 1. Pop the next action to be executed from the priority queue
+// 1. Pop the next command to be executed from the priority queue
 // 2. Update manager time (caller was responsible for doing the actual delay )
 // 3. Run the Action
-// 4. Figure out the next time the action should be run
-// 5. Add the action back into the queue, at the new time
-// 6. Figure out when the next action will be run & return the value
+// 4. Figure out the next time the command should be run
+// 5. Add the command back into the queue, at the new time
+// 6. Figure out when the next command will be run & return the value
 //
-Time::TimeUS Manager::periodic() 
+Time::TimeUS Scheduler::execute() 
 {
   // 1. Pop the next action to be executed from the priority queue
   PriorityAndActionSlot current = nextActionQueue.top();
@@ -40,7 +40,7 @@ Time::TimeUS Manager::periodic()
 
   // 3. Run the Action
   ActionSlotIndex index = current.second;
-  Time::TimeUS actionDelayRequestUs = actions.at( index.get() )->periodic();
+  Time::TimeUS actionDelayRequestUs = actions.at( index.get() )->execute();
 
   // 4. Figure out the next time the action should be run
   Time::DeviceTimeUS rescheduleAt = timeInUs + actionDelayRequestUs;

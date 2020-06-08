@@ -11,21 +11,21 @@
 #include "hardware_interface.h"
 #include "time_interface.h"
 
-namespace Action {
+namespace Command {
 
 extern const char ActionSlotIndexTag[];
 
-class Manager : Interface {
+class Scheduler: Base {
   public:
 
-  Manager(
+  Scheduler(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg );
 
-  void addAction( std::shared_ptr< Interface > interface );
-  virtual Time::TimeUS periodic() override final;
-  virtual const char* debugName() override { return "ActionManager"; }
+  void addCommand( std::shared_ptr< Base > interface );
+  virtual Time::TimeUS execute() override final;
+  virtual const char* debugName() override { return "CommandScheduler"; }
 
   private:
 
@@ -38,7 +38,7 @@ class Manager : Interface {
   std::shared_ptr<HWI> hardware;
   std::shared_ptr<DebugInterface> debug;
 
-  std::vector< std::shared_ptr< Interface >> actions;
+  std::vector< std::shared_ptr< Base >> actions;
 
   //
   // keep the actions in "next action to run" order.  probably safe from

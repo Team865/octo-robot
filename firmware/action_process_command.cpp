@@ -13,14 +13,14 @@
 //
 /////////////////////////////////////////////////////////////////////////
 
-namespace Action {
+namespace Command {
 
 ProcessCommand::ProcessCommand(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg,
     std::shared_ptr<Time::Interface> timeArg,
-    std::shared_ptr<Action::Motor> motorAArg
+    std::shared_ptr<Command::Motor> motorAArg
 ) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, timeMgr{ timeArg }, motorA{ motorAArg }
 {
   DebugInterface& dlog = *debugLog;
@@ -31,7 +31,7 @@ ProcessCommand::ProcessCommand(
   log << "Urban-Octo-Robot is accepting commands\n";
 }
 
-Time::TimeUS ProcessCommand::periodic()
+Time::TimeUS ProcessCommand::execute()
 {
   const Time::TimeUS uSecToNextCall = ProcessCommand::stateAcceptCommands();
   net->flush();

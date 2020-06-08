@@ -7,7 +7,7 @@
 
 namespace Time {
 
-class Manager: public Interface, public Action::Interface {
+class Manager: public Interface, public Command::Base {
   public:
 
   /// Query time every 8 hours.
@@ -20,7 +20,7 @@ class Manager: public Interface, public Action::Interface {
 
   virtual Time::RealTimeS secondsSince1970() override final;
   virtual Time::DeviceTimeMS msSinceDeviceStart() override final;
-  virtual Time::TimeUS periodic() override final;
+  virtual Time::TimeUS execute() override final;
   virtual const char* debugName() override final { return "Manager"; }
 
   private:

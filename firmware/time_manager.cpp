@@ -26,7 +26,7 @@ DeviceTimeMS Manager::msSinceDeviceStart()
   return baseInterface->msSinceDeviceStart();
 }
 
-Time::TimeUS Manager::periodic()
+Time::TimeUS Manager::execute()
 {
   DeviceTimeMS msSinceDevStart = baseInterface->msSinceDeviceStart();
   baseInterfaceCheckForTimeSync( msSinceDevStart );

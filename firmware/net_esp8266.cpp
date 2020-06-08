@@ -55,7 +55,7 @@ bool WifiInterfaceEthernet::getString( std::string& string )
   });
 }
 
-Time::TimeUS WifiInterfaceEthernet::periodic()
+Time::TimeUS WifiInterfaceEthernet::execute()
 {
   handleNewConnections();
   flush();
@@ -121,6 +121,7 @@ void WifiInterfaceEthernet::reset(void)
 std::unique_ptr<NetConnection> 
 WifiInterfaceEthernet::connect( const std::string& location, unsigned int port )
 {
+  (void) location;
   // TODO - actually implement.
   std::unique_ptr<WifiConnectionEthernet> con = 
       std::unique_ptr<WifiConnectionEthernet>( new WifiConnectionEthernet );

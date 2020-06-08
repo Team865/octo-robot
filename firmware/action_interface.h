@@ -3,12 +3,12 @@
 
 #include "time_interface.h"
 
-namespace Action {
+namespace Command {
 
-class Interface {
+class Base {
   public:
 
-  virtual Time::TimeUS periodic() = 0;
+  virtual Time::TimeUS execute() = 0;
   virtual const char* debugName() = 0;
 
 };

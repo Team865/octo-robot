@@ -1,7 +1,7 @@
 #include "action_motor.h"
 #include "wifi_debug_ostream.h"
 
-namespace Action {
+namespace Command{
 
 Motor::Motor( std::shared_ptr<HWI> hwiArg, std::shared_ptr<DebugInterface> debugArg, std::shared_ptr<NetInterface> netArg, HWI::Pin pin0Arg,  HWI::Pin pin1Arg ) :
       hwi { hwiArg },
@@ -47,7 +47,7 @@ void Motor::doPulseIfChanged( Motor::Pulse pulse )
   }
 }
 
-Time::TimeUS Motor::periodic() 
+Time::TimeUS Motor::execute() 
 {
   counter = counter + 1;
 

@@ -7,14 +7,14 @@
 #include "net_interface.h"
 #include "debug_interface.h"
 
-namespace Action {
+namespace Command {
 
-class Motor: public Interface {
+class Motor: public Base {
   public:
 
   Motor( std::shared_ptr<HWI> hwiArg, std::shared_ptr<DebugInterface> debugArg, std::shared_ptr<NetInterface> netArg, HWI::Pin pin0,  HWI::Pin pin1);
 
-  virtual Time::TimeUS periodic() override;
+  virtual Time::TimeUS execute() override;
   virtual const char* debugName() override;
 
   void setSpeed( int percent );
