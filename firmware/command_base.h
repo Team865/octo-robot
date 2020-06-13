@@ -1,7 +1,7 @@
 #ifndef __COMMAND_INTERFACE_H__
 #define __COMMAND_INTERFACE_H__
 
-#include "time_interface.h"
+#include "time_types.h"
 
 namespace Command {
 
