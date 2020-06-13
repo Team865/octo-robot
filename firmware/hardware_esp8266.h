@@ -7,6 +7,9 @@ class HardwareESP8266: public HWI
 {
   public:
 
+  HardwareESP8266();
+  virtual ~HardwareESP8266() {}
+
   void     DigitalWrite( Pin pin, PinState state ) override;
   void     PinMode( Pin pin, PinIOMode state ) override;
   PinState DigitalRead( Pin pin) override;
