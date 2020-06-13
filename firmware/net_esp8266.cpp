@@ -122,6 +122,7 @@ std::unique_ptr<NetConnection>
 WifiInterfaceEthernet::connect( const std::string& location, unsigned int port )
 {
   (void) location;
+  (void) port;
   // TODO - actually implement.
   std::unique_ptr<WifiConnectionEthernet> con = 
       std::unique_ptr<WifiConnectionEthernet>( new WifiConnectionEthernet );

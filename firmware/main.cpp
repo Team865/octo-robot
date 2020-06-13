@@ -29,12 +29,20 @@ void setup() {
   auto timeNNTP  = std::make_shared<TimeESP8266>( debug );
   auto time      = std::make_shared<Time::Manager>( timeNNTP );
   auto motor = std::make_shared<Command::Motor>(
-      hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
-  auto commandProcessor= std::make_shared<Command::ProcessCommand>( wifi, hardware, debug, time, motor );
+                        hardware, debug, wifi, 
+                        HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
+  auto encoder = std::make_shared<Command::Encoder>(
+                        hardware, debug, wifi, 
+                        HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1 );
+
+  auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
+                        wifi, hardware, debug, 
+                        time, motor, encoder );
 
   command_scheduler = std::make_shared<Command::Scheduler>( wifi, hardware, debug );
   command_scheduler->addCommand( commandProcessor);
   command_scheduler->addCommand( time );
   command_scheduler->addCommand( motor );
+  command_scheduler->addCommand( encoder );
   command_scheduler->addCommand( wifi );
 }

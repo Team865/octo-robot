@@ -20,8 +20,11 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<HWI> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg,
     std::shared_ptr<Time::Interface> timeArg,
-    std::shared_ptr<Command::Motor> motorAArg
-) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, timeMgr{ timeArg }, motorA{ motorAArg }
+    std::shared_ptr<Command::Motor> motorAArg,
+    std::shared_ptr<Command::Encoder> encoderAArg
+) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, 
+    timeMgr{ timeArg }, 
+    motorA{ motorAArg }, encoderA{ encoderAArg }
 {
   DebugInterface& dlog = *debugLog;
   dlog << "Bringing up net interface\n";
@@ -63,9 +66,10 @@ const std::unordered_map<CommandParser::Command,
   void (ProcessCommand::*)( CommandParser::CommandPacket),EnumHash> 
   ProcessCommand::commandImpl = 
 {
-  { CommandParser::Command::Ping,       &ProcessCommand::doPing},
-  { CommandParser::Command::SetMotorA,  &ProcessCommand::doSetMotorA},
-  { CommandParser::Command::NoCommand,  &ProcessCommand::doError},
+  { CommandParser::Command::Ping,         &ProcessCommand::doPing},
+  { CommandParser::Command::SetMotorA,    &ProcessCommand::doSetMotorA},
+  { CommandParser::Command::GetEncoderA,  &ProcessCommand::doGetEncoderA},
+  { CommandParser::Command::NoCommand,    &ProcessCommand::doError},
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -102,7 +106,13 @@ void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
   motorA->setSpeed( cp.optionalArg );
 }
 
-
+void ProcessCommand::doGetEncoderA( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  WifiDebugOstream log( debugLog.get(), net.get() );
+  int position = encoderA->getPosition();
+  *net << "encodera " << position << "\n";
+}
 
 /////////////////////////////////////////////////////////////////////////
 //

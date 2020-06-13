@@ -3,8 +3,10 @@
 
 const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap = 
 {
-  { Pin::MOTOR0_PIN0,   14 },
-  { Pin::MOTOR0_PIN1,   4 }
+  { Pin::MOTOR0_PIN0,     14    },
+  { Pin::MOTOR0_PIN1,     4     },
+  { Pin::ENCODER0_PIN0,   12    },
+  { Pin::ENCODER0_PIN1,   13    }
 };
 
 const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {
@@ -28,8 +30,8 @@ void HardwareESP8266::PinMode( Pin pin, PinIOMode mode )
 HWI::PinState HardwareESP8266::DigitalRead( Pin pin)
 {
   int actualPin = pinMap.at( pin );
-  (void) actualPin;
-  return PinState::DUMMY_INACTIVE;
+  int actualState = digitalRead( actualPin );
+  return actualState == HIGH ? PinState::INPUT_HIGH : PinState::INPUT_LOW;
 }
 
 unsigned int HardwareESP8266::AnalogRead( Pin pin)

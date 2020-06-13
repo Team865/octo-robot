@@ -118,8 +118,8 @@ class HWISim: public HWI
   }
   PinState DigitalRead( Pin pin ) override
   {
-    std::cout << "DR " << HWI::pinNames.at(pin) << " returning HOME_INACTIVE";
-    return HWI::PinState::DUMMY_INACTIVE;
+    std::cout << "DR " << HWI::pinNames.at(pin) << " returning INPUT_LOW";
+    return HWI::PinState::INPUT_LOW;
   }
   unsigned AnalogRead( Pin pin ) override
   {
@@ -153,14 +153,21 @@ Time::TimeUS loop() {
 }
 
 void setup() {
-  auto debug     = std::make_shared<DebugInterfaceSim>();
-  auto wifi      = std::make_shared<NetInterfaceSim>( debug );
-  auto hardware  = std::make_shared<HWISim>();
-  auto timeSim   = std::make_shared<TimeInterfaceSim>();
-  auto time      = std::make_shared<Time::Manager>( timeSim );
-  auto motorSim  = std::make_shared<Command::Motor>( 
-      hardware, debug, wifi, HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
-  auto commandProcessor= std::make_shared<Command::ProcessCommand>( wifi, hardware, debug, time, motorSim  );
+  auto debug      = std::make_shared<DebugInterfaceSim>();
+  auto wifi       = std::make_shared<NetInterfaceSim>( debug );
+  auto hardware   = std::make_shared<HWISim>();
+  auto timeSim    = std::make_shared<TimeInterfaceSim>();
+  auto time       = std::make_shared<Time::Manager>( timeSim );
+  auto motorSim   = std::make_shared<Command::Motor>( 
+                          hardware, debug, wifi, 
+                          HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
+  auto encoderSim = std::make_shared<Command::Encoder>(
+                          hardware, debug, wifi, 
+                          HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1);
+ 
+  auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
+                          wifi, hardware, debug, 
+                          time, motorSim , encoderSim );
 
   command_scheduler = std::make_shared<Command::Scheduler>( wifi, hardware, debug );
   command_scheduler->addCommand( commandProcessor );

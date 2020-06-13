@@ -1,5 +1,5 @@
-#ifndef __COMMAND_WRANGER_H__
-#define __COMMAND_WRANGER_H__
+#ifndef __COMNAND_PROCESS_INPUT_H__
+#define __COMNAND_PROCESS_INPUT_H__
 
 #include <vector>
 #include <memory>
@@ -11,6 +11,7 @@
 #include "hardware_interface.h"
 #include "time_interface.h"
 #include "command_motor.h"
+#include "command_encoder.h"
 
 #ifdef GTEST_FOUND
 #include <gtest/gtest_prod.h>
@@ -48,7 +49,8 @@ class ProcessCommand: public Base
 		std::shared_ptr<HWI> hardwareArg,
 		std::shared_ptr<DebugInterface> debugArg,
 		std::shared_ptr<Time::Interface> timeArg,
-		std::shared_ptr<Command::Motor> motorArg
+		std::shared_ptr<Command::Motor> motorAArg,
+		std::shared_ptr<Command::Encoder> encoderAArg 
 	);
 
   ///
@@ -90,6 +92,7 @@ class ProcessCommand: public Base
 
   void doPing( CommandParser::CommandPacket );
   void doSetMotorA( CommandParser::CommandPacket );
+  void doGetEncoderA( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
@@ -99,6 +102,8 @@ class ProcessCommand: public Base
   
   /// @brief Interface to Motor A
   std::shared_ptr<Command::Motor> motorA;
+  /// @brief Interface to Encoder A
+  std::shared_ptr<Command::Encoder> encoderA;
 };
 }; // end namespace Command
 

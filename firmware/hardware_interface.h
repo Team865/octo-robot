@@ -25,6 +25,8 @@ class HWI
     START_OF_PINS = 0,
     MOTOR0_PIN0 = 0,
     MOTOR0_PIN1,
+    ENCODER0_PIN0,
+    ENCODER0_PIN1,
     END_OF_PINS 
   };
 
@@ -32,7 +34,8 @@ class HWI
     START_OF_PIN_STATES = 0,
     MOTOR_POS = 0,    // Apply voltage to pin
     MOTOR_NEG,        // Don't apply voltage
-    DUMMY_INACTIVE,   // Dummy state for unit testing
+    INPUT_LOW,        // Some input is 0            
+    INPUT_HIGH,       // Some input is 1
     END_OF_PIN_STATES
   };
 
