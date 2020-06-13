@@ -79,11 +79,6 @@ Time::RealTimeS TimeESP8266::secondsSince1970()
   return Time::RealTimeS( secsSince1970 );
 }
 
-Time::DeviceTimeMS TimeESP8266::msSinceDeviceStart() 
-{
-  return Time::DeviceTimeMS( millis() );
-}
-
 TimeESP8266::TimeESP8266( std::shared_ptr<DebugInterface> debugArg ) :
   debug{ debugArg } 
 {

@@ -31,6 +31,8 @@ const std::vector<CommandTemplate> commandTemplates =
   { "ping",       Command::Ping,          HasArg::No   },
   { "motora",     Command::SetMotorA,     HasArg::Yes  },
   { "encodera",   Command::GetEncoderA,   HasArg::No   },
+  { "timems",     Command::GetTimeMs,     HasArg::No   },
+  { "timeus",     Command::GetTimeUs,     HasArg::No   },
 }; 
 
 /// @brief Process an integer argument

@@ -15,20 +15,15 @@ void Manager::baseInterfaceCheckForTimeSync( DeviceTimeMS msSinceDevStart )
 
 RealTimeS Manager::secondsSince1970()
 {
-  DeviceTimeMS msSinceDevStart = baseInterface->msSinceDeviceStart();
+  DeviceTimeMS msSinceDevStart = hst->msSinceDeviceStart();
   baseInterfaceCheckForTimeSync( msSinceDevStart );
 
   return queryTime + ( msSinceDevStart - timeQueriedAt ) / 1000;
 }
 
-DeviceTimeMS Manager::msSinceDeviceStart()
-{
-  return baseInterface->msSinceDeviceStart();
-}
-
 Time::TimeUS Manager::execute()
 {
-  DeviceTimeMS msSinceDevStart = baseInterface->msSinceDeviceStart();
+  DeviceTimeMS msSinceDevStart = hst->msSinceDeviceStart();
   baseInterfaceCheckForTimeSync( msSinceDevStart );
   return Time::TimeUS( 5 * Time::USPerS ); 
 }

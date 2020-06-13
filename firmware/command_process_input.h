@@ -10,6 +10,7 @@
 #include "net_interface.h"
 #include "hardware_interface.h"
 #include "time_interface.h"
+#include "time_hst.h"
 #include "command_motor.h"
 #include "command_encoder.h"
 
@@ -42,7 +43,9 @@ class ProcessCommand: public Base
   /// @param[in] hardwareArg  - Interface to the Hardware
   /// @param[in] debugArg     - Interface to the debug logger.
   /// @param[in] timeArg      - A simple time interfaced
-  /// @param[in] motorArg     - The class that controls "motor a"
+  /// @param[in] motorAArg    - The class that controls "motor a"
+  /// @param[in] encoderAArg  - The encoder for "motor a"
+  /// @param[in] hstArg       - Interface for the High Speed Timer
   ///
   ProcessCommand( 
 		std::shared_ptr<NetInterface> netArg,
@@ -50,7 +53,8 @@ class ProcessCommand: public Base
 		std::shared_ptr<DebugInterface> debugArg,
 		std::shared_ptr<Time::Interface> timeArg,
 		std::shared_ptr<Command::Motor> motorAArg,
-		std::shared_ptr<Command::Encoder> encoderAArg 
+		std::shared_ptr<Command::Encoder> encoderAArg,
+		std::shared_ptr<Time::HST> hstArg 
 	);
 
   ///
@@ -93,6 +97,8 @@ class ProcessCommand: public Base
   void doPing( CommandParser::CommandPacket );
   void doSetMotorA( CommandParser::CommandPacket );
   void doGetEncoderA( CommandParser::CommandPacket );
+  void doGetTimeMs( CommandParser::CommandPacket );
+  void doGetTimeUs( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
@@ -104,6 +110,8 @@ class ProcessCommand: public Base
   std::shared_ptr<Command::Motor> motorA;
   /// @brief Interface to Encoder A
   std::shared_ptr<Command::Encoder> encoderA;
+  /// @brief Interface to the high speed timer
+  std::shared_ptr<Time::HST> hst;
 };
 }; // end namespace Command
 

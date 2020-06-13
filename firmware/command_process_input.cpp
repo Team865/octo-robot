@@ -21,10 +21,12 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<DebugInterface> debugArg,
     std::shared_ptr<Time::Interface> timeArg,
     std::shared_ptr<Command::Motor> motorAArg,
-    std::shared_ptr<Command::Encoder> encoderAArg
+    std::shared_ptr<Command::Encoder> encoderAArg,
+    std::shared_ptr<Time::HST> hstArg 
 ) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, 
     timeMgr{ timeArg }, 
-    motorA{ motorAArg }, encoderA{ encoderAArg }
+    motorA{ motorAArg }, encoderA{ encoderAArg },
+    hst{ hstArg }
 {
   DebugInterface& dlog = *debugLog;
   dlog << "Bringing up net interface\n";
@@ -69,6 +71,8 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::Ping,         &ProcessCommand::doPing},
   { CommandParser::Command::SetMotorA,    &ProcessCommand::doSetMotorA},
   { CommandParser::Command::GetEncoderA,  &ProcessCommand::doGetEncoderA},
+  { CommandParser::Command::GetTimeMs,    &ProcessCommand::doGetTimeMs},
+  { CommandParser::Command::GetTimeUs,    &ProcessCommand::doGetTimeUs},
   { CommandParser::Command::NoCommand,    &ProcessCommand::doError},
 };
 
@@ -113,6 +117,19 @@ void ProcessCommand::doGetEncoderA( CommandParser::CommandPacket cp )
   int position = encoderA->getPosition();
   *net << "encodera " << position << "\n";
 }
+
+void ProcessCommand::doGetTimeMs( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  *net << "mstimer " << hst->msSinceDeviceStart().get() << "\n";
+}
+
+void ProcessCommand::doGetTimeUs( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  *net << "mstimer " << hst->msSinceDeviceStart().get()*1000 << "\n";
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 //

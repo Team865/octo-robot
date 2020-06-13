@@ -16,6 +16,8 @@ namespace CommandParser {
     Ping            = 0,  ///<  Send a pong
     SetMotorA,            ///<  Set motor A to a value
     GetEncoderA,          ///<  Get the current encoder A value
+    GetTimeMs,            ///<  Get ms since device start
+    GetTimeUs,            ///<  Get us since device start
     NoCommand,            ///<  No command was specified.
     EndOfCommands         ///<  End of the comand list.
   };

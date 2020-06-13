@@ -50,13 +50,6 @@ class Interface {
   // other project.
   //
   virtual RealTimeS     secondsSince1970() = 0;
-
-  //
-  // @brief Get the number of milliseconds since the device was turned on
-  // 
-  // @return Time "on" time in milliseconds
-  // 
-  virtual DeviceTimeMS  msSinceDeviceStart() = 0;
 };
 
 inline TimeMS UStoMS( TimeUS in ) { return TimeMS( in.get() / 1000 ); }

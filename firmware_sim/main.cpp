@@ -11,6 +11,7 @@
 #include "hardware_interface.h"
 #include "time_interface.h"
 #include "time_manager.h"
+#include "time_hst.h"
 
 std::shared_ptr<Command::Scheduler> command_scheduler;
 
@@ -21,13 +22,37 @@ class TimeInterfaceSim: public Time::Interface {
     return Time::RealTimeS(time(nullptr));
   } 
 
+};
+
+class SimTimeHST: public Time::HST 
+{
+  public:
+  SimTimeHST() 
+  {
+    startTime = Time::DeviceTimeMS(0);
+    startTime = msSinceDeviceStart();    // side effects.
+  }
+
   Time::DeviceTimeMS msSinceDeviceStart() override {
     timespec t;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t );
+    clock_gettime(CLOCK_MONOTONIC, &t );
     const unsigned int msFromS  = t.tv_sec * 1000;
     const unsigned int msFromNs = t.tv_nsec / 1000000;
-    return Time::DeviceTimeMS( msFromS + msFromNs ); 
+    return Time::DeviceTimeMS( msFromS + msFromNs - startTime.get() ); 
   }
+
+  virtual Time::TimeUS execute() override final
+  {
+    return Time::TimeUS( 1000000 );
+  }
+
+  const char* debugName() override final {
+    return "Sim High Speed Timer";
+  }
+
+  private:
+
+  Time::DeviceTimeMS startTime;
 };
 
 class NetConnectionSim: public NetConnection {
@@ -157,7 +182,8 @@ void setup() {
   auto wifi       = std::make_shared<NetInterfaceSim>( debug );
   auto hardware   = std::make_shared<HWISim>();
   auto timeSim    = std::make_shared<TimeInterfaceSim>();
-  auto time       = std::make_shared<Time::Manager>( timeSim );
+  auto hst        = std::make_shared<SimTimeHST>();
+  auto time       = std::make_shared<Time::Manager>( timeSim, hst );
   auto motorSim   = std::make_shared<Command::Motor>( 
                           hardware, debug, wifi, 
                           HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
@@ -167,11 +193,13 @@ void setup() {
  
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                           wifi, hardware, debug, 
-                          time, motorSim , encoderSim );
+                          time, motorSim , encoderSim,
+                          hst );
 
   command_scheduler = std::make_shared<Command::Scheduler>( wifi, hardware, debug );
   command_scheduler->addCommand( commandProcessor );
   command_scheduler->addCommand( time );
+  command_scheduler->addCommand( hst );
   command_scheduler->addCommand( motorSim );
   command_scheduler->addCommand( wifi );
 }
