@@ -11,9 +11,18 @@ namespace Time
   class ESP8266_HST: public HST {
     public:
 
+    ESP8266_HST();
+    ~ESP8266_HST() {}
+
     virtual Time::DeviceTimeMS msSinceDeviceStart() override final;
+    virtual Time::DeviceTimeUS usSinceDeviceStart() override final;
     virtual Time::TimeUS execute() override final;
     virtual const char* debugName() override final;
+
+    private:
+      Time::DeviceTimeUS currentTime;
+      unsigned int baseHardwareTime;
+      unsigned int baseHardwareTimeMS;
   };
 }
 

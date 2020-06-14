@@ -106,7 +106,24 @@ T& operator<<( T& sink, int i )
 
   sink << (unsigned int) i;
   return sink;
-}  
+}
+
+template<class T,
+  typename = my_enable_if_t<is_beefocus_sink<T>::value>>
+T& operator<<( T& sink, unsigned long long i )
+{
+  // Handle digits that aren't the lowest digit (if any)
+  if ( i >= 10 )
+  {
+    sink << i/10;
+  }
+
+  // Handle the lowest digit
+  char c = '0' + (i % 10);
+  sink.write( &c, 1 );
+
+  return sink;
+}
 
 /// @brief Output an std::string
 template<class T, 

@@ -127,7 +127,7 @@ void ProcessCommand::doGetTimeMs( CommandParser::CommandPacket cp )
 void ProcessCommand::doGetTimeUs( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  *net << "mstimer " << hst->msSinceDeviceStart().get()*1000 << "\n";
+  *net << "ustimer " << hst->usSinceDeviceStart().get() << "\n";
 }
 
 

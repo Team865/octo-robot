@@ -31,14 +31,26 @@ class SimTimeHST: public Time::HST
   {
     startTime = Time::DeviceTimeMS(0);
     startTime = msSinceDeviceStart();    // side effects.
+    startTimeUs = Time::DeviceTimeUS(0);
+    startTimeUs = usSinceDeviceStart();    // side effects.
   }
 
-  Time::DeviceTimeMS msSinceDeviceStart() override {
+  Time::DeviceTimeMS msSinceDeviceStart() override 
+  {
     timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t );
     const unsigned int msFromS  = t.tv_sec * 1000;
     const unsigned int msFromNs = t.tv_nsec / 1000000;
     return Time::DeviceTimeMS( msFromS + msFromNs - startTime.get() ); 
+  }
+
+  Time::DeviceTimeUS usSinceDeviceStart() override 
+  {
+    timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t );
+    const unsigned long int usFromS  = t.tv_sec * 1000000;
+    const unsigned long int usFromNs = t.tv_nsec / 1000;
+    return Time::DeviceTimeUS( usFromS + usFromNs - startTimeUs.get() ); 
   }
 
   virtual Time::TimeUS execute() override final
@@ -53,6 +65,7 @@ class SimTimeHST: public Time::HST
   private:
 
   Time::DeviceTimeMS startTime;
+  Time::DeviceTimeUS startTimeUs;
 };
 
 class NetConnectionSim: public NetConnection {
