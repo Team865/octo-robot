@@ -10,6 +10,13 @@ Profile::Profile( const std::string& binNameArg )
   std::fill( samples.begin(), samples.end(), 0 );
 }
 
+void Profile::reset()
+{
+  currentScale = 1;
+  maxTime = Time::TimeUS{numBins};
+  std::fill( samples.begin(), samples.end(), 0 );
+}
+
 void Profile::addSample( Time::TimeUS sample )
 {
   while ( sample > maxTime ) {

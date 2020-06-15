@@ -102,6 +102,7 @@ class ProcessCommand: public Base
   void doGetTimeMs( CommandParser::CommandPacket );
   void doGetTimeUs( CommandParser::CommandPacket );
   void doProfile( CommandParser::CommandPacket );
+  void doRProfile( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;

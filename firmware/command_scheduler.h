@@ -33,6 +33,7 @@ class Scheduler: Base {
   virtual const char* debugName() override { return "CommandScheduler"; }
 
   void dumpProfile() const;
+  void resetProfile();
 
   private:
 

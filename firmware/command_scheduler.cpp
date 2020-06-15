@@ -77,6 +77,15 @@ void Scheduler::dumpProfile() const
   }
 }
 
+void Scheduler::resetProfile()
+{
+  for ( auto& action: actions ) 
+  {
+    Util::Profile& profile = action.second;
+    profile.reset();
+  }
+}
+
 
 } // end Command namespace
 

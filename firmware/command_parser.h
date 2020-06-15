@@ -19,6 +19,7 @@ namespace CommandParser {
     GetTimeMs,            ///<  Get ms since device start
     GetTimeUs,            ///<  Get us since device start
     Profile,              ///<  Dump profiling data to net
+    RProfile,             ///<  Reset profiling data
     NoCommand,            ///<  No command was specified.
     EndOfCommands         ///<  End of the comand list.
   };

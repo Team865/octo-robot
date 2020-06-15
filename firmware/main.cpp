@@ -46,7 +46,7 @@ void setup() {
                         scheduler );
 
   scheduler->addCommand( commandProcessor);
-  scheduler->addCommand( time );
+  //scheduler->addCommand( time );
   scheduler->addCommand( motor );
   scheduler->addCommand( encoder );
   scheduler->addCommand( wifi );

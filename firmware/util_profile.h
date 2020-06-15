@@ -21,6 +21,7 @@ class Profile
   void addSample( Time::TimeUS sample );
   void reportHistogram( NetInterface& net ) const;
   void reportOneLiner( NetInterface& net ) const;
+  void reset();
 
   private:
 

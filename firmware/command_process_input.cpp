@@ -77,6 +77,7 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::GetTimeMs,    &ProcessCommand::doGetTimeMs},
   { CommandParser::Command::GetTimeUs,    &ProcessCommand::doGetTimeUs},
   { CommandParser::Command::Profile,      &ProcessCommand::doProfile},
+  { CommandParser::Command::RProfile,     &ProcessCommand::doRProfile},
   { CommandParser::Command::NoCommand,    &ProcessCommand::doError},
 };
 
@@ -138,6 +139,12 @@ void ProcessCommand::doProfile( CommandParser::CommandPacket cp )
 {
   (void) cp;
   scheduler->dumpProfile();
+}
+
+void ProcessCommand::doRProfile( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  scheduler->resetProfile();
 }
 
 /////////////////////////////////////////////////////////////////////////
