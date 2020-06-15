@@ -85,7 +85,7 @@ class WifiInterfaceEthernet: public NetInterface {
   Time::TimeUS execute() override;
   const char* debugName() override
   {
-    return "WifiInterfaceEthernet";
+    return "Wifi Service";
   }
   std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port );
   

@@ -9,7 +9,7 @@
 
 namespace WifiSecrets {
   // your SSID. Do not check in :)
-	constexpr const char* hostname = "beefocuser";	     
+	constexpr const char* hostname = "urban-octo";	     
   // your SSID. Do not check in :)
 	constexpr const char* ssid     = "yourssid";	     
   // your Passwoord. Do not check in :)

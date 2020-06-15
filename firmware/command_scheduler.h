@@ -11,6 +11,7 @@
 #include "net_interface.h"
 #include "time_interface.h"
 #include "util_profile.h"
+#include "time_hst.h"
 
 namespace Command {
 
@@ -24,7 +25,8 @@ class Scheduler: Base {
   Scheduler(
     std::shared_ptr<NetInterface> netArg,
     std::shared_ptr<HWI> hardwareArg,
-    std::shared_ptr<DebugInterface> debugArg );
+    std::shared_ptr<DebugInterface> debugArg,
+    std::shared_ptr<Time::HST> hstArg );
 
   void addCommand( std::shared_ptr< Base > interface );
   virtual Time::TimeUS execute() override final;
@@ -43,6 +45,7 @@ class Scheduler: Base {
   std::shared_ptr<NetInterface> net;
   std::shared_ptr<HWI> hardware;
   std::shared_ptr<DebugInterface> debug;
+  std::shared_ptr<Time::HST > hst;
 
   std::vector< ActionRecord > actions;
 

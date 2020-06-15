@@ -27,10 +27,10 @@ void setup() {
   auto debug     = std::make_shared<DebugESP8266>();
   auto wifi      = std::make_shared<WifiInterfaceEthernet>(debug);
   auto hardware  = std::make_shared<HardwareESP8266>();
-  scheduler      = std::make_shared<Command::Scheduler>( 
-                        wifi, hardware, debug );
-  auto timeNNTP  = std::make_shared<TimeESP8266>( debug );
   auto hst       = std::make_shared<Time::ESP8266_HST>();
+  scheduler      = std::make_shared<Command::Scheduler>( 
+                        wifi, hardware, debug, hst );
+  auto timeNNTP  = std::make_shared<TimeESP8266>( debug );
   auto time      = std::make_shared<Time::Manager>( timeNNTP, hst );
   auto motor = std::make_shared<Command::Motor>(
                         hardware, debug, wifi, 

@@ -53,7 +53,7 @@ namespace Time {
 
   const char* ESP8266_HST::debugName() 
   {
-    return "ESP8266 High Speed Timer";
+    return "ESP8266 HST";
   }
 
 

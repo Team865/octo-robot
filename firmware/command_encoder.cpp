@@ -146,11 +146,11 @@ Time::TimeUS Encoder::execute()
   // Duration Query...
   //
   // How fast can we run this?
-  // 
-  // Let's say we want to use a maximum of 4% of the CPU budget servicing this
-  // 
-  // - The ESP8266 clock runs at 80Mhz, so we have 3.2 million cycles
-  // - Let's say each execute call is 500 cycls.  That's 6400 updates / sec
+  //
+  // - Most calls to the encoder finish up in 11us.  The processor runs at
+  //   80Mhz, so each call is taking about 880 clock cycles.  That's not
+  //   great, but not terrible. 
+  // - A 156us delay is 7% of the CPU budget & 6400 updates / sec
   // - Assume that means we can deal with 6400 encoder state changes / sec
   // - The encoder has 80 states, so that's 80 rotations / sec
   // - If we gear the encode down 5x from the wheel, 16 wheel rotations / sec
