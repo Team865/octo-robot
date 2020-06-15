@@ -31,7 +31,7 @@ void Profile::compress()
   maxTime = maxTime * 2;
 }
 
-void Profile::reportHistogram( NetInterface& net )
+void Profile::reportHistogram( NetInterface& net ) const
 {
   net << "Histogram for " << binName << "\n";
   size_t max=-1;
@@ -69,7 +69,7 @@ void Profile::reportHistogram( NetInterface& net )
   }
 }
 
-void Profile::reportOneLiner( NetInterface& net )
+void Profile::reportOneLiner( NetInterface& net ) const
 {
   net << binName;
   int padding = 20 - binName.length();

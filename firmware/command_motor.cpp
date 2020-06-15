@@ -128,7 +128,7 @@ void Motor::setSpeed( int percent )
 //  
 const char* Motor::debugName()
 {
-  return "L298 Motor Controller";
+  return "L298 Motor Control";
 }
 
 } // End Command Namespace

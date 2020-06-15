@@ -5,6 +5,7 @@
 #include "command_parser.h"
 #include "wifi_debug_ostream.h"
 #include "command_process_input.h"
+#include "command_scheduler.h"
 #include "time_manager.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -22,11 +23,13 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<Time::Interface> timeArg,
     std::shared_ptr<Command::Motor> motorAArg,
     std::shared_ptr<Command::Encoder> encoderAArg,
-    std::shared_ptr<Time::HST> hstArg 
+    std::shared_ptr<Time::HST> hstArg,
+    std::shared_ptr<Command::Scheduler> schedulerArg
 ) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, 
     timeMgr{ timeArg }, 
     motorA{ motorAArg }, encoderA{ encoderAArg },
-    hst{ hstArg }
+    hst{ hstArg },
+    scheduler{ schedulerArg }
 {
   DebugInterface& dlog = *debugLog;
   dlog << "Bringing up net interface\n";
@@ -73,6 +76,7 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::GetEncoderA,  &ProcessCommand::doGetEncoderA},
   { CommandParser::Command::GetTimeMs,    &ProcessCommand::doGetTimeMs},
   { CommandParser::Command::GetTimeUs,    &ProcessCommand::doGetTimeUs},
+  { CommandParser::Command::Profile,      &ProcessCommand::doProfile},
   { CommandParser::Command::NoCommand,    &ProcessCommand::doError},
 };
 
@@ -130,6 +134,11 @@ void ProcessCommand::doGetTimeUs( CommandParser::CommandPacket cp )
   *net << "ustimer " << hst->usSinceDeviceStart().get() << "\n";
 }
 
+void ProcessCommand::doProfile( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  scheduler->dumpProfile();
+}
 
 /////////////////////////////////////////////////////////////////////////
 //

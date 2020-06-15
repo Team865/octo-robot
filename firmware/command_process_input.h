@@ -22,6 +22,7 @@
 
 namespace Command
 {
+  class Scheduler;
 
 /// @brief Main Processor Class
 ///
@@ -54,7 +55,8 @@ class ProcessCommand: public Base
 		std::shared_ptr<Time::Interface> timeArg,
 		std::shared_ptr<Command::Motor> motorAArg,
 		std::shared_ptr<Command::Encoder> encoderAArg,
-		std::shared_ptr<Time::HST> hstArg 
+		std::shared_ptr<Time::HST> hstArg, 
+		std::shared_ptr<Command::Scheduler > schedulerArg
 	);
 
   ///
@@ -99,6 +101,7 @@ class ProcessCommand: public Base
   void doGetEncoderA( CommandParser::CommandPacket );
   void doGetTimeMs( CommandParser::CommandPacket );
   void doGetTimeUs( CommandParser::CommandPacket );
+  void doProfile( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
@@ -112,6 +115,9 @@ class ProcessCommand: public Base
   std::shared_ptr<Command::Encoder> encoderA;
   /// @brief Interface to the high speed timer
   std::shared_ptr<Time::HST> hst;
+  /// @brief Interface to the command scheduler, for reporting
+  std::shared_ptr<Command::Scheduler > scheduler;
+ 
 };
 }; // end namespace Command
 

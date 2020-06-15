@@ -30,7 +30,7 @@ class Scheduler: Base {
   virtual Time::TimeUS execute() override final;
   virtual const char* debugName() override { return "CommandScheduler"; }
 
-  void dumpProfile();
+  void dumpProfile() const;
 
   private:
 

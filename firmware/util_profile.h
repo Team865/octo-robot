@@ -16,16 +16,17 @@ class Profile
   static constexpr size_t numBins = 100;
 
   Profile( const std::string& binNameArg );
+  Profile() = delete;
+
   void addSample( Time::TimeUS sample );
-  void reportHistogram( NetInterface& net );
-  void reportOneLiner( NetInterface& net );
+  void reportHistogram( NetInterface& net ) const;
+  void reportOneLiner( NetInterface& net ) const;
 
   private:
 
-  Profile() = delete;
   void compress();
   std::array< unsigned int, numBins > samples;
-  std::string binName;
+  const std::string binName;
 
   unsigned int currentScale = 1;
   Time::TimeUS maxTime = Time::TimeUS{numBins};

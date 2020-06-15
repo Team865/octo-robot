@@ -53,6 +53,16 @@ Time::TimeUS Scheduler::execute()
   return delay_to_next_action;
 }
 
+void Scheduler::dumpProfile() const
+{
+  for ( const auto& action: actions ) 
+  {
+    const Util::Profile& profile = action.second;
+    profile.reportOneLiner( *net );
+  }
+}
+
+
 } // end Command namespace
 
 

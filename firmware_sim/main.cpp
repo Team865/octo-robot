@@ -194,6 +194,9 @@ void setup() {
   auto debug      = std::make_shared<DebugInterfaceSim>();
   auto wifi       = std::make_shared<NetInterfaceSim>( debug );
   auto hardware   = std::make_shared<HWISim>();
+
+  command_scheduler = std::make_shared<Command::Scheduler>( wifi, hardware, debug );
+
   auto timeSim    = std::make_shared<TimeInterfaceSim>();
   auto hst        = std::make_shared<SimTimeHST>();
   auto time       = std::make_shared<Time::Manager>( timeSim, hst );
@@ -207,9 +210,9 @@ void setup() {
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                           wifi, hardware, debug, 
                           time, motorSim , encoderSim,
-                          hst );
+                          hst,
+                          command_scheduler );
 
-  command_scheduler = std::make_shared<Command::Scheduler>( wifi, hardware, debug );
   command_scheduler->addCommand( commandProcessor );
   command_scheduler->addCommand( time );
   command_scheduler->addCommand( hst );

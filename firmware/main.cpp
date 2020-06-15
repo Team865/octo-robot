@@ -10,10 +10,10 @@
 #include "time_manager.h"
 #include "wifi_secrets.h"
 
-std::shared_ptr<Command::Scheduler> command_scheduler;
+std::shared_ptr<Command::Scheduler> scheduler;
 
 void loop() {
-  Time::TimeUS pause = command_scheduler->execute();
+  Time::TimeUS pause = scheduler->execute();
   if ( pause != Time::TimeUS(0) )
   {
     Time::TimeMS ms = Time::UStoMS( pause );
@@ -27,6 +27,8 @@ void setup() {
   auto debug     = std::make_shared<DebugESP8266>();
   auto wifi      = std::make_shared<WifiInterfaceEthernet>(debug);
   auto hardware  = std::make_shared<HardwareESP8266>();
+  scheduler      = std::make_shared<Command::Scheduler>( 
+                        wifi, hardware, debug );
   auto timeNNTP  = std::make_shared<TimeESP8266>( debug );
   auto hst       = std::make_shared<Time::ESP8266_HST>();
   auto time      = std::make_shared<Time::Manager>( timeNNTP, hst );
@@ -40,13 +42,13 @@ void setup() {
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                         wifi, hardware, debug, 
                         time, motor, encoder,
-                        hst );
+                        hst,
+                        scheduler );
 
-  command_scheduler = std::make_shared<Command::Scheduler>( wifi, hardware, debug );
-  command_scheduler->addCommand( commandProcessor);
-  command_scheduler->addCommand( time );
-  command_scheduler->addCommand( motor );
-  command_scheduler->addCommand( encoder );
-  command_scheduler->addCommand( wifi );
-  command_scheduler->addCommand( hst );
+  scheduler->addCommand( commandProcessor);
+  scheduler->addCommand( time );
+  scheduler->addCommand( motor );
+  scheduler->addCommand( encoder );
+  scheduler->addCommand( wifi );
+  scheduler->addCommand( hst );
 }
