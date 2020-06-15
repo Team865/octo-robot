@@ -6,10 +6,11 @@
 #include <queue>      // for std::priority_queue
 
 #include "command_base.h"
-#include "net_interface.h"
 #include "debug_interface.h"
 #include "hardware_interface.h"
+#include "net_interface.h"
 #include "time_interface.h"
+#include "util_profile.h"
 
 namespace Command {
 
@@ -17,6 +18,8 @@ namespace Command {
 
 class Scheduler: Base {
   public:
+
+  using ActionRecord = std::pair< std::shared_ptr< Base >, Util::Profile >;
 
   Scheduler(
     std::shared_ptr<NetInterface> netArg,
@@ -26,6 +29,8 @@ class Scheduler: Base {
   void addCommand( std::shared_ptr< Base > interface );
   virtual Time::TimeUS execute() override final;
   virtual const char* debugName() override { return "CommandScheduler"; }
+
+  void dumpProfile();
 
   private:
 
@@ -39,7 +44,7 @@ class Scheduler: Base {
   std::shared_ptr<HWI> hardware;
   std::shared_ptr<DebugInterface> debug;
 
-  std::vector< std::shared_ptr< Base >> actions;
+  std::vector< ActionRecord > actions;
 
   //
   // keep the actions in "next action to run" order.  probably safe from

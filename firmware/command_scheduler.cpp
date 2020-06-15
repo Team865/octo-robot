@@ -17,7 +17,7 @@ void Scheduler::addCommand( std::shared_ptr< Command::Base > interface )
 {
   (*net) << "Command " << interface->debugName() << " added\n";
   size_t slot = actions.size();
-  actions.push_back( interface );
+  actions.push_back( ActionRecord{ interface, { interface->debugName() } } );
   nextCommandQueue.push( PriorityAndCommandSlot( timeInUs, CommandSlotIndex( slot )));
 }
 
@@ -40,7 +40,7 @@ Time::TimeUS Scheduler::execute()
 
   // 3. Run the Command
   CommandSlotIndex index = current.second;
-  Time::TimeUS actionDelayRequestUs = actions.at( index.get() )->execute();
+  Time::TimeUS actionDelayRequestUs = actions.at( index.get() ).first->execute();
 
   // 4. Figure out the next time the action should be run
   Time::DeviceTimeUS rescheduleAt = timeInUs + actionDelayRequestUs;

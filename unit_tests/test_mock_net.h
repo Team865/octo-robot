@@ -7,6 +7,7 @@
 
 #include "net_interface.h"
 #include "test_mock_event.h"
+#include "test_mock_hardware.h"
 
 /// @brief Dummy mock for net connectins
 ///
@@ -107,7 +108,6 @@ class NetMockSimpleTimed: public NetInterface
 
   ///
   /// @brief Get input from the net interface
-  /// @param[in]  log          - Debug Log (ignored)
   /// @param[out] returnString - A reference to the string that's populated
   ///                            if there's any input
   /// @return     true if there's input, false otherwise.

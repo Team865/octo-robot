@@ -77,6 +77,7 @@ namespace UrbanRobot
     bool operator!=( TypeSafeNumber rhs ) const { return num != rhs.num; };
     bool operator>(TypeSafeNumber rhs ) const { return num > rhs.num; };
     TypeSafeNumber& operator+=(TypeSafeNumber rhs ) { num += rhs.num; return *this; }
+    TypeSafeNumber operator*( int rhs ) const { return TypeSafeNumber( num * rhs ); }
 
     private:
       BaseNumber num;
