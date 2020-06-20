@@ -5,7 +5,7 @@
 #include "hardware_interface.h"
 #include "debug_interface.h"
 
-class NetInterface;
+class NetConnection;
 
 namespace CommandParser {
 
@@ -61,7 +61,7 @@ namespace CommandParser {
   ///
   const CommandPacket checkForCommands( 
     DebugInterface& log,				// Input: Debug Log Strem
-    NetInterface& netInterface	// Input: Network Interface
+    NetConnection& netInterface	// Input: Network Connection
   );
 
 };

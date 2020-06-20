@@ -24,6 +24,7 @@ TEST( COMMAND_PARSER, should_process_int )
   ASSERT_EQ( process_int( std::string("REL_POS=-500") , 8 ), -500 );
 }
 
+#ifdef TODO
 TEST( COMMAND_PARSER, checkForCommands)
 {
   DebugInterfaceIgnoreMock dbgmock;
@@ -40,6 +41,7 @@ TEST( COMMAND_PARSER, checkForCommands)
   NetMockSimpleTimed status2("Ping with training garbage");
   ASSERT_EQ( checkForCommands(dbgmock, status2), CommandPacket( Command::Ping));
 }
+#endif
 
 #ifdef TODO
 TEST( COMMAND_PARSER, testGot)

@@ -154,7 +154,7 @@ void ProcessCommand::doRProfile( CommandParser::CommandPacket cp )
 Time::TimeUS ProcessCommand::stateAcceptCommands()
 {
   DebugInterface& log = *debugLog;
-  auto cp = CommandParser::checkForCommands( log, *net );
+  auto cp = CommandParser::checkForCommands( log, net->get() );
 
   if ( cp.command != CommandParser::Command::NoCommand )
   {

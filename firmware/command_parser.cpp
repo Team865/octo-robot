@@ -69,16 +69,14 @@ int process_int( const std::string& string,  size_t pos )
 
 const CommandPacket checkForCommands( 
 	DebugInterface& serialLog, 
-	NetInterface& wifi  )
+	NetConnection& connection )
 {
 	CommandPacket result;
   
-  WifiDebugOstream log( &serialLog, wifi.get() );
-
   // Read the first line of the request.  
 
   static std::string command;
-  bool dataReady = wifi.get().getString( command );
+  bool dataReady = connection.getString( command );
   if ( !dataReady )
   {
     return result;
@@ -86,7 +84,7 @@ const CommandPacket checkForCommands(
 
   std::transform( command.begin(), command.end(), command.begin(), ::tolower);
 
-  log << "Got: " << command << "\n";
+  connection << "# Got: " << command << "\n";
 
   for ( const CommandTemplate& ct : commandTemplates )
   {
