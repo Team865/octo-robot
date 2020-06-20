@@ -141,7 +141,7 @@ void WifiConnectionEthernet::initConnection( WiFiServer &server )
   }
   m_connectedClient = server.available();
   m_connectedClient.setNoDelay( true );
-  (*this) << "# Cuneiform data logger is ready for commands\n"; 
+  (*this) << "# Urban Octo Robot is ready for commands\n"; 
 }
 
 bool WifiConnectionEthernet::getString( std::string& string )

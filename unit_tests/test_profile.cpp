@@ -46,7 +46,7 @@ TEST( profile_should, and_and_report_properly )
   NetMockSimpleTimed sink2;
   test.reportOneLiner( sink2 );
   TimedStringEvents goldenNet2 = {
-    { 0, "test                 50% = 23uS   90% = 95uS   max = 431uS" }
+    { 0, "test                 50% = 23uS   90% = 431uS   95% = 431uS   max = 431uS" }
   };
   ASSERT_EQ( goldenNet2, sink2.getOutput() );
 

@@ -90,8 +90,9 @@ void Profile::reportOneLiner( NetInterface& net ) const
   const unsigned numSamples = std::accumulate( samples.begin(), samples.end(), 0 );
   if ( numSamples == 0 ) { net << "No Samples\n"; return; }
  
-  const unsigned sampleMedium = numSamples * 50 / 100;
-  const unsigned sample90p    = numSamples * 90 / 100;
+  const unsigned sampleMedium = (numSamples * 50+49) / 100;
+  const unsigned sample90p    = (numSamples * 90+89) / 100;
+  const unsigned sample98p    = (numSamples * 98+97) / 100;
   const unsigned sample100p   = numSamples;
 
   auto timeBoundForSamples = [&]( unsigned int sample_target ) {
@@ -108,6 +109,7 @@ void Profile::reportOneLiner( NetInterface& net ) const
 
   net << "50% = " << timeBoundForSamples( sampleMedium ).get() << "uS   ";
   net << "90% = " << timeBoundForSamples( sample90p ).get() << "uS   ";
+  net << "98% = " << timeBoundForSamples( sample98p ).get() << "uS   ";
   net << "max = " << timeBoundForSamples( sample100p ).get() << "uS\n";
 }
 
