@@ -17,7 +17,7 @@ Scheduler::Scheduler(
 
 void Scheduler::addCommand( std::shared_ptr< Command::Base > interface )
 {
-  (*net) << "Command " << interface->debugName() << " added\n";
+  net->get() << "Command " << interface->debugName() << " added\n";
   size_t slot = actions.size();
   actions.push_back( ActionRecord{ interface, { interface->debugName() } } );
   nextCommandQueue.push( PriorityAndCommandSlot( timeInUs, CommandSlotIndex( slot )));

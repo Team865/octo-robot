@@ -40,7 +40,8 @@ void Profile::compress()
 
 void Profile::reportHistogram( NetInterface& net ) const
 {
-  net << "Histogram for " << binName << "\n";
+  auto& connection = net.get();
+  connection << "Histogram for " << binName << "\n";
   size_t max=-1;
   unsigned int num_samples=0;
 
@@ -50,7 +51,7 @@ void Profile::reportHistogram( NetInterface& net ) const
   }
 
   if ( num_samples == 0 ) {
-    net << "  No Samples\n";
+    connection << "  No Samples\n";
     return;
   }
 
@@ -70,25 +71,26 @@ void Profile::reportHistogram( NetInterface& net ) const
 
     const unsigned percent = 100 * samples_here / num_samples; 
 
-    if ( percent < 10 )  { net << " "; }
-    if ( percent < 100 ) { net << " "; }
-    net << percent << "  " << start_time << "uS " << " -> " << end_time << "uS\n";
+    if ( percent < 10 )  { connection << " "; }
+    if ( percent < 100 ) { connection << " "; }
+    connection << percent << "  " << start_time << "uS " << " -> " << end_time << "uS\n";
   }
 }
 
 void Profile::reportOneLiner( NetInterface& net ) const
 {
-  net << binName;
+  auto& connection = net.get();
+  connection << binName;
   int padding = 20 - binName.length();
   if ( padding < 0 ) padding = 0;
   for ( int i = 0; i < padding; ++i )
   {
-    net << " ";
+    connection << " ";
   }
-  net << " ";
+  connection << " ";
 
   const unsigned numSamples = std::accumulate( samples.begin(), samples.end(), 0 );
-  if ( numSamples == 0 ) { net << "No Samples\n"; return; }
+  if ( numSamples == 0 ) { connection << "No Samples\n"; return; }
  
   const unsigned sampleMedium = (numSamples * 50+49) / 100;
   const unsigned sample90p    = (numSamples * 90+89) / 100;
@@ -107,10 +109,10 @@ void Profile::reportOneLiner( NetInterface& net ) const
     return Time::TimeUS( numBins * currentScale );
   };
 
-  net << "50% = " << timeBoundForSamples( sampleMedium ).get() << "uS   ";
-  net << "90% = " << timeBoundForSamples( sample90p ).get() << "uS   ";
-  net << "98% = " << timeBoundForSamples( sample98p ).get() << "uS   ";
-  net << "max = " << timeBoundForSamples( sample100p ).get() << "uS\n";
+  connection << "50% = " << timeBoundForSamples( sampleMedium ).get() << "uS   ";
+  connection << "90% = " << timeBoundForSamples( sample90p ).get() << "uS   ";
+  connection << "98% = " << timeBoundForSamples( sample98p ).get() << "uS   ";
+  connection << "max = " << timeBoundForSamples( sample100p ).get() << "uS\n";
 }
 
 

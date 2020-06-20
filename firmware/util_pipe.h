@@ -2,6 +2,7 @@
 #define __UTIL_PIPE__
 
 #include <assert.h>
+#include <functional>
 
 namespace Util {
 

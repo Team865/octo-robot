@@ -73,12 +73,12 @@ const CommandPacket checkForCommands(
 {
 	CommandPacket result;
   
-  WifiDebugOstream log( &serialLog, &wifi );
+  WifiDebugOstream log( &serialLog, wifi.get() );
 
   // Read the first line of the request.  
 
   static std::string command;
-  bool dataReady = wifi.getString( command );
+  bool dataReady = wifi.get().getString( command );
   if ( !dataReady )
   {
     return result;
@@ -97,9 +97,11 @@ const CommandPacket checkForCommands(
       {
         result.optionalArg =  process_int( command,  ct.inputCommand.length()+1  );
       } 
+      command = "";
       return result;
     }
   } 
+  command = "";
   return result;
 
 }

@@ -27,15 +27,15 @@ class NetMockSimpleConnection: public NetConnection
   void reset(void ) 
   {
   }
-  std::streamsize write( const char_type* s, std::streamsize n )
-  {
-    return n;
-  }
   void flush()
   {
   }
-};
 
+  Time::TimeUS execute() override {
+    return Time::TimeUS( 5 * Time::USPerS );
+  }
+
+}; 
 ///
 /// @brief Testing Mock for network events
 /// 
@@ -106,6 +106,8 @@ class NetMockSimpleTimed: public NetInterface
   NetMockSimpleTimed( const HWMockTimed& ) = delete;
   NetMockSimpleTimed& operator=( const NetMockSimpleTimed& ) = delete;
 
+
+#ifdef GONE
   ///
   /// @brief Get input from the net interface
   /// @param[out] returnString - A reference to the string that's populated
@@ -159,12 +161,11 @@ class NetMockSimpleTimed: public NetInterface
       currentOutput = "";
     }
   }
+#endif
 
   const char* debugName() override { return "NetMockSimpleTimed"; }
-  Time::TimeUS execute() override {
-    return Time::TimeUS( 5 * Time::USPerS );
-  }
 
+#ifdef GONE
   std::streamsize write( const char_type* s, std::streamsize n) override
   {
     for ( std::streamsize i = 0; i < n; ++i )
@@ -177,6 +178,7 @@ class NetMockSimpleTimed: public NetInterface
   void flush() override
   {
   }
+#endif
 
   ///
   /// @brief      Advance network mock time by "ticks" ms
@@ -220,6 +222,10 @@ class NetMockSimpleTimed: public NetInterface
     return std::unique_ptr<NetConnection>(new NetMockSimpleConnection());
   }
 
+  NetConnection& get() {
+    return defaultConnection;
+  }
+
   private:
   /// @brief  Input events to be sent back to the caller
   const TimedStringEvents inputEvents;
@@ -231,6 +237,7 @@ class NetMockSimpleTimed: public NetInterface
   std::string currentOutput;
   /// @brief  Recorded output events
   TimedStringEvents outputEvents;
+  NetMockSimpleConnection defaultConnection;
 };
 
 ///

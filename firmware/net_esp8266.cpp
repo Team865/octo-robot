@@ -184,18 +184,6 @@ void WifiConnectionEthernet::handleNewIncomingData()
   }
 }
 
-std::streamsize WifiConnectionEthernet::write( const char_type* s, std::streamsize n )
-{
-  if ( !m_connectedClient ) { return n; }
-  if ( n + bytesInOutBuffer > outgoingBuffer.max_size() )
-  {
-    flush();
-  }
-  memcpy( outgoingBuffer.data() + bytesInOutBuffer, s, n );
-  bytesInOutBuffer +=n;
-  return n;
-} 
-
 void WifiConnectionEthernet::flush()
 {
   if ( !m_connectedClient ) { return; }

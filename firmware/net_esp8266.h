@@ -32,9 +32,6 @@ class WifiConnectionEthernet: public NetConnection {
 
   void reset( void ) 
   { 
-    m_currentIncomingBuffer=0;
-    m_incomingBuffers[0].resize(0);
-    m_incomingBuffers[1].resize(0);
     if (m_connectedClient)
     {
       m_connectedClient.stop();
@@ -42,24 +39,17 @@ class WifiConnectionEthernet: public NetConnection {
   }
 
   void initConnection( WiFiServer &server );
-  bool getString( std::string& string ) override;
   operator bool( void ) override {
     return m_connectedClient;
   }
 
-  std::streamsize write( const char_type* s, std::streamsize n ) override; 
   void flush() override;
 
   private:
 
   void handleNewIncomingData();    
 
-  int m_currentIncomingBuffer;
-  std::string m_incomingBuffers[2];
   WiFiClient m_connectedClient;
-  std::array< char, 1500> outgoingBuffer;
-  size_t bytesInOutBuffer = 0;
-  bool allOutputFlushed = true;
 };
 
 /// @brief Interface to the client

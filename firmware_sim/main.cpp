@@ -69,25 +69,38 @@ class SimTimeHST: public Time::HST
 };
 
 class NetConnectionSim: public NetConnection {
-  bool getString( std::string& string ) {
-    string = "";
-    return true;
-  }
   operator bool(void) {
     return true;
   }
+
   void reset(void )
   {
   }
-  std::streamsize write( const char_type* s, std::streamsize n )
-  {
-    for ( std::streamsize i = 0; i < n; ++i ) {
-      std::cout << s[i];
+
+  Time::TimeUS execute() override {
+    while ( char c = writeBuffer.getChar() ) {
+      putchar(c);
     }
-    return n;
-  }
-  void flush()
-  {
+
+    fd_set readfds;
+    FD_ZERO(&readfds);
+
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+
+    FD_SET(STDIN_FILENO, &readfds );
+    while ( select(1, &readfds, nullptr, nullptr, &timeout ))
+    {
+      std::string input;
+      std::cin >> input;
+      for ( auto& charIn : input ) {
+        readBuffer.putChar( charIn );
+      }
+      readBuffer.putChar( '\n' );
+    }
+
+    return Time::TimeUS( 50 );
   }
 };
 
@@ -101,42 +114,16 @@ class NetInterfaceSim: public NetInterface {
   {
     (*debugLog) << "Simulator Net Interface Init\n";
   }
-  bool getString( std::string& input ) override
-  {
-    fd_set readfds;
-    FD_ZERO(&readfds);
 
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-
-    FD_SET(STDIN_FILENO, &readfds );
-    if ( select(1, &readfds, nullptr, nullptr, &timeout ))
-    {
-      std::cin >> input;
-      return true;
-    }
-    input = "";
-    return false;
-  }
-  std::streamsize write( const char_type* s, std::streamsize n ) override
-  {
-    for ( std::streamsize i = 0; i < n; ++i ) {
-      std::cout << s[i];
-    }
-    return n;
-  }
-  void flush() override
-  {
-  }
   const char* debugName() override { return "NetInterfaceSim"; }
-  Time::TimeUS execute() override {
-    return Time::TimeUS( 5 * Time::USPerS );
-  }
   std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port ) override
   {
     return std::unique_ptr<NetConnection>(new NetConnectionSim());  
   }
+
+  NetConnection& get() { return defaultConnection; }
+
+  NetConnectionSim defaultConnection;
 };
 
 class HWISim: public HWI

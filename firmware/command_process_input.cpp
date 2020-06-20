@@ -34,7 +34,7 @@ ProcessCommand::ProcessCommand(
   DebugInterface& dlog = *debugLog;
   dlog << "Bringing up net interface\n";
   
-  WifiDebugOstream log( debugLog.get(), net.get() );
+  WifiDebugOstream log( debugLog.get(), net->get() );
 
   log << "Urban-Octo-Robot is accepting commands\n";
 }
@@ -42,7 +42,6 @@ ProcessCommand::ProcessCommand(
 Time::TimeUS ProcessCommand::execute()
 {
   const Time::TimeUS uSecToNextCall = ProcessCommand::stateAcceptCommands();
-  net->flush();
   return uSecToNextCall;
 }
 
@@ -97,20 +96,19 @@ void ProcessCommand::processCommand( CommandParser::CommandPacket cp )
 void ProcessCommand::doPing( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  WifiDebugOstream log( debugLog.get(), net.get() );
-  log << "PONG\n";
+  net->get() << "PONG\n";
 }
 
 void ProcessCommand::doError( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  WifiDebugOstream log( debugLog.get(), net.get() );
+  WifiDebugOstream log( debugLog.get(), net->get() );
   log << "ERROR!!!!\n";
 }
 
 void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
 {
-  WifiDebugOstream log( debugLog.get(), net.get() );
+  WifiDebugOstream log( debugLog.get(), net->get() );
   log << cp.optionalArg << "\n";
   motorA->setSpeed( cp.optionalArg );
 }
@@ -118,21 +116,20 @@ void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
 void ProcessCommand::doGetEncoderA( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  WifiDebugOstream log( debugLog.get(), net.get() );
   int position = encoderA->getPosition();
-  *net << "encodera " << position << "\n";
+  net->get() << "encodera " << position << "\n";
 }
 
 void ProcessCommand::doGetTimeMs( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  *net << "mstimer " << hst->msSinceDeviceStart().get() << "\n";
+  net->get() << "mstimer " << hst->msSinceDeviceStart().get() << "\n";
 }
 
 void ProcessCommand::doGetTimeUs( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  *net << "ustimer " << hst->usSinceDeviceStart().get() << "\n";
+  net->get() << "ustimer " << hst->usSinceDeviceStart().get() << "\n";
 }
 
 void ProcessCommand::doProfile( CommandParser::CommandPacket cp )
@@ -171,7 +168,7 @@ Time::TimeUS ProcessCommand::stateAcceptCommands()
 
 Time::TimeUS ProcessCommand::stateError()
 {
-  WifiDebugOstream log( debugLog.get(), net.get() );
+  WifiDebugOstream log( debugLog.get(), net->get() );
   log << "hep hep hep error error error\n";
   return Time::TimeUS( 10 * Time::USPerS );
 }

@@ -14,7 +14,7 @@ class WifiDebugOstream
   struct category: beefocus_tag {};
   using char_type = char;
 
-  WifiDebugOstream( DebugInterface* serialDebugArg, NetInterface* wifiDebugArg  )
+  WifiDebugOstream( DebugInterface* serialDebugArg, NetConnection& wifiDebugArg  )
     : m_wifiDebug{ wifiDebugArg }, 
       m_serialDebug{ serialDebugArg},
       m_lastWasNewline{ true }
@@ -38,14 +38,14 @@ class WifiDebugOstream
     bool isNewLine = ( c == '\n' );
     if ( m_lastWasNewline && !isNewLine )
     {
-      (*m_wifiDebug) << "# ";
+      m_wifiDebug << "# ";
     }
-    m_wifiDebug->write( &c, 1 );
+    m_wifiDebug.write( &c, 1 );
     m_lastWasNewline = isNewLine;
   }
 
 
-  NetInterface* m_wifiDebug;
+  NetConnection& m_wifiDebug;
   DebugInterface* m_serialDebug;
   bool m_lastWasNewline;
 };
