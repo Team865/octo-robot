@@ -21,25 +21,38 @@ class NetConnection {
   struct category : public beefocus_tag {};
   using char_type = char;
 
+  /// Constructor 
   NetConnection() :
     writeBuffer{ [this]( NetPipe& pipe) { writePush(pipe);} },
     readBuffer { [this]( NetPipe& pipe) { readPush(pipe);} }
   {
   }
 
+  /// Destructor
   virtual ~NetConnection()
   {
   }
 
-  void writePush(NetPipe &pipe)
+  /// Called when we've filled the output pipe.  Forces a blocking write
+  /// (i.e., clear the pipe, whatever it takes)
+  void writePush(NetPipe& pipe)
   {
-    char opps = pipe.getChar();
+    writePushImpl( pipe );
   }
 
+  /// Called when we've filled the input pipe.  Should never trigger unless
+  /// there's a bug or malice.
   void readPush(NetPipe &)
   {
+    assert(0);
   }
 
+
+  ///
+  /// @brief Legacy interface that transfers data from s into the write pipe.
+  ///
+  /// TODO,  remove and call the pipe directly for speed.
+  ///
   std::streamsize write( const char_type* s, std::streamsize n )
   {
     for ( std::streamsize index = 0; index < n; ++index )
@@ -49,8 +62,18 @@ class NetConnection {
     return n;
   }
 
-  virtual Time::TimeUS execute() = 0;
-
+  /// 
+  /// @brief Get a string from the read pipe.
+  ///
+  /// string[in,out]  The string...
+  ///   input  - The string that's been assembled so far.
+  ///   output - The string with the additions made this round 
+  /// 
+  /// @return true if there's a string to be consumed, false otherwise.
+  ///
+  /// Caller is expected to clear the string if we return true, and preserve
+  /// it if we return false.
+  ///
   bool getString( std::string& string )
   {
     for (;; ) {
@@ -63,6 +86,17 @@ class NetConnection {
     }
     return false;
   }
+
+  /// 
+  /// Called when the write FIFO is full.  Triggers a blocking write.
+  ///
+  virtual void writePushImpl( NetPipe& pipe ) = 0;
+
+  ///
+  /// Execute function called by the firmware scheduler.  This is where the
+  /// pipes get cleared.  All functions here should be non-blocking.
+  /// 
+  virtual Time::TimeUS execute() = 0;
 
 
   /// @brief Is the connection good?

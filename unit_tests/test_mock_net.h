@@ -27,9 +27,12 @@ class NetMockSimpleConnection: public NetConnection
   void reset(void ) 
   {
   }
-  void flush()
-  {
+
+  void writePushImpl( NetPipe&) override {
+    // should never happen
+    assert(0);
   }
+
 
   Time::TimeUS execute() override {
     return Time::TimeUS( 5 * Time::USPerS );

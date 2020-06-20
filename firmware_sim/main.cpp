@@ -73,8 +73,13 @@ class NetConnectionSim: public NetConnection {
     return true;
   }
 
-  void reset(void )
+  void reset(void ) override
   {
+  }
+
+  void writePushImpl( NetPipe&) override {
+    // should never happen
+    assert(0);
   }
 
   Time::TimeUS execute() override {
