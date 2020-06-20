@@ -1,6 +1,6 @@
 ENABLE_TESTING()
 
-SET(UNIT_TESTS test_check_for_commands test_device test_enums test_profile )
+SET(UNIT_TESTS test_check_for_commands test_device test_enums test_profile test_pipe )
 
 add_library( firmware_test_lib STATIC ${FIRMWARE_SOURCES} )
 
