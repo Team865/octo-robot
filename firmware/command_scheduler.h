@@ -34,6 +34,7 @@ class Scheduler: Base {
 
   void dumpProfile() const;
   void resetProfile();
+  void scheduleProfile();
 
   private:
 
@@ -61,6 +62,7 @@ class Scheduler: Base {
     std::vector<PriorityAndCommandSlot>, 
     std::greater<PriorityAndCommandSlot> > nextCommandQueue;
   Time::DeviceTimeUS timeInUs;
+  bool profileScheduled;
 };
 
 } // end namespace Command

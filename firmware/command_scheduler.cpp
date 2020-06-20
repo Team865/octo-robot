@@ -11,7 +11,8 @@ Scheduler::Scheduler(
     hardware{ hardwareArg },
     debug{ debugArg },
     hst{ hstArg },
-    timeInUs{ 0 }
+    timeInUs{ 0 },
+    profileScheduled{ false }
 {
 }
 
@@ -24,48 +25,62 @@ void Scheduler::addCommand( std::shared_ptr< Command::Base > interface )
 }
 
 //
-// 1. Pop the next command to be executed from the priority queue
-// 2. Update manager time (caller was responsible for doing the actual delay )
-// 3. Run the Command
-// 4. Figure out the next time the command should be run
-// 5. Add the command back into the queue, at the new time
-// 6. Figure out when the next command will be run & return the value
+// 1. Start the clock
+// 2. Pop the next command to be executed from the priority queue
+// 3. Grather informatin
+// 4. Update the manager time (caller was responsible for the actual delay)
+// 5. Run the Command
+// 6. Figure out the next time the action should be run
+// 7. Add the action back into the queue, at the new time
+// 8. Figure out when the next action will be run & return the value
+// 9. Record profile data
 //
 Time::TimeUS Scheduler::execute() 
 {
   // 1. Start the clock
   Time::DeviceTimeUS startTime = hst->usSinceDeviceStart();
 
-  // 2. Pop the next action to be executed from the priority queue
+  // 2. Pop the next command to be executed from the priority queue
   PriorityAndCommandSlot current = nextCommandQueue.top();
   nextCommandQueue.pop();
 
-  // 2. Grather informatin
+  // 3. Grather informatin
   const CommandSlotIndex index = current.second;
   ActionRecord& action = actions.at( index.get() );
   std::shared_ptr<Base>& command = action.first;
   Util::Profile& profile = action.second;
 
-  // 2. Update the anager time (caller was responsible for the actual delay)
+  // 4. Update the manager time (caller was responsible for the actual delay)
   timeInUs = current.first;
 
-  // 4. Run the Command
+  // 5. Run the Command
   Time::TimeUS actionDelayRequestUs = command->execute();
 
-  // 4. Figure out the next time the action should be run
+  // 6. Figure out the next time the action should be run
   Time::DeviceTimeUS rescheduleAt = timeInUs + actionDelayRequestUs;
 
-  // 5. Add the action back into the queue, at the new time
+  // 7. Add the action back into the queue, at the new time
   nextCommandQueue.push( PriorityAndCommandSlot( rescheduleAt, index ));
 
-  // 6. Figure out when the next action will be run & return the value
+  // 8. Figure out when the next action will be run & return the value
   Time::TimeUS delay_to_next_action(nextCommandQueue.top().first - timeInUs );
 
-  // 1. Record profile data
+  // 9. Record profile data
   Time::DeviceTimeUS endTime = hst->usSinceDeviceStart();
   profile.addSample( Time::TimeUS(endTime - startTime )); 
 
+  // Do profile dumps on the !tracked portion, so they don't pollute results
+  if ( profileScheduled ) {
+    dumpProfile();
+    profileScheduled=false;
+  }
+  
   return delay_to_next_action;
+}
+
+void Scheduler::scheduleProfile()
+{
+  profileScheduled=true;
 }
 
 void Scheduler::dumpProfile() const

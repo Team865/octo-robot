@@ -15,7 +15,7 @@ class WifiDebugOstream;
 
 using NetPipe = Util::Pipe<char, 1024>;
 
-class NetConnection {
+class NetConnection: public Command::Base {
   public:
 
   struct category : public beefocus_tag {};
@@ -98,6 +98,7 @@ class NetConnection {
   /// 
   virtual Time::TimeUS execute() = 0;
 
+  const char* debugName() { return "NetConnection"; } 
 
   /// @brief Is the connection good?
   virtual operator bool( void ) = 0;
@@ -130,13 +131,11 @@ class NetInterface: public Command::Base {
   }
 
   virtual NetConnection& get() = 0;
+  virtual std::shared_ptr<NetConnection> getShared() = 0;
 
-  virtual Time::TimeUS execute() override final 
-  {
-    return get().execute();
-  }
+  virtual Time::TimeUS execute()=0;
 
-  virtual std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port ) = 0;
+  //virtual std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port ) = 0;
 
   private:
 };

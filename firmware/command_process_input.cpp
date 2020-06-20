@@ -108,8 +108,7 @@ void ProcessCommand::doError( CommandParser::CommandPacket cp )
 
 void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
 {
-  WifiDebugOstream log( debugLog.get(), net->get() );
-  log << cp.optionalArg << "\n";
+  net->get() << cp.optionalArg << "\n";
   motorA->setSpeed( cp.optionalArg );
 }
 
@@ -135,12 +134,13 @@ void ProcessCommand::doGetTimeUs( CommandParser::CommandPacket cp )
 void ProcessCommand::doProfile( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  scheduler->dumpProfile();
+  scheduler->scheduleProfile();
 }
 
 void ProcessCommand::doRProfile( CommandParser::CommandPacket cp )
 {
   (void) cp;
+  net->get() << "Profile Reset\n";
   scheduler->resetProfile();
 }
 
@@ -153,8 +153,7 @@ void ProcessCommand::doRProfile( CommandParser::CommandPacket cp )
 
 Time::TimeUS ProcessCommand::stateAcceptCommands()
 {
-  DebugInterface& log = *debugLog;
-  auto cp = CommandParser::checkForCommands( log, net->get() );
+  auto cp = CommandParser::checkForCommands( net->get() );
 
   if ( cp.command != CommandParser::Command::NoCommand )
   {

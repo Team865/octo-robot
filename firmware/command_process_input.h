@@ -67,7 +67,7 @@ class ProcessCommand: public Base
   ///
   Time::TimeUS execute() override final;
 
-  virtual const char* debugName() override final { return "Network Input"; } 
+  virtual const char* debugName() override final { return "ProcessInput"; } 
   private:
 
 #ifdef GTEST_FOUND

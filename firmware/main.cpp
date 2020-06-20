@@ -46,9 +46,10 @@ void setup() {
                         scheduler );
 
   scheduler->addCommand( commandProcessor);
-  //scheduler->addCommand( time );
   scheduler->addCommand( motor );
   scheduler->addCommand( encoder );
   scheduler->addCommand( wifi );
+  auto connection = wifi->getShared();
+  scheduler->addCommand( connection );
   scheduler->addCommand( hst );
 }

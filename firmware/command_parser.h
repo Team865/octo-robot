@@ -60,7 +60,6 @@ namespace CommandParser {
   /// - Move extra parameters used by the STATUS command.
   ///
   const CommandPacket checkForCommands( 
-    DebugInterface& log,				// Input: Debug Log Strem
     NetConnection& netInterface	// Input: Network Connection
   );
 

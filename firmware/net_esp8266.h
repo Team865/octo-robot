@@ -20,7 +20,8 @@ class WifiConnectionEthernet: public NetConnection {
   struct category: beefocus_tag {};
   using char_type = char;
 
-  WifiConnectionEthernet()
+  WifiConnectionEthernet( std::shared_ptr<DebugInterface> debugArg )
+    : debug{ debugArg }
   {
     reset();
   }
@@ -38,18 +39,19 @@ class WifiConnectionEthernet: public NetConnection {
     }
   }
 
+  void writePushImpl( NetPipe& pipe );
+
+  Time::TimeUS execute();
+
   void initConnection( WiFiServer &server );
   operator bool( void ) override {
     return m_connectedClient;
   }
 
-  void flush() override;
-
   private:
 
-  void handleNewIncomingData();    
-
   WiFiClient m_connectedClient;
+  std::shared_ptr<DebugInterface> debug;
 };
 
 /// @brief Interface to the client
@@ -68,21 +70,26 @@ class WifiInterfaceEthernet: public NetInterface {
 
   void reset( void );
 
-  bool getString( std::string& string ) override;
-  std::streamsize write( const char_type* s, std::streamsize n ) override;
-  void flush() override;
-
-  Time::TimeUS execute() override;
   const char* debugName() override
   {
-    return "Wifi Service";
+    return "ConnectWatch";
   }
-  std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port );
+  //std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port );
+  NetConnection& get() override
+  {
+    assert( defaultConnection );
+    return *defaultConnection;
+  }
+
+  std::shared_ptr<NetConnection> getShared() {
+    return defaultConnection;
+  }
+
+  Time::TimeUS execute();
   
   private:
 
   void handleNewConnections();
-  typedef std::array< WifiConnectionEthernet, 4 > ConnectionArray;
 
   // Make a CI Test to lock these defaults in?
   static constexpr const char* ssid = WifiSecrets::ssid; 
@@ -91,13 +98,9 @@ class WifiInterfaceEthernet: public NetInterface {
   const uint16_t tcp_port{4999};
 
   std::shared_ptr<DebugInterface> log;
-  int m_lastSlotAllocated;
-  int m_kickout;
-  ConnectionArray m_connections;
-  ConnectionArray::iterator m_nextToKick;
+  std::shared_ptr<WifiConnectionEthernet> defaultConnection;
 
   WiFiServer m_server{tcp_port};
 };
 
 #endif
-

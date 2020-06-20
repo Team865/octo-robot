@@ -15,7 +15,7 @@ class WifiDebugOstream
   using char_type = char;
 
   WifiDebugOstream( DebugInterface* serialDebugArg, NetConnection& wifiDebugArg  )
-    : m_wifiDebug{ wifiDebugArg }, 
+    : m_wifiDebug( wifiDebugArg ), 
       m_serialDebug{ serialDebugArg},
       m_lastWasNewline{ true }
   {

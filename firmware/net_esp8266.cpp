@@ -1,3 +1,4 @@
+#include <memory>
 #include "net_interface.h"
 #include "net_esp8266.h"
 #include "wifi_ostream.h"
@@ -6,11 +7,9 @@
 WifiInterfaceEthernet::WifiInterfaceEthernet(
   std::shared_ptr<DebugInterface> logArg
 ) 
-  : log{ logArg },
-    m_lastSlotAllocated{0}, 
-    m_kickout{0}, 
-    m_nextToKick{m_connections.begin()}
+  : log{ logArg }
 {
+  defaultConnection = std::make_shared< WifiConnectionEthernet>( logArg );
   delay(10);
   (*log) << "Init Wifi\n";
 
@@ -46,88 +45,20 @@ WifiInterfaceEthernet::WifiInterfaceEthernet(
   reset();
 }
 
-bool WifiInterfaceEthernet::getString( std::string& string )
-{
-  handleNewConnections();
-  return std::any_of( m_connections.begin(), m_connections.end(), [&] ( NetConnection& connection )
-  {
-    return connection.getString( string );
-  });
-}
-
 Time::TimeUS WifiInterfaceEthernet::execute()
-{
-  handleNewConnections();
-  flush();
-  // TODO - pretty sure I want a faster update.
-  return Time::TimeUS( 500 * Time::USPerMs );
-} 
-
-void WifiInterfaceEthernet::handleNewConnections()
 {
   if ( m_server.hasClient() )
   {  
     (*log) << "New client connecting\n";
    
-    ConnectionArray::iterator slot = 
-      std::find_if( m_connections.begin(), m_connections.end(), [&] ( NetConnection& connection )
-      {
-        return !connection;
-      });
-
-    if ( slot == m_connections.end() )
-    {
-      slot = m_nextToKick;      
-      m_nextToKick++;
-      m_nextToKick = ( m_nextToKick == m_connections.end()) ? m_connections.begin() : m_nextToKick;
-    }
-    
-    (*log) << "Using slot " << slot - m_connections.begin() << " of " << m_connections.size()-1 << " for the new client\n";
-
-    if ( *slot )
-    {
-      (*log) << "An existing client exists - disconnecting it\n";
-    }
-
-    slot->initConnection( m_server );
+    defaultConnection->initConnection( m_server );
   }
-}
-
-std::streamsize WifiInterfaceEthernet::write(const char_type* s, std::streamsize n)
-{
-  std::for_each( m_connections.begin(), m_connections.end(), [&] ( NetConnection& interface )
-  {
-    interface.write( s, n );
-  }); 
-  return n;
-}
-
-void WifiInterfaceEthernet::flush()
-{
-  std::for_each( m_connections.begin(), m_connections.end(), [&] ( NetConnection& interface )
-  {
-    interface.flush();
-  }); 
+  return Time::TimeUS{ 10 * 1000 };
 }
 
 void WifiInterfaceEthernet::reset(void)
 {
-  std::for_each( m_connections.begin(), m_connections.end(), [] ( NetConnection& interface )
-  {
-    interface.reset(); 
-  });
-}
-
-std::unique_ptr<NetConnection> 
-WifiInterfaceEthernet::connect( const std::string& location, unsigned int port )
-{
-  (void) location;
-  (void) port;
-  // TODO - actually implement.
-  std::unique_ptr<WifiConnectionEthernet> con = 
-      std::unique_ptr<WifiConnectionEthernet>( new WifiConnectionEthernet );
-
-  return std::move(con);
+  defaultConnection->reset();
 }
 
 // ==========================================================================
@@ -140,67 +71,37 @@ void WifiConnectionEthernet::initConnection( WiFiServer &server )
       m_connectedClient.stop();
   }
   m_connectedClient = server.available();
-  m_connectedClient.setNoDelay( true );
+  m_connectedClient.setNoDelay( false );
+  m_connectedClient.setSync( false );
   (*this) << "# Urban Octo Robot is ready for commands\n"; 
 }
 
-bool WifiConnectionEthernet::getString( std::string& string )
+void WifiConnectionEthernet::writePushImpl( NetPipe& pipe )
 {
-  handleNewIncomingData();
-
-  std::string& incomingBuffer = m_incomingBuffers[ m_currentIncomingBuffer ];
-  size_t newLine = incomingBuffer.find('\n');
-  if ( newLine != std::string::npos )
-  {
-    string.replace( 0, newLine, incomingBuffer );
-    string.resize( newLine );
-    m_currentIncomingBuffer = 1-m_currentIncomingBuffer;
-    std::string& newIncomingBuffer = m_incomingBuffers[ m_currentIncomingBuffer ];
-    size_t rest = incomingBuffer.length() - newLine - 1;
-    newIncomingBuffer.replace( 0, rest, incomingBuffer, newLine+1, rest );
-    newIncomingBuffer.resize( rest );
-    
-    return true;
-  }
-  
-  return false;
+  pipe.getChar();
 }
 
-
-void WifiConnectionEthernet::handleNewIncomingData()
+Time::TimeUS WifiConnectionEthernet::execute()
 {
-  std::string& incomingBuffer = m_incomingBuffers[ m_currentIncomingBuffer ];
-  
-  if ( !m_connectedClient || !m_connectedClient.available())
+  size_t maxWrite = m_connectedClient.availableForWrite();
+  if ( maxWrite ) 
   {
-    return;
+    NetPipe::Buffer outBuf = writeBuffer.readView( maxWrite );
+    if ( outBuf.second ) 
+    {
+      size_t written = m_connectedClient.write( outBuf.first, outBuf.second );
+      writeBuffer.readAdvance( written );
+    }
+  }
+  int numAvailable = m_connectedClient.available();
+  if ( numAvailable ) 
+  {
+    NetPipe::Buffer inBuff = readBuffer.writeView( numAvailable );
+    int numRead = m_connectedClient.read( (uint8_t*) inBuff.first, inBuff.second );
+    readBuffer.writeAdvance( numRead );
   }
 
-  while (m_connectedClient.available())
-  {
-    uint8_t byte;
-    m_connectedClient.read( &byte, 1 );
-    incomingBuffer += ((char) byte);
-  }
+  return Time::TimeUS( 1000 );
 }
 
-void WifiConnectionEthernet::flush()
-{
-  if ( !m_connectedClient ) { return; }
-
-  if ( bytesInOutBuffer )
-  { 
-    //wifi_set_sleep_type(NONE_SLEEP_T);
-    m_connectedClient.write( outgoingBuffer.data(), bytesInOutBuffer );
-    allOutputFlushed = false;
-    bytesInOutBuffer = 0;
-  }
-  else if ( !allOutputFlushed )
-  {
-    allOutputFlushed = m_connectedClient.flush(1);
-  }
-  else {
-    //wifi_set_sleep_type(LIGHT_SLEEP_T);
-  }
-} 
 
