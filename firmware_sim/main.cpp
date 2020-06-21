@@ -69,6 +69,8 @@ class SimTimeHST: public Time::HST
 };
 
 class NetConnectionSim: public NetConnection {
+  public:
+
   operator bool(void) {
     return true;
   }
@@ -121,9 +123,14 @@ class NetInterfaceSim: public NetInterface {
   }
 
   const char* debugName() override { return "NetInterfaceSim"; }
-  std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port ) override
+
+  Time::TimeUS execute() override 
   {
-    return std::unique_ptr<NetConnection>(new NetConnectionSim());  
+    defaultConnection.execute();
+  }
+  std::shared_ptr<NetConnection> getShared()
+  {
+    return std::shared_ptr<NetConnection>();
   }
 
   NetConnection& get() { return defaultConnection; }

@@ -220,11 +220,6 @@ class NetMockSimpleTimed: public NetInterface
     return outputEvents;
   }
 
-  std::unique_ptr<NetConnection> connect( const std::string& location, unsigned int port ) override
-  {
-    return std::unique_ptr<NetConnection>(new NetMockSimpleConnection());
-  }
-
   NetConnection& get() {
     return defaultConnection;
   }

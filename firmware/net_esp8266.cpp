@@ -71,7 +71,7 @@ void WifiConnectionEthernet::initConnection( WiFiServer &server )
       m_connectedClient.stop();
   }
   m_connectedClient = server.available();
-  m_connectedClient.setNoDelay( false );
+  m_connectedClient.setNoDelay( true );
   m_connectedClient.setSync( false );
   (*this) << "# Urban Octo Robot is ready for commands\n"; 
 }
@@ -83,6 +83,11 @@ void WifiConnectionEthernet::writePushImpl( NetPipe& pipe )
 
 Time::TimeUS WifiConnectionEthernet::execute()
 {
+  static int flipper = 0;
+
+  flipper++;
+
+  if ( (flipper & 1) == 0 ) {
   size_t maxWrite = m_connectedClient.availableForWrite();
   if ( maxWrite ) 
   {
@@ -93,12 +98,15 @@ Time::TimeUS WifiConnectionEthernet::execute()
       writeBuffer.readAdvance( written );
     }
   }
+  }
+  else {
   int numAvailable = m_connectedClient.available();
   if ( numAvailable ) 
   {
     NetPipe::Buffer inBuff = readBuffer.writeView( numAvailable );
     int numRead = m_connectedClient.read( (uint8_t*) inBuff.first, inBuff.second );
     readBuffer.writeAdvance( numRead );
+  }
   }
 
   return Time::TimeUS( 1000 );

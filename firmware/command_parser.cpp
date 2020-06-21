@@ -75,6 +75,7 @@ const CommandPacket checkForCommands(
   // Read the first line of the request.  
 
   static std::string command;
+  command.reserve( 256 );
   bool dataReady = connection.getString( command );
   if ( !dataReady )
   {
