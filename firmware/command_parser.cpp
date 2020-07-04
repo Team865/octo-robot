@@ -34,7 +34,8 @@ const std::vector<CommandTemplate> commandTemplates =
   { "timems",     Command::GetTimeMs,     HasArg::No   },
   { "timeus",     Command::GetTimeUs,     HasArg::No   },
   { "profile",    Command::Profile,       HasArg::No   },
-  { "rprofile",   Command::RProfile,       HasArg::No   },
+  { "rprofile",   Command::RProfile,      HasArg::No   },
+  { "datasend",   Command::DataSend,      HasArg::Yes  },
 }; 
 
 /// @brief Process an integer argument
@@ -95,11 +96,11 @@ const CommandPacket checkForCommands(
       {
         result.optionalArg =  process_int( command,  ct.inputCommand.length()+1  );
       } 
-      command = "";
+      command.resize(0);
       return result;
     }
   } 
-  command = "";
+  command.resize(0);
   return result;
 
 }

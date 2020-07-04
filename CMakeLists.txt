@@ -37,6 +37,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/firmware )
 
 set (FIRMWARE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/hardware_interface.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_datasend.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_encoder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_motor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_parser.cpp

@@ -20,6 +20,7 @@ namespace CommandParser {
     GetTimeUs,            ///<  Get us since device start
     Profile,              ///<  Dump profiling data to net
     RProfile,             ///<  Reset profiling data
+    DataSend,             ///<  If arg=1, send state data 50x / sec. arg=0 stops
     NoCommand,            ///<  No command was specified.
     EndOfCommands         ///<  End of the comand list.
   };

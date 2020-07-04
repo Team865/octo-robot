@@ -6,13 +6,15 @@
 #include <string>
 #include <assert.h>
 #include <unordered_map>
+
+#include "command_encoder.h"
+#include "command_datasend.h"
+#include "command_motor.h"
 #include "command_parser.h"
-#include "net_interface.h"
 #include "hardware_interface.h"
+#include "net_interface.h"
 #include "time_interface.h"
 #include "time_hst.h"
-#include "command_motor.h"
-#include "command_encoder.h"
 
 #ifdef GTEST_FOUND
 #include <gtest/gtest_prod.h>
@@ -56,7 +58,8 @@ class ProcessCommand: public Base
 		std::shared_ptr<Command::Motor> motorAArg,
 		std::shared_ptr<Command::Encoder> encoderAArg,
 		std::shared_ptr<Time::HST> hstArg, 
-		std::shared_ptr<Command::Scheduler > schedulerArg
+		std::shared_ptr<Command::Scheduler > schedulerArg,
+		std::shared_ptr<Command::DataSend > dataSendArg 
 	);
 
   ///
@@ -103,6 +106,7 @@ class ProcessCommand: public Base
   void doGetTimeUs( CommandParser::CommandPacket );
   void doProfile( CommandParser::CommandPacket );
   void doRProfile( CommandParser::CommandPacket );
+  void doDataSend( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
@@ -118,6 +122,8 @@ class ProcessCommand: public Base
   std::shared_ptr<Time::HST> hst;
   /// @brief Interface to the command scheduler, for reporting
   std::shared_ptr<Command::Scheduler > scheduler;
+  /// @brief Interface to the data sender, for turning on & off
+  std::shared_ptr<Command::DataSend > dataSend;
  
 };
 }; // end namespace Command

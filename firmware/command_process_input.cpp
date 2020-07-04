@@ -24,12 +24,14 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<Command::Motor> motorAArg,
     std::shared_ptr<Command::Encoder> encoderAArg,
     std::shared_ptr<Time::HST> hstArg,
-    std::shared_ptr<Command::Scheduler> schedulerArg
+    std::shared_ptr<Command::Scheduler> schedulerArg,
+    std::shared_ptr<Command::DataSend> dataSendArg
 ) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, 
     timeMgr{ timeArg }, 
     motorA{ motorAArg }, encoderA{ encoderAArg },
     hst{ hstArg },
-    scheduler{ schedulerArg }
+    scheduler{ schedulerArg },
+    dataSend{ dataSendArg }
 {
   DebugInterface& dlog = *debugLog;
   dlog << "Bringing up net interface\n";
@@ -77,6 +79,7 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::GetTimeUs,    &ProcessCommand::doGetTimeUs},
   { CommandParser::Command::Profile,      &ProcessCommand::doProfile},
   { CommandParser::Command::RProfile,     &ProcessCommand::doRProfile},
+  { CommandParser::Command::DataSend,     &ProcessCommand::doDataSend},
   { CommandParser::Command::NoCommand,    &ProcessCommand::doError},
 };
 
@@ -142,6 +145,12 @@ void ProcessCommand::doRProfile( CommandParser::CommandPacket cp )
   (void) cp;
   net->get() << "Profile Reset\n";
   scheduler->resetProfile();
+}
+
+void ProcessCommand::doDataSend( CommandParser::CommandPacket cp )
+{
+  net->get() << "Datasend " << cp.optionalArg << "\n";
+  dataSend->setOutput( cp.optionalArg != 0 );
 }
 
 /////////////////////////////////////////////////////////////////////////

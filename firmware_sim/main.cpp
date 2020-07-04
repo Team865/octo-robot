@@ -5,9 +5,11 @@
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
 
-#include "command_scheduler.h"
+#include "command_datasend.h"
 #include "command_motor.h"
 #include "command_process_input.h"
+#include "command_scheduler.h"
+
 #include "hardware_interface.h"
 #include "time_interface.h"
 #include "time_manager.h"
@@ -207,17 +209,22 @@ void setup() {
                           hardware, debug, wifi, 
                           HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1);
  
+  auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, encoderSim );
+
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                           wifi, hardware, debug, 
                           time, motorSim , encoderSim,
                           hst,
-                          scheduler );
+                          scheduler,
+                          dataSend
+   );
 
   scheduler->addCommand( commandProcessor );
   scheduler->addCommand( time );
   scheduler->addCommand( hst );
   scheduler->addCommand( motorSim );
   scheduler->addCommand( wifi );
+  scheduler->addCommand( dataSend );
 }
 
 int main(int argc, char* argv[])

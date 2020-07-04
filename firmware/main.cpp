@@ -1,10 +1,11 @@
 
 #include <memory>
-#include "net_esp8266.h"
-#include "hardware_esp8266.h"
-#include "debug_esp8266.h"
+#include "command_datasend.h"
 #include "command_scheduler.h"
 #include "command_process_input.h"
+#include "debug_esp8266.h"
+#include "hardware_esp8266.h"
+#include "net_esp8266.h"
 #include "time_esp8266.h"
 #include "time_esp8266hst.h"
 #include "time_manager.h"
@@ -38,12 +39,14 @@ void setup() {
   auto encoder = std::make_shared<Command::Encoder>(
                         hardware, debug, wifi, 
                         HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1 );
+  auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, encoder );
 
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                         wifi, hardware, debug, 
                         time, motor, encoder,
                         hst,
-                        scheduler );
+                        scheduler,
+                        dataSend );
 
   scheduler->addCommand( commandProcessor);
   scheduler->addCommand( motor );
@@ -52,4 +55,5 @@ void setup() {
   auto connection = wifi->getShared();
   scheduler->addCommand( connection );
   scheduler->addCommand( hst );
+  scheduler->addCommand( dataSend );
 }
