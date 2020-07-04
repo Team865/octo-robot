@@ -4,6 +4,7 @@
 #include "wifi_ostream.h"
 #include "wifi_debug_ostream.h"
 
+#ifdef FOO
 WifiInterfaceEthernet::WifiInterfaceEthernet(
   std::shared_ptr<DebugInterface> logArg
 ) 
@@ -44,6 +45,46 @@ WifiInterfaceEthernet::WifiInterfaceEthernet(
   //wifi_set_sleep_type(LIGHT_SLEEP_T);
   reset();
 }
+#endif
+
+//
+// Create a wifi hotspot.  Creating an access point on the robot seems to
+// give us decent latency and low packet loss if the robot is close to the
+// host computer.  I was seeing latency numbers around 3-4ms, with should
+// be good enough.
+// 
+WifiInterfaceEthernet::WifiInterfaceEthernet(
+  std::shared_ptr<DebugInterface> logArg
+) 
+  : log{ logArg }
+{
+  defaultConnection = std::make_shared< WifiConnectionEthernet>( logArg );
+  delay(10);
+  (*log) << "Init Wifi\n";
+
+  // Connect to WiFi network
+  (*log) << "Connecting to " << ssid << "\n";
+
+  // Disable Wifi Persistence.  It's not needed and wears the flash memory.
+  // Kudos Erik H. Bakke for pointing this point.
+  WiFi.persistent( false );
+  WiFi.softAP( ssid, password );
+   
+  // Print the IP address
+  UrbanRobot::IpAddress adr;
+  IPAddress dsIP = WiFi.softAPIP();
+  for ( int i = 0; i < 4; ++ i )
+    adr[i] = dsIP[i];
+  (*log) << "Telnet to this address to connect: " << adr << " " << tcp_port << "\n";
+
+  // Start the server
+  m_server.begin();
+  (*log) << "Server started\n";
+
+
+  reset();
+}
+
 
 Time::TimeUS WifiInterfaceEthernet::execute()
 {

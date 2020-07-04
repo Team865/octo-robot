@@ -8,12 +8,16 @@
 // 
 
 namespace WifiSecrets {
-  // your SSID. Do not check in :)
+  // Hostname
 	constexpr const char* hostname = "urban-octo";	     
-  // your SSID. Do not check in :)
-	constexpr const char* ssid     = "yourssid";	     
-  // your Passwoord. Do not check in :)
-	constexpr const char* password = "yourpassword";   
+  // Default SSID for the robot's Access Point
+	constexpr const char* ssid     = "urbanocto";	     
+  // Default Password for the Robot's Access Point
+  // 
+  // TODO - Creating some kind of default web page so custom configurations
+  //        could be done would be nice.
+  //
+	constexpr const char* password = "graciousp";   
 }
 
 #endif

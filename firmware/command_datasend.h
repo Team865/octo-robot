@@ -48,12 +48,14 @@ class DataSend: public Base {
 
   private:
 
-  bool isOutputting;
-  std::shared_ptr<Encoder> encoderA;
   // @brief Interface to debug log
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
+  // @brief Interface to the encoder
+  std::shared_ptr<Encoder> encoderA;
+  // @brief Are we currently outputting data
+  bool isOutputting;
 };
 
 }; // end Command namespace.

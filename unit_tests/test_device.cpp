@@ -3,13 +3,6 @@
 #include "hardware_interface.h"
 #include "wifi_secrets.h"
 
-/// @brief Keep developers from committing their passwords
-TEST( DEVICE, should_not_leak_wifi_secrets )
-{
-  ASSERT_STREQ( WifiSecrets::ssid, "yourssid" );
-  ASSERT_STREQ( WifiSecrets::password, "yourpassword" );
-}
-
 /// @brief Every Pin in the Pins enum should have a debug name
 TEST( DEVICE, should_have_complete_pin_names )
 {
