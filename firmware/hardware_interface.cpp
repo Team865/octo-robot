@@ -3,6 +3,8 @@
 const std::unordered_map<HWI::Pin,std::string,EnumHash> HWI::pinNames = {
     { Pin::MOTOR0_PIN0,     "Motor0 Pin0" },
     { Pin::MOTOR0_PIN1,     "Motor0 Pin1" },
+    { Pin::MOTOR1_PIN0,     "Motor1 Pin0" },
+    { Pin::MOTOR1_PIN1,     "Motor1 Pin1" },
     { Pin::ENCODER0_PIN0,   "Encoder0 Pin1" },
     { Pin::ENCODER0_PIN1,   "Encoder1 Pin1" },
 };

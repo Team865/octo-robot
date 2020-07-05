@@ -47,6 +47,7 @@ class ProcessCommand: public Base
   /// @param[in] debugArg     - Interface to the debug logger.
   /// @param[in] timeArg      - A simple time interfaced
   /// @param[in] motorAArg    - The class that controls "motor a"
+  /// @param[in] motorBArg    - The class that controls "motor b"
   /// @param[in] encoderAArg  - The encoder for "motor a"
   /// @param[in] hstArg       - Interface for the High Speed Timer
   ///
@@ -56,6 +57,7 @@ class ProcessCommand: public Base
 		std::shared_ptr<DebugInterface> debugArg,
 		std::shared_ptr<Time::Interface> timeArg,
 		std::shared_ptr<Command::Motor> motorAArg,
+		std::shared_ptr<Command::Motor> motorBArg,
 		std::shared_ptr<Command::Encoder> encoderAArg,
 		std::shared_ptr<Time::HST> hstArg, 
 		std::shared_ptr<Command::Scheduler > schedulerArg,
@@ -101,6 +103,7 @@ class ProcessCommand: public Base
 
   void doPing( CommandParser::CommandPacket );
   void doSetMotorA( CommandParser::CommandPacket );
+  void doSetMotorB( CommandParser::CommandPacket );
   void doGetEncoderA( CommandParser::CommandPacket );
   void doGetTimeMs( CommandParser::CommandPacket );
   void doGetTimeUs( CommandParser::CommandPacket );
@@ -116,6 +119,8 @@ class ProcessCommand: public Base
   
   /// @brief Interface to Motor A
   std::shared_ptr<Command::Motor> motorA;
+  /// @brief Interface to Motor B
+  std::shared_ptr<Command::Motor> motorB;
   /// @brief Interface to Encoder A
   std::shared_ptr<Command::Encoder> encoderA;
   /// @brief Interface to the high speed timer

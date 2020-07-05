@@ -22,13 +22,15 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<DebugInterface> debugArg,
     std::shared_ptr<Time::Interface> timeArg,
     std::shared_ptr<Command::Motor> motorAArg,
+    std::shared_ptr<Command::Motor> motorBArg,
     std::shared_ptr<Command::Encoder> encoderAArg,
     std::shared_ptr<Time::HST> hstArg,
     std::shared_ptr<Command::Scheduler> schedulerArg,
     std::shared_ptr<Command::DataSend> dataSendArg
 ) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, 
     timeMgr{ timeArg }, 
-    motorA{ motorAArg }, encoderA{ encoderAArg },
+    motorA{ motorAArg }, motorB{ motorBArg }, 
+    encoderA{ encoderAArg },
     hst{ hstArg },
     scheduler{ schedulerArg },
     dataSend{ dataSendArg }
@@ -74,6 +76,7 @@ const std::unordered_map<CommandParser::Command,
 {
   { CommandParser::Command::Ping,         &ProcessCommand::doPing},
   { CommandParser::Command::SetMotorA,    &ProcessCommand::doSetMotorA},
+  { CommandParser::Command::SetMotorB,    &ProcessCommand::doSetMotorB},
   { CommandParser::Command::GetEncoderA,  &ProcessCommand::doGetEncoderA},
   { CommandParser::Command::GetTimeMs,    &ProcessCommand::doGetTimeMs},
   { CommandParser::Command::GetTimeUs,    &ProcessCommand::doGetTimeUs},
@@ -113,6 +116,12 @@ void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
 {
   net->get() << cp.optionalArg << "\n";
   motorA->setSpeed( cp.optionalArg );
+}
+
+void ProcessCommand::doSetMotorB( CommandParser::CommandPacket cp )
+{
+  net->get() << cp.optionalArg << "\n";
+  motorB->setSpeed( cp.optionalArg );
 }
 
 void ProcessCommand::doGetEncoderA( CommandParser::CommandPacket cp )

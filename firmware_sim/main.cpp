@@ -202,9 +202,12 @@ void setup() {
 
   auto timeSim    = std::make_shared<TimeInterfaceSim>();
   auto time       = std::make_shared<Time::Manager>( timeSim, hst );
-  auto motorSim   = std::make_shared<Command::Motor>( 
+  auto motorSimA  = std::make_shared<Command::Motor>( 
                           hardware, debug, wifi, 
                           HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
+  auto motorSimB  = std::make_shared<Command::Motor>( 
+                          hardware, debug, wifi, 
+                          HWI::Pin::MOTOR1_PIN0, HWI::Pin::MOTOR1_PIN1 );
   auto encoderSim = std::make_shared<Command::Encoder>(
                           hardware, debug, wifi, 
                           HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1);
@@ -213,7 +216,9 @@ void setup() {
 
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                           wifi, hardware, debug, 
-                          time, motorSim , encoderSim,
+                          time, 
+                          motorSimA, motorSimB, 
+                          encoderSim,
                           hst,
                           scheduler,
                           dataSend
@@ -222,7 +227,8 @@ void setup() {
   scheduler->addCommand( commandProcessor );
   scheduler->addCommand( time );
   scheduler->addCommand( hst );
-  scheduler->addCommand( motorSim );
+  scheduler->addCommand( motorSimA );
+  scheduler->addCommand( motorSimB );
   scheduler->addCommand( wifi );
   scheduler->addCommand( dataSend );
 }
