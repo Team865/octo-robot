@@ -8,7 +8,9 @@ const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap =
   { Pin::MOTOR1_PIN0,     0     },
   { Pin::MOTOR1_PIN1,     2     },
   { Pin::ENCODER0_PIN0,   12    },
-  { Pin::ENCODER0_PIN1,   13    }
+  { Pin::ENCODER0_PIN1,   13    },
+  { Pin::ENCODER1_PIN0,   16    },
+  { Pin::ENCODER1_PIN1,   5     }
 };
 
 const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {

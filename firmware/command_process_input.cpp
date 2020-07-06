@@ -24,13 +24,14 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<Command::Motor> motorAArg,
     std::shared_ptr<Command::Motor> motorBArg,
     std::shared_ptr<Command::Encoder> encoderAArg,
+    std::shared_ptr<Command::Encoder> encoderBArg,
     std::shared_ptr<Time::HST> hstArg,
     std::shared_ptr<Command::Scheduler> schedulerArg,
     std::shared_ptr<Command::DataSend> dataSendArg
 ) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, 
     timeMgr{ timeArg }, 
     motorA{ motorAArg }, motorB{ motorBArg }, 
-    encoderA{ encoderAArg },
+    encoderA{ encoderAArg }, encoderB{ encoderBArg },
     hst{ hstArg },
     scheduler{ schedulerArg },
     dataSend{ dataSendArg }
@@ -78,6 +79,7 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::SetMotorA,    &ProcessCommand::doSetMotorA},
   { CommandParser::Command::SetMotorB,    &ProcessCommand::doSetMotorB},
   { CommandParser::Command::GetEncoderA,  &ProcessCommand::doGetEncoderA},
+  { CommandParser::Command::GetEncoderB,  &ProcessCommand::doGetEncoderB},
   { CommandParser::Command::GetTimeMs,    &ProcessCommand::doGetTimeMs},
   { CommandParser::Command::GetTimeUs,    &ProcessCommand::doGetTimeUs},
   { CommandParser::Command::Profile,      &ProcessCommand::doProfile},
@@ -129,6 +131,13 @@ void ProcessCommand::doGetEncoderA( CommandParser::CommandPacket cp )
   (void) cp;
   int position = encoderA->getPosition();
   net->get() << "encodera " << position << "\n";
+}
+
+void ProcessCommand::doGetEncoderB( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  int position = encoderB->getPosition();
+  net->get() << "encoderb " << position << "\n";
 }
 
 void ProcessCommand::doGetTimeMs( CommandParser::CommandPacket cp )

@@ -49,6 +49,7 @@ class ProcessCommand: public Base
   /// @param[in] motorAArg    - The class that controls "motor a"
   /// @param[in] motorBArg    - The class that controls "motor b"
   /// @param[in] encoderAArg  - The encoder for "motor a"
+  /// @param[in] encoderBArg  - The encoder for "motor b"
   /// @param[in] hstArg       - Interface for the High Speed Timer
   ///
   ProcessCommand( 
@@ -59,6 +60,7 @@ class ProcessCommand: public Base
 		std::shared_ptr<Command::Motor> motorAArg,
 		std::shared_ptr<Command::Motor> motorBArg,
 		std::shared_ptr<Command::Encoder> encoderAArg,
+		std::shared_ptr<Command::Encoder> encoderBArg,
 		std::shared_ptr<Time::HST> hstArg, 
 		std::shared_ptr<Command::Scheduler > schedulerArg,
 		std::shared_ptr<Command::DataSend > dataSendArg 
@@ -105,6 +107,7 @@ class ProcessCommand: public Base
   void doSetMotorA( CommandParser::CommandPacket );
   void doSetMotorB( CommandParser::CommandPacket );
   void doGetEncoderA( CommandParser::CommandPacket );
+  void doGetEncoderB( CommandParser::CommandPacket );
   void doGetTimeMs( CommandParser::CommandPacket );
   void doGetTimeUs( CommandParser::CommandPacket );
   void doProfile( CommandParser::CommandPacket );
@@ -123,6 +126,8 @@ class ProcessCommand: public Base
   std::shared_ptr<Command::Motor> motorB;
   /// @brief Interface to Encoder A
   std::shared_ptr<Command::Encoder> encoderA;
+  /// @brief Interface to Encoder B
+  std::shared_ptr<Command::Encoder> encoderB;
   /// @brief Interface to the high speed timer
   std::shared_ptr<Time::HST> hst;
   /// @brief Interface to the command scheduler, for reporting

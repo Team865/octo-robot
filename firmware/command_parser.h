@@ -17,6 +17,7 @@ namespace CommandParser {
     SetMotorA,            ///<  Set motor A to a value
     SetMotorB,            ///<  Set motor B to a value
     GetEncoderA,          ///<  Get the current encoder A value
+    GetEncoderB,          ///<  Get the current encoder B value
     GetTimeMs,            ///<  Get ms since device start
     GetTimeUs,            ///<  Get us since device start
     Profile,              ///<  Dump profiling data to net

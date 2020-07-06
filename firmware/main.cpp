@@ -39,16 +39,20 @@ void setup() {
   auto motorB = std::make_shared<Command::Motor>(
                         hardware, debug, wifi, 
                         HWI::Pin::MOTOR1_PIN0, HWI::Pin::MOTOR1_PIN1 );
-  auto encoder = std::make_shared<Command::Encoder>(
+  auto encoderA = std::make_shared<Command::Encoder>(
                         hardware, debug, wifi, 
                         HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1 );
-  auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, encoder );
+  auto encoderB = std::make_shared<Command::Encoder>(
+                        hardware, debug, wifi, 
+                        HWI::Pin::ENCODER1_PIN0, HWI::Pin::ENCODER1_PIN1 );
+  auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, 
+                        encoderA, encoderB );
 
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                         wifi, hardware, debug, 
                         time,   
                         motorA, motorB,
-                        encoder,
+                        encoderA, encoderB,
                         hst,
                         scheduler,
                         dataSend );
@@ -56,7 +60,8 @@ void setup() {
   scheduler->addCommand( commandProcessor);
   scheduler->addCommand( motorA );
   scheduler->addCommand( motorB );
-  scheduler->addCommand( encoder );
+  scheduler->addCommand( encoderA );
+  scheduler->addCommand( encoderB );
   scheduler->addCommand( wifi );
   auto connection = wifi->getShared();
   scheduler->addCommand( connection );

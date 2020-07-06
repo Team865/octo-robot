@@ -24,7 +24,8 @@ class DataSend: public Base {
   DataSend( 
     std::shared_ptr<DebugInterface>     debugArg,
     std::shared_ptr<NetInterface>       netArg,
-    std::shared_ptr<Command::Encoder>   encoderAArg
+    std::shared_ptr<Command::Encoder>   encoderAArg,
+    std::shared_ptr<Command::Encoder>   encoderBArg
   );
 
   ///
@@ -52,8 +53,10 @@ class DataSend: public Base {
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
-  // @brief Interface to the encoder
+  // @brief Interface to Motor A's encoder
   std::shared_ptr<Encoder> encoderA;
+  // @brief Interface to Motor B's encoder
+  std::shared_ptr<Encoder> encoderB;
   // @brief Are we currently outputting data
   bool isOutputting;
 };

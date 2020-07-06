@@ -157,7 +157,6 @@ class HWISim: public HWI
   }
   PinState DigitalRead( Pin pin ) override
   {
-    std::cout << "DR " << HWI::pinNames.at(pin) << " returning INPUT_LOW";
     return HWI::PinState::INPUT_LOW;
   }
   unsigned AnalogRead( Pin pin ) override
@@ -208,17 +207,22 @@ void setup() {
   auto motorSimB  = std::make_shared<Command::Motor>( 
                           hardware, debug, wifi, 
                           HWI::Pin::MOTOR1_PIN0, HWI::Pin::MOTOR1_PIN1 );
-  auto encoderSim = std::make_shared<Command::Encoder>(
+  auto encoderASim = std::make_shared<Command::Encoder>(
                           hardware, debug, wifi, 
                           HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1);
+  auto encoderBSim = std::make_shared<Command::Encoder>(
+                          hardware, debug, wifi, 
+                          HWI::Pin::ENCODER1_PIN0, HWI::Pin::ENCODER1_PIN1);
  
-  auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, encoderSim );
+  auto dataSend = std::make_shared<Command::DataSend>( 
+                          debug, wifi, 
+                          encoderASim, encoderBSim );
 
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                           wifi, hardware, debug, 
                           time, 
-                          motorSimA, motorSimB, 
-                          encoderSim,
+                          motorSimA,    motorSimB, 
+                          encoderASim,  encoderBSim,
                           hst,
                           scheduler,
                           dataSend
@@ -229,6 +233,8 @@ void setup() {
   scheduler->addCommand( hst );
   scheduler->addCommand( motorSimA );
   scheduler->addCommand( motorSimB );
+  scheduler->addCommand( encoderASim );
+  scheduler->addCommand( encoderBSim );
   scheduler->addCommand( wifi );
   scheduler->addCommand( dataSend );
 }

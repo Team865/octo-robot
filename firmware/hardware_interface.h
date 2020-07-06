@@ -29,6 +29,8 @@ class HWI
     MOTOR1_PIN1,
     ENCODER0_PIN0,
     ENCODER0_PIN1,
+    ENCODER1_PIN0,
+    ENCODER1_PIN1,
     END_OF_PINS 
   };
 
