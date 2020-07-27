@@ -42,7 +42,6 @@ void Motor::doPulse( Motor::Pulse pulse )
     case Pulse::NONE:
       // Stopped,  Both inputs off.
       hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
-      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
       hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_NEG );
       break;
   }
