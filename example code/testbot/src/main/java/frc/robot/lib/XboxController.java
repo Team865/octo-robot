@@ -145,7 +145,7 @@ public class XboxController {
          * @return if the button is held down
          */
         public boolean isHeldDown() {
-            System.out.println(this == HeldDown);
+            //System.out.println(this == HeldDown);
             return this == HeldDown;
         }
 
