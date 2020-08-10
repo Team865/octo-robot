@@ -15,7 +15,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.lib.TestbotSpeedController;
 
 /**
  * An example command that uses an example subsystem.
@@ -35,6 +37,9 @@ public class RobotCommand extends CommandBase {
   public static int nextBSpeed;
   private int motorASpeed;
   private int motorBSpeed;
+  private TestbotSpeedController motorA;
+  private TestbotSpeedController motorB;
+  private DifferentialDrive drive;
 
   /**
    * Creates a new ExampleCommand.
@@ -48,7 +53,6 @@ public class RobotCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //System.out.println("It's time to get funky...");
     motorASpeed = 0;
     motorBSpeed = 0;
     nextASpeed = 0;
@@ -57,7 +61,7 @@ public class RobotCommand extends CommandBase {
 
     int trycount = 0;
     isConnected = false;
-    while (trycount < 10 && !isConnected){
+    while (trycount < 5 && !isConnected){
       try {
         socket = new Socket("192.168.4.1", 4999);
         output = socket.getOutputStream();
@@ -65,12 +69,14 @@ public class RobotCommand extends CommandBase {
         writer = new PrintWriter(output, true);
         reader = new BufferedReader(new InputStreamReader(input));
         isConnected = true;
+
+        motorA = new TestbotSpeedController(writer, "motora");
+        motorB = new TestbotSpeedController(writer, "motorb");
+        drive = new DifferentialDrive(motorA, motorB);
       } catch (IOException e) {
-        //System.out.println("helpmeoutican'tseemtogetthiswindowopen");
         e.printStackTrace();
         trycount++;
       }
-      //System.out.println("Never mind now it's open");
     }
   }
 
@@ -80,21 +86,12 @@ public class RobotCommand extends CommandBase {
     setSpeeds(nextASpeed, nextBSpeed);
 
     if (isConnected){
-      //System.out.println("BREAKDOWN BREAKDOWN");
-      if (newSpeeds){
-        writer.println("motora=" + motorASpeed);
-        writer.println("motorb=" + motorBSpeed);
-        newSpeeds = false;
-        //System.out.println("I think my hand is broken");
-      }
+      drive.tankDrive(motorASpeed, motorBSpeed);
       try {
-        //System.out.println("no crash pls :3");
         if(input.available() > 0){
           reader.read();
-        }
-        //System.out.println("out");       
+        } 
       } catch (IOException e) {
-        //System.out.println("the odds of me seeing this message are high");
         e.printStackTrace();
       }
     }
