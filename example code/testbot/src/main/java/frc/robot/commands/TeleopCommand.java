@@ -47,36 +47,19 @@ public class TeleopCommand extends CommandBase {
     if (driver.bButton.isHeldDown()) {
       rightWheelSpeed += addedWheelSpeed;
       leftWheelSpeed += addedWheelSpeed;
-      //SmartDashboard.putString("Right Wheel", "Forwards!");
-      //SmartDashboard.putString("Left Wheel", "Forwards!");
-      //SmartDashboard.putString("Robot State", "Going forwards.");
     }
     if (driver.xButton.isHeldDown()){
       rightWheelSpeed += -1 * addedWheelSpeed;
       leftWheelSpeed += -1 * addedWheelSpeed;
-      //SmartDashboard.putString("Right Wheel", "Backwards!");
-      //SmartDashboard.putString("Left Wheel", "Backwards!");
-      //SmartDashboard.putString("Robot State", "Backing up.");
     }
     if (driver.leftBumper.isHeldDown()){
       rightWheelSpeed += addedWheelSpeed;
       leftWheelSpeed += -1 * addedWheelSpeed;
-      //SmartDashboard.putString("Right Wheel", "Forwards!");
-      //SmartDashboard.putString("Left Wheel", "Backwards!");
-      //SmartDashboard.putString("Robot State", "Turning left.");
     }
     if (driver.rightBumper.isHeldDown()){
       rightWheelSpeed += -1 * addedWheelSpeed;
       leftWheelSpeed += addedWheelSpeed;
-      //SmartDashboard.putString("Right Wheel", "Backwards!");
-      //SmartDashboard.putString("Left Wheel", "Forwards!");
-      //SmartDashboard.putString("Robot State", "Turning right.");
     }
-    //else{
-    //  SmartDashboard.putString("Right Wheel", "Stationary.");
-    //  SmartDashboard.putString("Left Wheel", "Stationary.");
-    //  SmartDashboard.putString("Robot State", "Staying still.");
-    //}
     if (rightWheelSpeed > maxWheelSpeed){
       rightWheelSpeed = maxWheelSpeed;
     }
