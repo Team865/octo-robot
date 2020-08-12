@@ -54,29 +54,29 @@ public class TeleopCommand extends CommandBase {
       nextMotorBSpeed += addedWheelSpeed;
     }
     if (driver.xButton.isHeldDown()){
-      nextMotorASpeed += -1 * addedWheelSpeed;
-      nextMotorBSpeed += -1 * addedWheelSpeed;
+      nextMotorASpeed -= addedWheelSpeed;
+      nextMotorBSpeed -= addedWheelSpeed;
     }
     if (driver.leftBumper.isHeldDown()){
       nextMotorASpeed += addedWheelSpeed;
-      nextMotorBSpeed += -1 * addedWheelSpeed;
+      nextMotorBSpeed -= addedWheelSpeed;
     }
     if (driver.rightBumper.isHeldDown()){
-      nextMotorASpeed += -1 * addedWheelSpeed;
+      nextMotorASpeed -= addedWheelSpeed;
       nextMotorBSpeed += addedWheelSpeed;
     }
     if (nextMotorASpeed > maxWheelSpeed){
       nextMotorASpeed = maxWheelSpeed;
     }
-    else if (nextMotorASpeed < -1 * maxWheelSpeed){
-      nextMotorASpeed = -1 * maxWheelSpeed;
+    else if (nextMotorASpeed < -maxWheelSpeed){
+      nextMotorASpeed = -maxWheelSpeed;
     }
 
     if (nextMotorBSpeed > maxWheelSpeed){
       nextMotorBSpeed = maxWheelSpeed;
     }
-    else if (nextMotorBSpeed < -1 * maxWheelSpeed){
-      nextMotorBSpeed = -1 * maxWheelSpeed;
+    else if (nextMotorBSpeed < -maxWheelSpeed){
+      nextMotorBSpeed = -maxWheelSpeed;
     }
 
     SmartDashboard.putString("Right Wheel", Integer.toString(nextMotorASpeed));
