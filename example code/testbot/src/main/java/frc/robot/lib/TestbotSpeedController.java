@@ -1,19 +1,16 @@
 package frc.robot.lib;
 
-import java.io.PrintWriter;
 
 import edu.wpi.first.wpilibj.SpeedController;
 
 public class TestbotSpeedController implements SpeedController {
     private double motorSpeed;
     private boolean inverted;
-    private PrintWriter writer;
     private String name;
 
-    public TestbotSpeedController(PrintWriter setWriter, String setName){
+    public TestbotSpeedController(String setName){
         motorSpeed = 0.0;
         inverted = false;
-        writer = setWriter;
         name = setName;
     }
 
@@ -56,11 +53,13 @@ public class TestbotSpeedController implements SpeedController {
     }
 
     private void update(){
+        InternetConnecter internet = InternetConnecter.getInstance();
         if(!inverted){
-            writer.println(name + "=" + motorSpeed);
+            internet.sendData(name + "=" + motorSpeed);
         }
         else{
-            writer.println(name + "=" + motorSpeed * -1.0);
+            internet.sendData(name + "=" + motorSpeed * -1.0);
         }
+        internet.getData();
     }
 }

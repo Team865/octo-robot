@@ -10,7 +10,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.RobotCommand;
 import frc.robot.commands.TeleopCommand;
 
 /**
@@ -24,7 +23,7 @@ public class Robot extends TimedRobot {
 
   private Command m_autonomousCommand;
   private Command teleopCommand;
-  private Command robotCommand;
+  //private Command robotCommand;
 
   private RobotContainer m_robotContainer;
 
@@ -39,7 +38,6 @@ public class Robot extends TimedRobot {
     System.out.println("Hello me is robit!");
     m_robotContainer = new RobotContainer();
     teleopCommand = new TeleopCommand();
-    robotCommand = new RobotCommand();
     scheduler = CommandScheduler.getInstance();
   }
 
@@ -100,8 +98,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     scheduler.schedule(teleopCommand);
-    scheduler.schedule(robotCommand);
-    System.out.println("teleopCommand scheduled");
+    //scheduler.schedule(robotCommand);
   }
 
   /**

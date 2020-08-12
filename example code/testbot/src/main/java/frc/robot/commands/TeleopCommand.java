@@ -10,6 +10,8 @@ package frc.robot.commands;
 import frc.robot.lib.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.lib.TestbotSpeedController;
 
 /**
  * An example command that uses an example subsystem.
@@ -18,13 +20,18 @@ public class TeleopCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private XboxController driver = new XboxController(0);
 
+  private TestbotSpeedController motorA;
+  private TestbotSpeedController motorB;
+  private DifferentialDrive drive;
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
   public TeleopCommand() {
-    // Use addRequirements() here to declare subsystem dependencies.
+    motorA = new TestbotSpeedController("motora");
+    motorB = new TestbotSpeedController("motorb");
+    drive = new DifferentialDrive(motorA, motorB);
   }
 
   // Called when the command is initially scheduled.
@@ -35,49 +42,47 @@ public class TeleopCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //System.out.println("Why does this always happen");
     driver.collectControllerData();
 
-    int rightWheelSpeed = 0;
-    int leftWheelSpeed = 0;
+    int nextMotorASpeed = 0;
+    int nextMotorBSpeed = 0;
     int maxWheelSpeed = 100;
     int addedWheelSpeed = 100;
-    //System.out.println("TeleopCommand is running");
 
     if (driver.bButton.isHeldDown()) {
-      rightWheelSpeed += addedWheelSpeed;
-      leftWheelSpeed += addedWheelSpeed;
+      nextMotorASpeed += addedWheelSpeed;
+      nextMotorBSpeed += addedWheelSpeed;
     }
     if (driver.xButton.isHeldDown()){
-      rightWheelSpeed += -1 * addedWheelSpeed;
-      leftWheelSpeed += -1 * addedWheelSpeed;
+      nextMotorASpeed += -1 * addedWheelSpeed;
+      nextMotorBSpeed += -1 * addedWheelSpeed;
     }
     if (driver.leftBumper.isHeldDown()){
-      rightWheelSpeed += addedWheelSpeed;
-      leftWheelSpeed += -1 * addedWheelSpeed;
+      nextMotorASpeed += addedWheelSpeed;
+      nextMotorBSpeed += -1 * addedWheelSpeed;
     }
     if (driver.rightBumper.isHeldDown()){
-      rightWheelSpeed += -1 * addedWheelSpeed;
-      leftWheelSpeed += addedWheelSpeed;
+      nextMotorASpeed += -1 * addedWheelSpeed;
+      nextMotorBSpeed += addedWheelSpeed;
     }
-    if (rightWheelSpeed > maxWheelSpeed){
-      rightWheelSpeed = maxWheelSpeed;
+    if (nextMotorASpeed > maxWheelSpeed){
+      nextMotorASpeed = maxWheelSpeed;
     }
-    else if (rightWheelSpeed < -1 * maxWheelSpeed){
-      rightWheelSpeed = -1 * maxWheelSpeed;
-    }
-
-    if (leftWheelSpeed > maxWheelSpeed){
-      leftWheelSpeed = maxWheelSpeed;
-    }
-    else if (leftWheelSpeed < -1 * maxWheelSpeed){
-      leftWheelSpeed = -1 * maxWheelSpeed;
+    else if (nextMotorASpeed < -1 * maxWheelSpeed){
+      nextMotorASpeed = -1 * maxWheelSpeed;
     }
 
-    RobotCommand.nextASpeed = rightWheelSpeed;
-    RobotCommand.nextBSpeed = leftWheelSpeed;
-    SmartDashboard.putString("Right Wheel", Integer.toString(rightWheelSpeed));
-    SmartDashboard.putString("Left Wheel", Integer.toString(leftWheelSpeed));
+    if (nextMotorBSpeed > maxWheelSpeed){
+      nextMotorBSpeed = maxWheelSpeed;
+    }
+    else if (nextMotorBSpeed < -1 * maxWheelSpeed){
+      nextMotorBSpeed = -1 * maxWheelSpeed;
+    }
+
+    SmartDashboard.putString("Right Wheel", Integer.toString(nextMotorASpeed));
+    SmartDashboard.putString("Left Wheel", Integer.toString(nextMotorBSpeed));
+
+    drive.tankDrive(nextMotorASpeed, nextMotorBSpeed);
   }
 
   // Called once the command ends or is interrupted.
