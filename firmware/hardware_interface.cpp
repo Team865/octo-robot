@@ -15,7 +15,9 @@ const std::unordered_map<HWI::PinState,std::string,EnumHash> HWI::pinStateNames 
   { PinState::MOTOR_POS,            "Voltage On"      },
   { PinState::MOTOR_NEG,            "Voltage Off"     },
   { PinState::INPUT_LOW,            "Input GND"       },
-  { PinState::INPUT_HIGH,           "Input VCC"       }
+  { PinState::INPUT_HIGH,           "Input VCC"       },
+  { PinState::ECHO_OFF,             "SR04 Echo Off"   },
+  { PinState::ECHO_ON,              "SR04 Echo Pulse" }
 };
 
 const std::unordered_map<HWI::PinIOMode,std::string,EnumHash> HWI::pinIOModeNames = {

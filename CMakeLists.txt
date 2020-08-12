@@ -43,6 +43,7 @@ set (FIRMWARE_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_parser.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_process_input.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_scheduler.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_sr04.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/time_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/util_profile.cpp
 )

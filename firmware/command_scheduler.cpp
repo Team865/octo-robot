@@ -44,7 +44,7 @@ Time::TimeUS Scheduler::execute()
   PriorityAndCommandSlot current = nextCommandQueue.top();
   nextCommandQueue.pop();
 
-  // 3. Grather informatin
+  // 3. Gather informatin
   const CommandSlotIndex index = current.second;
   ActionRecord& action = actions.at( index.get() );
   std::shared_ptr<Base>& command = action.first;

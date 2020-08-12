@@ -40,6 +40,8 @@ class HWI
     MOTOR_NEG,        // Don't apply voltage
     INPUT_LOW,        // Some input is 0            
     INPUT_HIGH,       // Some input is 1
+    ECHO_OFF,         // sr04 echo is disabled
+    ECHO_ON,          // sr04 echo is pulsing
     END_OF_PIN_STATES
   };
 
