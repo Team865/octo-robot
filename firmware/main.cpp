@@ -45,6 +45,10 @@ void setup() {
   auto encoderB = std::make_shared<Command::Encoder>(
                         hardware, debug, wifi, 
                         HWI::Pin::ENCODER1_PIN0, HWI::Pin::ENCODER1_PIN1 );
+  auto sr04     = std::make_shared<Command::SR04> ( 
+                        hardware, debug, wifi, hst,
+                        HWI::Pin::SR04_TRIG, HWI::Pin::SR04_ECHO );
+          
   auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, 
                         encoderA, encoderB );
 
@@ -53,6 +57,7 @@ void setup() {
                         time,   
                         motorA, motorB,
                         encoderA, encoderB,
+                        sr04,
                         hst,
                         scheduler,
                         dataSend );
@@ -62,6 +67,7 @@ void setup() {
   scheduler->addCommand( motorB );
   scheduler->addCommand( encoderA );
   scheduler->addCommand( encoderB );
+  scheduler->addCommand( sr04 );
   scheduler->addCommand( wifi );
   auto connection = wifi->getShared();
   scheduler->addCommand( connection );

@@ -31,6 +31,8 @@ class HWI
     ENCODER0_PIN1,
     ENCODER1_PIN0,
     ENCODER1_PIN1,
+    SR04_TRIG,
+    SR04_ECHO,
     END_OF_PINS 
   };
 

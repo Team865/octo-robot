@@ -9,6 +9,8 @@ const std::unordered_map<HWI::Pin,std::string,EnumHash> HWI::pinNames = {
     { Pin::ENCODER0_PIN1,   "Encoder0 Pin1" },
     { Pin::ENCODER1_PIN0,   "Encoder1 Pin0" },
     { Pin::ENCODER1_PIN1,   "Encoder1 Pin1" },
+    { Pin::SR04_TRIG,       "SR04 Trigger" },
+    { Pin::SR04_ECHO,       "SR04 Echo" },
 };
 
 const std::unordered_map<HWI::PinState,std::string,EnumHash> HWI::pinStateNames = {

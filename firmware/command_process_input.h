@@ -11,6 +11,7 @@
 #include "command_datasend.h"
 #include "command_motor.h"
 #include "command_parser.h"
+#include "command_sr04.h"
 #include "hardware_interface.h"
 #include "net_interface.h"
 #include "time_interface.h"
@@ -61,6 +62,7 @@ class ProcessCommand: public Base
 		std::shared_ptr<Command::Motor> motorBArg,
 		std::shared_ptr<Command::Encoder> encoderAArg,
 		std::shared_ptr<Command::Encoder> encoderBArg,
+		std::shared_ptr<Command::SR04> sr04Arg,
 		std::shared_ptr<Time::HST> hstArg, 
 		std::shared_ptr<Command::Scheduler > schedulerArg,
 		std::shared_ptr<Command::DataSend > dataSendArg 
@@ -113,6 +115,7 @@ class ProcessCommand: public Base
   void doProfile( CommandParser::CommandPacket );
   void doRProfile( CommandParser::CommandPacket );
   void doDataSend( CommandParser::CommandPacket );
+  void doRangeSensor( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
@@ -128,6 +131,8 @@ class ProcessCommand: public Base
   std::shared_ptr<Command::Encoder> encoderA;
   /// @brief Interface to Encoder B
   std::shared_ptr<Command::Encoder> encoderB;
+  /// @brief Interface to SR04 Sonar Range Finder
+  std::shared_ptr<Command::SR04> sr04;
   /// @brief Interface to the high speed timer
   std::shared_ptr<Time::HST> hst;
   /// @brief Interface to the command scheduler, for reporting

@@ -1,9 +1,10 @@
 #include "command_sr04.h"
 #include "wifi_debug_ostream.h"
+#include "wifi_debug_ostream.h"
 
 namespace Command{
 
-const Time::DeviceTimeUS echoTimeout{ 5882 };
+const Time::DeviceTimeUS echoTimeout{ 4500 };
 
 // Update at 100x a second when in idle mode
 const Time::TimeUS idleReschedule{ 10000 };
@@ -36,14 +37,16 @@ void SR04::handleAwaitingEcho()
 {
   Time::DeviceTimeUS time = hst->usSinceDeviceStart();
   Time::DeviceTimeUS usSinceEchoSent{ time - echoSentAt };
+ 
   if ( usSinceEchoSent > echoTimeout  ) {   // timeout
     // TODO - retry bad readings?
+    net->get() << "RANGE FAIL NOECHO " << usSinceEchoSent.get() << "\n";
     mode = Mode::IDLE;
     distance = READING_FAILED;
     return;
   }
 
-  if ( hwi->DigitalRead( pinEcho ) == HWI::PinState::INPUT_HIGH )
+  if ( hwi->DigitalRead( pinEcho ) == HWI::PinState::INPUT_LOW )
   {
     //
     // The pulse came in sometime between now and the last time we checked
@@ -54,7 +57,9 @@ void SR04::handleAwaitingEcho()
     //        event.  The tail latency there can be over 100us.  Maybe
     //        throw out readings with a long delay and restart.
     //
-    Time::DeviceTimeUS avgTime { ( usSinceEchoSent - lastCheck ) / 2};
+    Time::DeviceTimeUS avgTime { ( usSinceEchoSent.get() + lastCheck.get() ) / 2};
+    unsigned int error = (usSinceEchoSent- lastCheck) / 2;
+ 
     //
     // distance in cm = usSinceEchoSent * .034 / 2 ( see header for details)
     // distance in mm = usSinceEchoSent * .34 / 2;
@@ -62,6 +67,8 @@ void SR04::handleAwaitingEcho()
     // = usSinceEchoSent * 17 / 100;
     //
     distance = avgTime.get() * 17 / 100;
+    unsigned int errorDistance = error * 17 / 100;
+    net->get() << "RANGE " << distance << " ERROR " << errorDistance << "\n";
     mode = Mode::IDLE;
     return;
   }
@@ -70,23 +77,32 @@ void SR04::handleAwaitingEcho()
 
 void SR04::handleSensorRequested()
 {
-  // Clear the echo pin for at least 2us
   hwi->DigitalWrite( pinTrig, HWI::PinState::ECHO_OFF );
-  Time::DeviceTimeUS startPinDown = hst->usSinceDeviceStart();
-  while ( hst->usSinceDeviceStart() - startPinDown < 3 );
+  auto start = hst->usSinceDeviceStart();
+  while (hst->usSinceDeviceStart() - start < 3 );
 
-  // Pulse the echo pin back on for 10us
   hwi->DigitalWrite( pinTrig, HWI::PinState::ECHO_ON );
-  while ( hst->usSinceDeviceStart() - startPinDown < 13 );
+  start = hst->usSinceDeviceStart();
+  while (hst->usSinceDeviceStart() - start < 11 );
+
   hwi->DigitalWrite( pinTrig, HWI::PinState::ECHO_OFF );
 
-  // Sent start times
-  echoSentAt = startPinDown+13;
-  lastCheck = echoSentAt;
-  
-  // Set mode and state variables
+  start = hst->usSinceDeviceStart();
+  while( hwi->DigitalRead( pinEcho ) == HWI::PinState::INPUT_LOW ) 
+  {
+    // It looks like it takes about 500us to get a pulse out.
+    if ( hst->usSinceDeviceStart() - start > 1000 ) 
+    {
+      net->get() << "RANGE FAIL TRIG TIMEOUT\n";
+      break;
+    }
+  }
+
   mode = Mode::AWAITING_ECHO;
   distance = READING_IN_PROGRESS;
+
+  echoSentAt = hst->usSinceDeviceStart();
+  lastCheck =  Time::DeviceTimeUS{0};
 }
 
 Time::TimeUS SR04::execute() 

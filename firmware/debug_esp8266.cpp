@@ -3,7 +3,8 @@
 
 DebugESP8266::DebugESP8266()
 {
-	Serial.begin( 115200 );
+	//Serial.begin( 115200 );
+  isDisabled = true;
 }
 
 void DebugESP8266::disable()

@@ -25,6 +25,7 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<Command::Motor> motorBArg,
     std::shared_ptr<Command::Encoder> encoderAArg,
     std::shared_ptr<Command::Encoder> encoderBArg,
+    std::shared_ptr<Command::SR04> sr04Arg,
     std::shared_ptr<Time::HST> hstArg,
     std::shared_ptr<Command::Scheduler> schedulerArg,
     std::shared_ptr<Command::DataSend> dataSendArg
@@ -32,6 +33,7 @@ ProcessCommand::ProcessCommand(
     timeMgr{ timeArg }, 
     motorA{ motorAArg }, motorB{ motorBArg }, 
     encoderA{ encoderAArg }, encoderB{ encoderBArg },
+    sr04{ sr04Arg },
     hst{ hstArg },
     scheduler{ schedulerArg },
     dataSend{ dataSendArg }
@@ -85,6 +87,7 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::Profile,      &ProcessCommand::doProfile},
   { CommandParser::Command::RProfile,     &ProcessCommand::doRProfile},
   { CommandParser::Command::DataSend,     &ProcessCommand::doDataSend},
+  { CommandParser::Command::RangeSensor,  &ProcessCommand::doRangeSensor},
   { CommandParser::Command::NoCommand,    &ProcessCommand::doError},
 };
 
@@ -170,6 +173,13 @@ void ProcessCommand::doDataSend( CommandParser::CommandPacket cp )
   net->get() << "Datasend " << cp.optionalArg << "\n";
   dataSend->setOutput( cp.optionalArg != 0 );
 }
+
+void ProcessCommand::doRangeSensor( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  sr04->sensorRequest();
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 //

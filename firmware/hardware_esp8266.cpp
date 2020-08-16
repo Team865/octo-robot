@@ -10,12 +10,16 @@ const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap =
   { Pin::ENCODER0_PIN0,   4     },
   { Pin::ENCODER0_PIN1,   5     },
   { Pin::ENCODER1_PIN0,   12    },
-  { Pin::ENCODER1_PIN1,   16    }
+  { Pin::ENCODER1_PIN1,   16    },
+  { Pin::SR04_TRIG,       3     },
+  { Pin::SR04_ECHO,       5     }
 };
 
 const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {
   { PinState::MOTOR_POS,      HIGH  },
   { PinState::MOTOR_NEG,      LOW   },
+  { PinState::ECHO_ON,        HIGH  },
+  { PinState::ECHO_OFF,       LOW   }
 };
 
 namespace
@@ -52,6 +56,9 @@ HardwareESP8266::HardwareESP8266()
     }
     fastAbstractToRealPinState[ index ] = entry.second;
   }
+
+  pinMode( 1, FUNCTION_3 );
+  pinMode( 3, FUNCTION_3 );
 }
 
 void HardwareESP8266::DigitalWrite( Pin pin, PinState state )
