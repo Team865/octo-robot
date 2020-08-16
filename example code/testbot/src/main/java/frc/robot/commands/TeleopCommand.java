@@ -11,6 +11,7 @@ import frc.robot.lib.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.lib.InternetConnecter;
 import frc.robot.lib.TestbotSpeedController;
 
 /**
@@ -22,6 +23,8 @@ public class TeleopCommand extends CommandBase {
 
   private TestbotSpeedController motorA;
   private TestbotSpeedController motorB;
+  private int motorASpeed;
+  private int motorBSpeed;
   private DifferentialDrive drive;
   /**
    * Creates a new ExampleCommand.
@@ -32,6 +35,8 @@ public class TeleopCommand extends CommandBase {
     motorA = new TestbotSpeedController("motora");
     motorB = new TestbotSpeedController("motorb");
     drive = new DifferentialDrive(motorA, motorB);
+    motorASpeed = 0;
+    motorBSpeed = 0;
   }
 
   // Called when the command is initially scheduled.
@@ -49,6 +54,8 @@ public class TeleopCommand extends CommandBase {
     int maxWheelSpeed = 100;
     int addedWheelSpeed = 100;
 
+    InternetConnecter internet = InternetConnecter.getInstance();
+
     if (driver.bButton.isHeldDown()) {
       nextMotorASpeed += addedWheelSpeed;
       nextMotorBSpeed += addedWheelSpeed;
@@ -65,29 +72,27 @@ public class TeleopCommand extends CommandBase {
       nextMotorASpeed -= addedWheelSpeed;
       nextMotorBSpeed += addedWheelSpeed;
     }
-    if (nextMotorASpeed > maxWheelSpeed){
-      nextMotorASpeed = maxWheelSpeed;
-    }
-    else if (nextMotorASpeed < -maxWheelSpeed){
-      nextMotorASpeed = -maxWheelSpeed;
-    }
 
-    if (nextMotorBSpeed > maxWheelSpeed){
-      nextMotorBSpeed = maxWheelSpeed;
-    }
-    else if (nextMotorBSpeed < -maxWheelSpeed){
-      nextMotorBSpeed = -maxWheelSpeed;
-    }
+    nextMotorASpeed = Math.min(nextMotorASpeed, maxWheelSpeed);
+    nextMotorASpeed = Math.max(nextMotorASpeed, -maxWheelSpeed);
 
-    SmartDashboard.putString("Right Wheel", Integer.toString(nextMotorASpeed));
-    SmartDashboard.putString("Left Wheel", Integer.toString(nextMotorBSpeed));
+    nextMotorBSpeed = Math.min(nextMotorBSpeed, maxWheelSpeed);
+    nextMotorBSpeed = Math.max(nextMotorBSpeed, -maxWheelSpeed);
 
-    drive.tankDrive(nextMotorASpeed, nextMotorBSpeed);
+    motorASpeed = nextMotorASpeed;
+    motorBSpeed = nextMotorBSpeed;
+
+    SmartDashboard.putString("Right Wheel", Integer.toString(motorASpeed));
+    SmartDashboard.putString("Left Wheel", Integer.toString(motorBSpeed));
+
+    drive.tankDrive(motorASpeed, motorBSpeed);
+    internet.periodic();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    drive.tankDrive(0, 0);
   }
 
   // Returns true when the command should end.

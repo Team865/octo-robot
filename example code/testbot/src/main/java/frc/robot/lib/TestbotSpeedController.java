@@ -16,8 +16,7 @@ public class TestbotSpeedController implements SpeedController {
 
     @Override
     public void disable(){
-        motorSpeed = 0.0;
-        update();
+        update(0.0);
     }
 
     @Override
@@ -32,34 +31,34 @@ public class TestbotSpeedController implements SpeedController {
 
     @Override
     public void set(double speed){
-        motorSpeed = speed * 100;
-        update();
+        update(speed * 100);
     }
 
     @Override
     public void setInverted(boolean isInverted){
         inverted = isInverted;
-        update();
+        update(motorSpeed);
     }
 
     @Override
     public void stopMotor(){
-        motorSpeed = 0.0;
-        update();
+        update(0.0);
     }
 
     @Override
     public void pidWrite(double output) {
     }
 
-    private void update(){
+    private void update(double newSpeed){
         InternetConnecter internet = InternetConnecter.getInstance();
-        if(!inverted){
-            internet.sendData(name + "=" + motorSpeed);
+        if(newSpeed != motorSpeed){
+            motorSpeed = newSpeed;
+            if(!inverted){
+                internet.addToPipe(name + "=" + (int)motorSpeed);
+            }
+            else{
+                internet.addToPipe(name + "=" + (int)(motorSpeed * -1.0));
+            }
         }
-        else{
-            internet.sendData(name + "=" + motorSpeed * -1.0);
-        }
-        internet.getData();
     }
 }
