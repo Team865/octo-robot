@@ -108,8 +108,8 @@ public class XboxController {
         } else {
             if (!unplugReported) {
                 unplugReported = true;
-                DriverStation.reportWarning("The controller on port " + port +
-                        "is not plugged in", false);
+                //DriverStation.reportWarning("The controller on port " + port +
+                //        "is not plugged in", false);
             }
         }
     }
