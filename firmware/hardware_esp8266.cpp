@@ -3,15 +3,15 @@
 
 const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap = 
 {
-  { Pin::MOTOR0_PIN0,     15    },
-  { Pin::MOTOR0_PIN1,     13    },
-  { Pin::MOTOR1_PIN0,     14    },
-  { Pin::MOTOR1_PIN1,     0     },
-  { Pin::ENCODER0_PIN0,   4     },
-  { Pin::ENCODER0_PIN1,   5     },
-  { Pin::ENCODER1_PIN0,   12    },
-  { Pin::ENCODER1_PIN1,   16    },
-  { Pin::SR04_TRIG,       3     },
+  { Pin::MOTOR0_PIN0,     0     },
+  { Pin::MOTOR0_PIN1,     2     },
+  { Pin::MOTOR1_PIN0,     16    },
+  { Pin::MOTOR1_PIN1,     15    },
+  { Pin::ENCODER0_PIN0,   14    },
+  { Pin::ENCODER0_PIN1,   12    },
+  { Pin::ENCODER1_PIN0,   13    },
+  { Pin::ENCODER1_PIN1,   4     },
+  { Pin::SR04_TRIG,       1     },
   { Pin::SR04_ECHO,       5     }
 };
 

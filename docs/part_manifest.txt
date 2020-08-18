@@ -1,0 +1,9 @@
+Part Manifest
+
+1   Caster Wheel (Gizhome 1" Caster Wheels - https://www.amazon.ca/gp/product/B07TXP54KG/ref=ppx_yo_dt_b_asin_title_o01_s01?ie=UTF8&psc=1)
+4   m4x10mm screws
+4   m4 hex nuts
+4   m3x25mm screws
+4   m3 hex nuts
+4   m3x6 scews
+

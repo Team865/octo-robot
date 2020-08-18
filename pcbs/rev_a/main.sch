@@ -8410,13 +8410,6 @@ Robot</text>
 <wire x1="-73.66" y1="68.58" x2="-73.66" y2="93.98" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$4" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="D7"/>
-<pinref part="MTR_CTRL" gate="A" pin="2"/>
-<wire x1="-73.66" y1="45.72" x2="-106.68" y2="45.72" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$11" class="0">
 <segment>
 <pinref part="R4" gate="G$1" pin="1"/>
@@ -8447,12 +8440,12 @@ Robot</text>
 </net>
 <net name="N$7" class="0">
 <segment>
-<pinref part="U$1" gate="G$1" pin="D0"/>
 <wire x1="-45.72" y1="86.36" x2="-83.82" y2="86.36" width="0.1524" layer="91"/>
-<wire x1="-73.66" y1="53.34" x2="-83.82" y2="53.34" width="0.1524" layer="91"/>
-<wire x1="-83.82" y1="53.34" x2="-83.82" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="-83.82" y1="45.72" x2="-83.82" y2="86.36" width="0.1524" layer="91"/>
 <pinref part="RIGHT_ENC" gate="A" pin="1"/>
 <wire x1="-45.72" y1="93.98" x2="-45.72" y2="86.36" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="D7"/>
+<wire x1="-83.82" y1="45.72" x2="-73.66" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -8576,6 +8569,15 @@ Robot</text>
 <wire x1="0" y1="71.12" x2="0" y2="68.58" width="0.1524" layer="91"/>
 <pinref part="WS2812" gate="A" pin="2"/>
 <wire x1="0" y1="68.58" x2="10.16" y2="68.58" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$4" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="D0"/>
+<wire x1="-73.66" y1="53.34" x2="-93.98" y2="53.34" width="0.1524" layer="91"/>
+<pinref part="MTR_CTRL" gate="A" pin="2"/>
+<wire x1="-93.98" y1="53.34" x2="-93.98" y2="45.72" width="0.1524" layer="91"/>
+<wire x1="-93.98" y1="45.72" x2="-106.68" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
