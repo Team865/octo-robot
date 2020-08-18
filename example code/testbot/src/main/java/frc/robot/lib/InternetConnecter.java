@@ -20,11 +20,14 @@ public class InternetConnecter{
   
     private boolean isConnected;
 
+    private String pipe;
+
 
     private InternetConnecter(){
         int trycount = 0;
         isConnected = false;
-        while (trycount < 5 && !isConnected){
+        pipe = "\n";
+        while (trycount <= 3 && !isConnected){
             try {
                 socket = new Socket("192.168.4.1", 4999);
                 output = socket.getOutputStream();
@@ -47,19 +50,31 @@ public class InternetConnecter{
         return instance;
     }
 
-    public void sendData(String data){
-        if(isConnected){
-            writer.println(data);
+    public void addToPipe(String data){
+        pipe = pipe + data + "\n";
+    }
+
+    public void cleanPipe(){
+        pipe = "\n";
+    }
+
+    public void periodic(){
+        if(isConnected && pipe.length() != 0){
+            System.out.print(pipe);
+            writer.print(pipe);
+            writer.flush();
+            pipe = "";
         }
+        getData();
     }
 
     public void getData(){
         if(isConnected){
             try {
-                if(input.available() > 0){
-                    reader.read();
-                } 
-            } 
+                while(input.available() > 0){
+                    System.out.print((char)reader.read());
+                }
+            }
             catch (IOException e) {
                 e.printStackTrace();
             }
