@@ -106,7 +106,7 @@ class NetMockSimpleTimed: public NetInterface
   }
 
   // delete unused operators for safety
-  NetMockSimpleTimed( const HWMockTimed& ) = delete;
+  NetMockSimpleTimed( const HW::MockTimed& ) = delete;
   NetMockSimpleTimed& operator=( const NetMockSimpleTimed& ) = delete;
 
 

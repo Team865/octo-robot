@@ -4,19 +4,19 @@
 namespace Command{
 
 Encoder::Encoder( 
-  std::shared_ptr<HWI> hwiArg, 
+  std::shared_ptr<HW::I> hwiArg, 
   std::shared_ptr<DebugInterface> debugArg, 
   std::shared_ptr<NetInterface> netArg, 
-  HWI::Pin pin0Arg,  
-  HWI::Pin pin1Arg 
+  HW::Pin pin0Arg,  
+  HW::Pin pin1Arg 
 ) :
   hwi { hwiArg }, debug { debugArg }, net { netArg }, 
   pin0{ pin0Arg }, pin1{ pin1Arg},
   position{ 0 }
 {
   // Configure hardware pins for output
-  hwi->PinMode(pin0,  HWI::PinIOMode::M_INPUT );
-  hwi->PinMode(pin1,  HWI::PinIOMode::M_INPUT );
+  hwi->PinMode(pin0,  HW::PinIOMode::M_INPUT );
+  hwi->PinMode(pin1,  HW::PinIOMode::M_INPUT );
 
   lastGreyCode = getGreyCode();
 }
@@ -115,8 +115,8 @@ Encoder::Action Encoder::greyCodeActionTable[ 4 ][ 4 ] = {
 
 unsigned int Encoder::Encoder::getGreyCode()
 {
-  const bool pin0State = ( hwi->DigitalRead( pin0 ) == HWI::PinState::INPUT_HIGH );
-  const bool pin1State = ( hwi->DigitalRead( pin1 ) == HWI::PinState::INPUT_HIGH );
+  const bool pin0State = ( hwi->DigitalRead( pin0 ) == HW::PinState::INPUT_HIGH );
+  const bool pin1State = ( hwi->DigitalRead( pin1 ) == HW::PinState::INPUT_HIGH );
   return ( pin1State << 1 ) | pin0State;
 }
 

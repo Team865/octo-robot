@@ -2,13 +2,13 @@
 #define __UTIL_IPINEVENTS_H__
 
 #include <array>
-#include "hardware_interface.h"   // For HWI::PinState
+#include "hardware_interface.h"   // For HW::PinState
 #include "time_types.h"           // For Time::DeviceTimeUS
 
 namespace Util {
 
 /// A single event for IPinEvents
-using IPinEvent = std::pair< HWI::PinState, Time::DeviceTimeUS >; 
+using IPinEvent = std::pair< HW::PinState, Time::DeviceTimeUS >; 
 
 ///
 /// @brief Record changes in an input, and the time the change occured

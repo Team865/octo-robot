@@ -18,7 +18,7 @@ namespace Command {
 
 ProcessCommand::ProcessCommand(
     std::shared_ptr<NetInterface> netArg,
-    std::shared_ptr<HWI> hardwareArg,
+    std::shared_ptr<HW::I> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg,
     std::shared_ptr<Time::Interface> timeArg,
     std::shared_ptr<Command::Motor> motorAArg,

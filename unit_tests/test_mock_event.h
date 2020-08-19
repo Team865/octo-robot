@@ -15,16 +15,16 @@
 ///
 /// Examples:
 ///
-/// Event   : HWEvent( HWI::Pin::DIR,   HWI::PinState::Dir_FIRWARD )
+/// Event   : HWEvent( HW::Pin::DIR,   HW::PinState::Dir_FIRWARD )
 /// Meaning : The stepper motor direction pin is set to "go forward"
 /// 
-/// Event   : HWEvent( HWI::Pin::DIR,   HWI::PinIOMode::M_OUTPUT )
+/// Event   : HWEvent( HW::Pin::DIR,   HW::PinIOMode::M_OUTPUT )
 /// Meaning : The stepper motor direction GPIO is set to output mode
 /// 
-/// Event   : HWEvent( HWI::Pin::HOME,  HWI::PinIOMode::M_INPUT )
+/// Event   : HWEvent( HW::Pin::HOME,  HW::PinIOMode::M_INPUT )
 /// Meaning : The stepper motor home GPIO is set to input mode
 /// 
-/// Event   : HWEvent( HWI::Pin::HOME,  HWI::PinState::HOME_ACTIVE )
+/// Event   : HWEvent( HW::Pin::HOME,  HW::PinState::HOME_ACTIVE )
 /// Meaning : The home pin's input is now active (i.e., the focuser
 ///           is in the home position & the home switch was activated).
 ///
@@ -43,7 +43,7 @@ class HWEvent
   /// @param[in]  The pin that the read or write takes place on
   /// @param[in]  The new pin state.
   /// 
-  HWEvent( HWI::Pin pinRHS, HWI::PinState stateRHS ) :
+  HWEvent( HW::Pin pinRHS, HW::PinState stateRHS ) :
     pin{ pinRHS },
     type{ Type::DIGITAL_IO },
     state{ stateRHS }
@@ -56,7 +56,7 @@ class HWEvent
   /// @param[in]  The pin that we're setting the GPIO mode on
   /// @param[in]  The new mode (i.e.,  output or input )
   /// 
-  HWEvent( HWI::Pin pinRHS, HWI::PinIOMode modeRHS) :
+  HWEvent( HW::Pin pinRHS, HW::PinIOMode modeRHS) :
     pin{ pinRHS },
     type{ Type::PIN_MODE },
     mode{ modeRHS }
@@ -81,21 +81,21 @@ class HWEvent
   bool isMode() const { return type == Type::PIN_MODE ; }
 
   /// @brief Get the new state for an IO read or write event
-  HWI::PinState getIO() const
+  HW::PinState getIO() const
   {
     assert( isIO() );
     return state;
   }
 
   /// @brief Get the new mode for a set GPIO mode event.
-  HWI::PinIOMode getMode() const
+  HW::PinIOMode getMode() const
   {
     assert( isMode() );
     return mode;
   }
  
   /// @brief Get the pin
-  HWI::Pin getPin() const { return pin; }
+  HW::Pin getPin() const { return pin; }
 
   private:
 
@@ -105,12 +105,12 @@ class HWEvent
     PIN_MODE,     // An event where the GPIO is set to Input or Output
   };
 
-  HWI::Pin pin;
+  HW::Pin pin;
   Type type;
 
   union {
-    HWI::PinState state;
-    HWI::PinIOMode mode;
+    HW::PinState state;
+    HW::PinIOMode mode;
   };
 };
 
@@ -126,14 +126,14 @@ inline std::ostream& operator<<(
   std::ostream& stream, 
   const HWEvent& event) 
 {
-  stream << "{ PIN: " << HWI::pinNames.at( event.getPin() );
+  stream << "{ PIN: " << HW::pinNames.at( event.getPin() );
   if ( event.isIO() )
   {
-    stream << " IO:    " << HWI::pinStateNames.at(event.getIO() ); 
+    stream << " IO:    " << HW::pinStateNames.at(event.getIO() ); 
   }
   else
   {
-    stream << " MODE:  " << HWI::pinIOModeNames.at(event.getMode() ); 
+    stream << " MODE:  " << HW::pinIOModeNames.at(event.getMode() ); 
   }
   stream << " }";
   return stream;

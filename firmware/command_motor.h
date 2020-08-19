@@ -25,11 +25,11 @@ class Motor: public Base {
   /// @param[in] pin1Arg  - Digital Pin that controls the other motor input
   /// 
   Motor( 
-    std::shared_ptr<HWI> hwiArg, 
+    std::shared_ptr<HW::I> hwiArg, 
     std::shared_ptr<DebugInterface> debugArg, 
     std::shared_ptr<NetInterface> netArg, 
-    HWI::Pin pin0Arg,  
-    HWI::Pin pin1Arg);
+    HW::Pin pin0Arg,  
+    HW::Pin pin1Arg);
 
   ///
   /// @brief Standard time slice function
@@ -95,15 +95,15 @@ class Motor: public Base {
   void doPulseIfChanged( Pulse pulse );
 
   // @brief Interface to hardware (i.e., GPIO pins)
-  std::shared_ptr<HWI> hwi;
+  std::shared_ptr<HW::I> hwi;
   // @brief Interface to debug log
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
   // @brief Digital Pin that controls one of the motor inputs 
-  const HWI::Pin pin0;
+  const HW::Pin pin0;
   // @param Digital Pin that controls the other motor input
-  const HWI::Pin pin1;
+  const HW::Pin pin1;
 
   // @brief Current direction of the motor - forwards or backwards
   Dir dir;

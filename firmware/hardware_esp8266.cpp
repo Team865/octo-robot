@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include "hardware_esp8266.h"
 
-const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap = 
+const std::unordered_map<HW::Pin, int, EnumHash > HardwareESP8266::pinMap = 
 {
   { Pin::MOTOR0_PIN0,     0     },
   { Pin::MOTOR0_PIN1,     2     },
@@ -15,7 +15,7 @@ const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap =
   { Pin::SR04_ECHO,       5     }
 };
 
-const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {
+const std::unordered_map<HW::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {
   { PinState::MOTOR_POS,      HIGH  },
   { PinState::MOTOR_NEG,      LOW   },
   { PinState::ECHO_ON,        HIGH  },
@@ -24,8 +24,8 @@ const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStat
 
 namespace
 {
-  std::array<int, static_cast<size_t>(HWI::Pin::END_OF_PINS)  > fastAbstractToRealPin;
-  std::array<int, static_cast<size_t>(HWI::PinState::END_OF_PIN_STATES) > fastAbstractToRealPinState; 
+  std::array<int, static_cast<size_t>(HW::Pin::END_OF_PINS)  > fastAbstractToRealPin;
+  std::array<int, static_cast<size_t>(HW::PinState::END_OF_PIN_STATES) > fastAbstractToRealPinState; 
 } // end anonymous namespace
 
 HardwareESP8266::HardwareESP8266()
@@ -74,7 +74,7 @@ void HardwareESP8266::PinMode( Pin pin, PinIOMode mode )
   pinMode( actualPin, mode == PinIOMode::M_OUTPUT ? OUTPUT : INPUT );
 }
 
-HWI::PinState HardwareESP8266::DigitalRead( Pin pin)
+HW::PinState HardwareESP8266::DigitalRead( Pin pin)
 {
   const int actualPin = fastAbstractToRealPin[ static_cast<size_t>( pin ) ];
   const int actualState = digitalRead( actualPin );

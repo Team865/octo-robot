@@ -4,11 +4,11 @@
 namespace Command{
 
 Motor::Motor( 
-  std::shared_ptr<HWI> hwiArg, 
+  std::shared_ptr<HW::I> hwiArg, 
   std::shared_ptr<DebugInterface> debugArg, 
   std::shared_ptr<NetInterface> netArg, 
-  HWI::Pin pin0Arg,  
-  HWI::Pin pin1Arg 
+  HW::Pin pin0Arg,  
+  HW::Pin pin1Arg 
 ) :
   hwi { hwiArg }, debug { debugArg }, net { netArg }, 
   pin0{ pin0Arg }, pin1{ pin1Arg},
@@ -16,8 +16,8 @@ Motor::Motor(
   lastPulse{ Pulse::NONE }
 {
   // Configure hardware pins for output
-  hwi->PinMode(pin0,  HWI::PinIOMode::M_OUTPUT );
-  hwi->PinMode(pin1,  HWI::PinIOMode::M_OUTPUT );
+  hwi->PinMode(pin0,  HW::PinIOMode::M_OUTPUT );
+  hwi->PinMode(pin1,  HW::PinIOMode::M_OUTPUT );
   // set output to "off" (both lines powered down)
   doPulse( Pulse::NONE );
 }
@@ -31,18 +31,18 @@ void Motor::doPulse( Motor::Pulse pulse )
   {
     case Pulse::FORWARD:
       // Forward, one input on, the other input off
-      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_POS );
-      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_NEG );
+      hwi->DigitalWrite( pin0, HW::PinState::MOTOR_POS );
+      hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
       break;
     case Pulse::BACKWARD:
       // Backward, one input off, the other input on
-      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
-      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_POS );
+      hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
+      hwi->DigitalWrite( pin1, HW::PinState::MOTOR_POS );
       break;
     case Pulse::NONE:
       // Stopped,  Both inputs off.
-      hwi->DigitalWrite( pin0, HWI::PinState::MOTOR_NEG );
-      hwi->DigitalWrite( pin1, HWI::PinState::MOTOR_NEG );
+      hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
+      hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
       break;
   }
   lastPulse = pulse;

@@ -3,7 +3,8 @@
 
 #include "hardware_interface.h"
 
-class HardwareESP8266: public HWI
+namespace HW {
+class HardwareESP8266: public I
 {
   public:
 
@@ -19,6 +20,7 @@ class HardwareESP8266: public HWI
  
   static const std::unordered_map<HWI::Pin, int, EnumHash > pinMap;
   static const std::unordered_map<HWI::PinState, int, EnumHash > pinStateMap;
+};
 };
 
 #endif

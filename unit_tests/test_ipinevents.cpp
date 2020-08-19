@@ -16,9 +16,9 @@ TEST( pipe_should, add_and_remove_events )
   IPinEvents<16> events;
 
   const std::vector<IPinEvent> golden = {
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
   };
 
   // 100 loops should be a good stress test
@@ -59,9 +59,9 @@ TEST( pipe_should, write_to_full )
   // Full is one less than the max (3) under the current implementation
   //
   const std::vector<IPinEvent> golden = {
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
   };
 
   // 100 = stress test
@@ -98,10 +98,10 @@ TEST( pipe_should, error_on_write_fail )
   
   // Size 4 pipe can only hold 3 events, so feed it four events
   const std::vector<IPinEvent> golden = {
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{2} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{3} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{4} }
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{2} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{4} }
   };
   for ( const auto& event : golden ) {
     events.write( event );
@@ -126,7 +126,7 @@ TEST( pipe_should, error_on_write_fail )
 TEST( pipe_should, error_on_read_fail )
 {
   IPinEvent event = 
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} };
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} };
 
   // Go through some test permutations...
   //

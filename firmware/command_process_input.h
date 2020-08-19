@@ -55,7 +55,7 @@ class ProcessCommand: public Base
   ///
   ProcessCommand( 
 		std::shared_ptr<NetInterface> netArg,
-		std::shared_ptr<HWI> hardwareArg,
+		std::shared_ptr<HW::I> hardwareArg,
 		std::shared_ptr<DebugInterface> debugArg,
 		std::shared_ptr<Time::Interface> timeArg,
 		std::shared_ptr<Command::Motor> motorAArg,
@@ -119,7 +119,7 @@ class ProcessCommand: public Base
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
-  std::shared_ptr<HWI> hardware;
+  std::shared_ptr<HW::I> hardware;
   std::shared_ptr<DebugInterface> debugLog;
   std::shared_ptr<Time::Interface> timeMgr;
   

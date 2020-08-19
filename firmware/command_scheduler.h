@@ -24,7 +24,7 @@ class Scheduler: Base {
 
   Scheduler(
     std::shared_ptr<NetInterface> netArg,
-    std::shared_ptr<HWI> hardwareArg,
+    std::shared_ptr<HW::I> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg,
     std::shared_ptr<Time::HST> hstArg );
 
@@ -45,7 +45,7 @@ class Scheduler: Base {
   using PriorityAndCommandSlot = std::pair<Time::DeviceTimeUS, CommandSlotIndex >;
 
   std::shared_ptr<NetInterface> net;
-  std::shared_ptr<HWI> hardware;
+  std::shared_ptr<HW::I> hardware;
   std::shared_ptr<DebugInterface> debug;
   std::shared_ptr<Time::HST > hst;
 

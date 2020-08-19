@@ -35,19 +35,19 @@ void setup() {
   auto time      = std::make_shared<Time::Manager>( timeNNTP, hst );
   auto motorA = std::make_shared<Command::Motor>(
                         hardware, debug, wifi, 
-                        HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
+                        HW::Pin::MOTOR0_PIN0, HW::Pin::MOTOR0_PIN1 );
   auto motorB = std::make_shared<Command::Motor>(
                         hardware, debug, wifi, 
-                        HWI::Pin::MOTOR1_PIN0, HWI::Pin::MOTOR1_PIN1 );
+                        HW::Pin::MOTOR1_PIN0, HW::Pin::MOTOR1_PIN1 );
   auto encoderA = std::make_shared<Command::Encoder>(
                         hardware, debug, wifi, 
-                        HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1 );
+                        HW::Pin::ENCODER0_PIN0, HW::Pin::ENCODER0_PIN1 );
   auto encoderB = std::make_shared<Command::Encoder>(
                         hardware, debug, wifi, 
-                        HWI::Pin::ENCODER1_PIN0, HWI::Pin::ENCODER1_PIN1 );
+                        HW::Pin::ENCODER1_PIN0, HW::Pin::ENCODER1_PIN1 );
   auto sr04     = std::make_shared<Command::SR04> ( 
                         hardware, debug, wifi, hst,
-                        HWI::Pin::SR04_TRIG, HWI::Pin::SR04_ECHO );
+                        HW::Pin::SR04_TRIG, HW::Pin::SR04_ECHO );
           
   auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, 
                         encoderA, encoderB );

@@ -11,7 +11,7 @@
 ///
 /// @brief Testing Mock for hardware events
 /// 
-/// HWMockTimed implements a mock Hardware Interface (HWI) that's used in
+/// MockTimed implements a mock Hardware Interface (HWI) that's used in
 /// unit testing.  The class implements testing mocks for the interfaces
 /// required by the HWI class.  In addition to that, the class does the
 /// following:
@@ -28,7 +28,8 @@
 ///     events and the time those events occur at.  i.e.,  the caller can
 ///     see "at time 20ms the HOME input will change state to active"
 /// 
-class HWMockTimed: public HWI
+namespace HW {
+class MockTimed: public I
 {
   public:
 
@@ -38,7 +39,7 @@ class HWMockTimed: public HWI
   ///   input events and they time they take place at.  See 
   ///   HWTimedEvents for examples. 
   ///
-  HWMockTimed( const HWTimedEvents& hwIn ) : 
+  MockTimed( const HWTimedEvents& hwIn ) : 
       time{ 0 }, 
       inEvents{ hwIn },
       nextInputEvent{inEvents.begin()}
@@ -49,10 +50,10 @@ class HWMockTimed: public HWI
   }
 
   // delete unused operators for safety
-  HWMockTimed() = delete;
-  HWMockTimed( const HWMockTimed& ) = delete;
-  HWMockTimed& operator=( const HWMockTimed& ) = delete;
-  virtual ~HWMockTimed() {}
+  MockTimed() = delete;
+  MockTimed( const MockTimed& ) = delete;
+  MockTimed& operator=( const MockTimed& ) = delete;
+  virtual ~MockTimed() {}
 
   ///
   /// @brief Mock DigitalWrite hardware interface
@@ -91,17 +92,17 @@ class HWMockTimed: public HWI
   ///
   /// @code
   ///   HWTimedEvents hwInput= {
-  ///     { 0,   { HWI::Pin::HOME,        HWI::PinState::HOME_INACTIVE} },
-  ///     { 10,  { HWI::Pin::HOME,        HWI::PinState::HOME_INACTIVE} },
+  ///     { 0,   { HW::Pin::HOME,        HW::PinState::HOME_INACTIVE} },
+  ///     { 10,  { HW::Pin::HOME,        HW::PinState::HOME_INACTIVE} },
   ///   };
   /// 
-  ///   HWMockTimed hw( hwInput ) : 
+  ///   MockTimed hw( hwInput ) : 
   /// 
-  ///   hw.DigitalRead( HWI::Pin::HOME )  // Will return HOME_INACTIVE
+  ///   hw.DigitalRead( HW::Pin::HOME )  // Will return HOME_INACTIVE
   ///   hw.advanceTime( 5 )               // Time = 5
-  ///   hw.DigitalRead( HWI::Pin::HOME )  // Will still return HOME_INACTIVE
+  ///   hw.DigitalRead( HW::Pin::HOME )  // Will still return HOME_INACTIVE
   ///   hw.advanceTime( 5 )               // Time = 10
-  ///   hw.DigitalRead( HWI::Pin::HOME )  // Will now return HOME_ACTIVE
+  ///   hw.DigitalRead( HW::Pin::HOME )  // Will now return HOME_ACTIVE
   /// @endcode
   ///
   PinState DigitalRead( Pin pin ) override
@@ -144,23 +145,23 @@ class HWMockTimed: public HWI
   ///
   /// @code
   ///   HWTimedEvents hwInput;  // No input
-  ///   HWMockTimed hw( hwInput ) : 
+  ///   MockTimed hw( hwInput ) : 
   ///   // Set Stepper Pin to Output
-  ///   hw.PinMode( HWI::Pin::STEP,   HWI::PinIOMode::M_OUTPUT );
-  ///   hw.PinMode( HWI::Pin::STEP,   HWI::PinState::STEP_INACTIVE);
+  ///   hw.PinMode( HW::Pin::STEP,   HW::PinIOMode::M_OUTPUT );
+  ///   hw.PinMode( HW::Pin::STEP,   HW::PinState::STEP_INACTIVE);
   ///
   ///   // Do a step
   ///   hw.advanceTime( 10 )
-  ///   hw.PinMode( HWI::Pin::STEP,   HWI::PinState::STEP_ACTIVE);
+  ///   hw.PinMode( HW::Pin::STEP,   HW::PinState::STEP_ACTIVE);
   ///   hw.advanceTime( 1 )
-  ///   hw.PinMode( HWI::Pin::STEP,   HWI::PinState::STEP_INACTIVE);
+  ///   hw.PinMode( HW::Pin::STEP,   HW::PinState::STEP_INACTIVE);
   /// 
   ///   // Golden Results
   ///   HWTimedEvents goldenHW = {
-  ///     { 0,  {HWI::Pin::Step,   HWI::PinIOMode::M_OUTPUT      } },
-  ///     { 0,  {HWI::Pin::Step,   HWI::PinState::STEP_INACTIVE  } },
-  ///     { 10, {HWI::Pin::Step,   HWI::PinState::STEP_ACTIVE } },
-  ///     { 11, {HWI::Pin::Step,   HWI::PinState::STEP_ACTIVE } }
+  ///     { 0,  {HW::Pin::Step,   HW::PinIOMode::M_OUTPUT      } },
+  ///     { 0,  {HW::Pin::Step,   HW::PinState::STEP_INACTIVE  } },
+  ///     { 10, {HW::Pin::Step,   HW::PinState::STEP_ACTIVE } },
+  ///     { 11, {HW::Pin::Step,   HW::PinState::STEP_ACTIVE } }
   ///   }
   ///   // Compare
   ///   ASSERT_EQ( goldenHw, hw.getOutEvents()); 
@@ -183,6 +184,7 @@ class HWMockTimed: public HWI
   /// @brief  The current state of each input pin.
   std::unordered_map<Pin,PinState,EnumHash> inputStates;
 };
+}; // End HW namespace
 
 #endif
 
