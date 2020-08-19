@@ -94,7 +94,9 @@ void SR04::handleSensorRequested()
     if ( hst->usSinceDeviceStart() - start > 1000 ) 
     {
       net->get() << "RANGE FAIL TRIG TIMEOUT\n";
-      break;
+      mode = Mode::IDLE;
+      distance = READING_FAILED;
+      return;
     }
   }
 
