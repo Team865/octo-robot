@@ -333,5 +333,77 @@ TEST( pipe_should, debounce_properly )
   ASSERT_EQ( golden, deBouncedEvents ); 
 }
 
+///
+/// Tests the Grey Code event tracker class (GreyCodeTracker)
+/// 
+TEST( pipe_should, computeGreyCodesProperly )
+{
+  // Raw bouncy input from Pin 0
+  const std::vector<IPinEvent> rawStream0 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{100} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{105} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{110} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{115} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{120} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{420} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{700} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{705} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{710} }
+  };
+
+  // Raw bouncy input from Pin1
+  const std::vector<IPinEvent> rawStream1 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{200} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{205} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{210} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{215} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{220} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{520} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{600} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{605} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{610} }
+  };
+
+  const std::vector<GreyCodeTime> golden = {
+    // Assume we start with a value of 0
+    { 1,    Time::DeviceTimeUS{ 120 } },    // Bit 0 transition to "on"
+    { 3,    Time::DeviceTimeUS{ 220 } },    // Bit 1 transition to "on"
+    { 2,    Time::DeviceTimeUS{ 420 } },    // Bit 0 transition to "off"
+    { 0,    Time::DeviceTimeUS{ 520 } },    // Bit 1 transition to "off"
+    { 2,    Time::DeviceTimeUS{ 610 } },    // Bit 1 transition to "on"
+    { 3,    Time::DeviceTimeUS{ 710 } },    // Bit 0 transition to "on"
+  };
+
+  // Populate the two event streams
+  IPinEvents<15> events0;
+  for ( auto& event : rawStream0 )
+  {
+    events0.write( event );
+  } 
+
+  IPinEvents<15> events1;
+  for ( auto& event : rawStream1 )
+  {
+    events1.write( event );
+  } 
+
+  GreyCodeTracker< IPinEvents<15>, IPinEvents<15> > tracker(
+      0,        // Start with grey code 0
+      events0,  // Events on pin 0
+      events1,  // Events on pin 1,
+      50 );     // 50us debounce window 
+
+  std::vector<GreyCodeTime> result;
+
+  while( tracker.hasEvents() ) {
+    result.push_back( tracker.read() );
+  }
+
+  // Compare golden to result
+  ASSERT_EQ( golden,  result );
+  ASSERT_EQ( false,   events0.hasEvents() );
+  ASSERT_EQ( false,   events1.hasEvents() );
+}
+
 } // end Util namespace
 

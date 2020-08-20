@@ -301,17 +301,123 @@ class IPinEventMerger
   IPinEventsB& eventsB;
 };
 
+using GreyCodeTime = std::pair< unsigned int, Time::DeviceTimeUS >;
+
+///
+/// Update an existing grey code given two existing Pin event streams
+///
+/// - Takes two existing event steams, a greycode, and a debounce time window as input.
+/// - Debounces the two event streams
+/// - Merges the debounced event streams in chronological order
+/// - Updates the existing greycode using the merged stream
+/// - Outputs, via the read() method, the new greycodes and the time they transtioned
+/// 
+/// @param[in] IPinEvents0 - The type of the Pin 0 events steam
+/// @param[in] IPinEvents1 - The type of the Pin 1 events steam
+/// 
+template< class IPinEvents0, class IPinEvents1 > 
+class GreyCodeTracker
+{
+  public:
+
+  // Type of the Pin 0 Debounced stream
+  using DeBounced0  =  IPinDebouncer<IPinEvents0>;
+  // Type of the Pin 1 Debounced stream
+  using DeBounced1  =  IPinDebouncer<IPinEvents1>;
+  // Type of the Merged events stream
+  using MergedIPins =  IPinEventMerger<DeBounced0, DeBounced1>;
+
+  ///
+  /// @brief Constructor
+  ///
+  /// @param[in]    startGreyCode   The initial greycode
+  /// @param[in]    eventsPin0Arg   The stream of events that occur on Pin 0
+  /// @param[in]    eventsPin1Arg   The stream of events that occur on Pin 1
+  /// @param[in]    deBounceTimeWindow  Argument for the event debouncer class
+  /// 
+  GreyCodeTracker( 
+    unsigned      startGreyCode, 
+    IPinEvents0&  eventsPin0Arg,
+    IPinEvents0&  eventsPin1Arg,
+    int deBounceTimeWindow
+  ) :
+    currentGreyCode{ startGreyCode },
+    eventsPin0{ eventsPin0Arg },
+    eventsPin1{ eventsPin1Arg },
+    deBounced0{ eventsPin0, deBounceTimeWindow }, 
+    deBounced1{ eventsPin1, deBounceTimeWindow }, 
+    mergedIPins{ deBounced0, deBounced1 }
+  {
+  }
+  
+  GreyCodeTracker() = delete;
+
+  ///
+  /// @brief Are there more greycode events to be processed?
+  ///
+  bool hasEvents()
+  {
+    return mergedIPins.hasEvents();
+  }
+
+
+  ///
+  /// @brief Get the next Greycode transition & the time it occured at
+  ///
+  GreyCodeTime read()
+  {
+    if ( !hasEvents()) {
+      for ( ;; );   // Programmer Error!  TODO - create proper "assert" system
+    }
+
+    // Get & Unpack the Event
+    //
+    const MergedEvent           event     { mergedIPins.read() };
+    const int                   pin       { event.first }; 
+    const HW::PinState          pinState  { event.second.first }; 
+    const Time::DeviceTimeUS    time      { event.second.second }; 
+
+    // Use the event to update the Grey Code
+    //
+    if ( pin == 0 ) {
+      if ( pinState == HW::PinState::INPUT_HIGH ) 
+      {
+        // Make sure Bit 0 is turned on
+        currentGreyCode |= 1;
+      }
+      else {
+        // Make sure Bit 0 is turned off, but keep bit 1.
+        currentGreyCode &= 2;
+      }
+    }
+    else {
+      if ( pinState == HW::PinState::INPUT_HIGH ) 
+      {
+        // Make sure Bit 1 is turned on
+        currentGreyCode |= 2;
+      }
+      else {
+        // Make sure Bit 1 is turned off, but keep bit 0.
+        currentGreyCode &= 1;
+      }
+    }
+
+    // Return Greycode & Timestamp
+    return GreyCodeTime{ currentGreyCode, time };  
+  }
+
+  private:
+
+  unsigned int  currentGreyCode;
+  IPinEvents0&  eventsPin0;
+  IPinEvents1&  eventsPin1;
+  DeBounced0    deBounced0;
+  DeBounced1    deBounced1;
+  MergedIPins   mergedIPins;
+};
 
 } // End util namespace
 
-#ifdef TODO_SAMPLE_HANDLER
-
-  IpinEvents<16> pinEvents; 
-
-  void interrupt() {
-    pinEvents.write(IPinEvent( hwi->DigitalRead(pin) , hst->usSinceDeviceStart()));   
-  }
-#endif
 
 #endif
 
