@@ -1,6 +1,9 @@
 #ifndef __HARDWARE_TYPES_H__
 #define __HARDWARE_TYPES_H__
 
+#include <unordered_map>
+#include "basic_types.h"      // For UrbanRobot::advance
+
 /// @brief Lightweight type class for hardware.
 ///
 /// Examples:  Pin Enums, functions that manipulate the same

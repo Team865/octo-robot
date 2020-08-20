@@ -2,7 +2,7 @@
 #define __UTIL_IPINEVENTS_H__
 
 #include <array>
-#include "hardware_interface.h"   // For HW::PinState
+#include "hardware_types.h"       // For HW::PinState
 #include "time_types.h"           // For Time::DeviceTimeUS
 
 namespace Util {

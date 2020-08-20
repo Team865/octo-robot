@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
+#include <map>    
 
 #include "command_datasend.h"
 #include "command_motor.h"
@@ -169,6 +170,15 @@ class ISim: public I
 
     return 200 + count_amp;
   }
+
+  IEvent& GetInputEvents( Pin pin ) override
+  {
+    return pinToEventMap[ pin ];
+  }
+
+  private:
+
+  std::map< Pin, IEvent > pinToEventMap;
 };
 }; // end HW namespace
 
