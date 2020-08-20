@@ -123,43 +123,67 @@ unsigned int Encoder::Encoder::getGreyCode()
 
 Time::TimeUS Encoder::execute() 
 {
-  const unsigned int greyCode = getGreyCode();
-//  *net << greyCode << "\n";
- 
-  const Action action = greyCodeActionTable[ lastGreyCode ][ greyCode ];
-  lastGreyCode = greyCode;
+  HW::IEvent& pin0Events = hwi->GetInputEvents( pin0 ); 
+  HW::IEvent& pin1Events = hwi->GetInputEvents( pin1 ); 
 
-  switch ( action ) 
-  {
-    case Action::CW_ROTATION:
-      position++;
-      break;
-    case Action::CCW_ROTATION:
-      position--;
-      break;
-    case Action::NO_ACTION:
-      break;    // don't do anything
-    case Action::ILLEGAL:
-      break;    // what can we do?  :(  
+  //
+  // Some notes on the debouncer value...
+  // 
+  // - The encoder has 80 states, so that's 80 state changes / sec
+  // - Assume the wheel has top a rotation top speed of 16 rotates / sec)
+  // - The wheel is 66mm, or 20.7cm in diameter.
+  // - top robot speed = 20.7cm wheel diamater x 16 wheel rotations / sec;
+  // - or 3.31 m / sec
+  // - or 12km / hour, a clippy running pace.  The robot isn't going that fast
+  //
+  // The expected maximum encoder state change is maybe 781us
+  // I'm trying a 300us debounce window
+  //
+
+  using DeBounce = Util::IPinDebouncer< HW::IEvent >;
+
+  DeBounce deBounce0(
+      &pin0Events,      // Transitions on Pin 0
+      300 );            // 300us Debounce
+
+  DeBounce deBounce1(
+      &pin1Events,      // Transitions on Pin 0
+      300 );            // 300us Debounce
+
+  Util::GreyCodeTracker< DeBounce, DeBounce > greyCodeTracker( 
+      lastGreyCode,     // Initial State
+      &deBounce0,       // Transitions on Pin 0
+      &deBounce1);      // Transitions on Pin 1
+  
+  //
+  // Pull greycodes from the greycode tracker and update the encoder position
+  //
+  while( greyCodeTracker.hasEvents() ) {
+ 
+    // Read the event and unpack it.  TODO - handle time
+    Util::GreyCodeTime event = greyCodeTracker.read();
+    unsigned int greyCode = event.first; 
+
+    const Action action = greyCodeActionTable[ lastGreyCode ][ greyCode ];
+    lastGreyCode = greyCode;
+
+    switch ( action ) 
+    {
+      case Action::CW_ROTATION:
+        position++;
+        break;
+      case Action::CCW_ROTATION:
+        position--;
+        break;
+      case Action::NO_ACTION:
+        break;    // don't do anything
+      case Action::ILLEGAL:
+        break;    // what can we do?  :(  
+    }
   }
 
-  // Duration Query...
   //
-  // How fast can we run this?
-  //
-  // - Most calls to the encoder finish up in 11us.  The processor runs at
-  //   80Mhz, so each call is taking about 880 clock cycles.  That's not
-  //   great, but not terrible. 
-  // - A 156us delay is 7% of the CPU budget & 6400 updates / sec
-  // - Assume that means we can deal with 6400 encoder state changes / sec
-  // - The encoder has 80 states, so that's 80 rotations / sec
-  // - If we gear the encode down 5x from the wheel, 16 wheel rotations / sec
-  // - The wheel is 66mm, or 20.7cm in diameter.
-  // - so top speed = 20.7cm wheel diamater x 16 wheel rotations / sec;
-  // - or 3.31 m / sec
-  // - or 12km / hour, a clippy running pace.
-  //
-  // - TODO - adjust as needed.
+  // - TODO - Retune.
   //
   return Time::TimeUS( 156 );
 }
