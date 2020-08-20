@@ -199,7 +199,7 @@ TEST( pipe_should, merge_properly )
     events1.write( event );
   }
 
-  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( events0, events1 );
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
 
   std::vector< MergedEvent > mergedEvents;
   while( merger.hasEvents() ) {
@@ -237,7 +237,7 @@ TEST( pipe_should, merge_case_2 )
 
   IPinEvents<15> events1;
 
-  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( events0, events1 );
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
 
   std::vector< MergedEvent > mergedEvents;
   while( merger.hasEvents() ) {
@@ -275,7 +275,7 @@ TEST( pipe_should, merge_case_3 )
     events1.write( event );
   }
 
-  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( events0, events1 );
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
 
   std::vector< MergedEvent > mergedEvents;
   while( merger.hasEvents() ) {
@@ -319,7 +319,7 @@ TEST( pipe_should, debounce_properly )
   }
 
   // Create the filter
-  IPinDebouncer<IPinEvents<15>> debouncer( events, 20 );
+  IPinDebouncer<IPinEvents<15>> debouncer( &events, 20 );
 
   // Draw from the filter.
   std::vector< IPinEvent > deBouncedEvents;
@@ -387,11 +387,15 @@ TEST( pipe_should, computeGreyCodesProperly )
     events1.write( event );
   } 
 
-  GreyCodeTracker< IPinEvents<15>, IPinEvents<15> > tracker(
-      0,        // Start with grey code 0
-      events0,  // Events on pin 0
-      events1,  // Events on pin 1,
-      50 );     // 50us debounce window 
+  // Create debounces with a 50us debounce window
+  using DeBounce = Util::IPinDebouncer< IPinEvents<15> >;
+  DeBounce deBounce0( &events0, 50 );
+  DeBounce deBounce1( &events1, 50 );
+
+  GreyCodeTracker< DeBounce, DeBounce > tracker(
+      0,              // Start with grey code 0
+      &deBounce0,     // Debounced Events on pin 0
+      &deBounce1);    // Debounced Events on pin 1,
 
   std::vector<GreyCodeTime> result;
 

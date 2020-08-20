@@ -138,7 +138,7 @@ class IPinDebouncer
   ///     Ignore events if a second event comes in less than 
   ///     "debouncTimeWidnowArg" microseconds after the first.
   /// 
-  IPinDebouncer( DownstreamIpinEvents& downstreamArg, int deBounceTimeWindowArg  ) :
+  IPinDebouncer( DownstreamIpinEvents* downstreamArg, int deBounceTimeWindowArg  ) :
     downstream{ downstreamArg },
     deBounceTimeWindow{ deBounceTimeWindowArg }
   {
@@ -184,8 +184,8 @@ class IPinDebouncer
   {
     for ( ;; ) {
       // Fill the pipe to max
-      while ( inPipe < 2 && downstream.hasEvents() ) {
-        pipe[ inPipe ] = downstream.read();
+      while ( inPipe < 2 && downstream->hasEvents() ) {
+        pipe[ inPipe ] = downstream->read();
         ++inPipe;
       }
 
@@ -209,7 +209,7 @@ class IPinDebouncer
 
   private:
 
-  DownstreamIpinEvents& downstream;
+  DownstreamIpinEvents* downstream;
   const int deBounceTimeWindow;
 
   size_t inPipe = 0;
@@ -229,7 +229,7 @@ class IPinEventMerger
 {
   public: 
 
-  IPinEventMerger( IPinEventsA& eventsAArg, IPinEventsB& eventsBArg )
+  IPinEventMerger( IPinEventsA* eventsAArg, IPinEventsB* eventsBArg )
   : eventsA{ eventsAArg },
     eventsB{ eventsBArg }
   {
@@ -282,12 +282,12 @@ class IPinEventMerger
   //
   void drawEvents() 
   {
-    if ( !hasEventA && eventsA.hasEvents() ) {
-      eventA = eventsA.read();
+    if ( !hasEventA && eventsA->hasEvents() ) {
+      eventA = eventsA->read();
       hasEventA = true;
     }  
-    if ( !hasEventB && eventsB.hasEvents() ) {
-      eventB = eventsB.read();
+    if ( !hasEventB && eventsB->hasEvents() ) {
+      eventB = eventsB->read();
       hasEventB = true;
     }  
   }
@@ -297,8 +297,8 @@ class IPinEventMerger
   IPinEvent eventA;
   IPinEvent eventB;
 
-  IPinEventsA& eventsA;
-  IPinEventsB& eventsB;
+  IPinEventsA* eventsA;
+  IPinEventsB* eventsB;
 };
 
 using GreyCodeTime = std::pair< unsigned int, Time::DeviceTimeUS >;
@@ -307,8 +307,7 @@ using GreyCodeTime = std::pair< unsigned int, Time::DeviceTimeUS >;
 /// Update an existing grey code given two existing Pin event streams
 ///
 /// - Takes two existing event steams, a greycode, and a debounce time window as input.
-/// - Debounces the two event streams
-/// - Merges the debounced event streams in chronological order
+/// - Merges the event streams in chronological order
 /// - Updates the existing greycode using the merged stream
 /// - Outputs, via the read() method, the new greycodes and the time they transtioned
 /// 
@@ -320,12 +319,8 @@ class GreyCodeTracker
 {
   public:
 
-  // Type of the Pin 0 Debounced stream
-  using DeBounced0  =  IPinDebouncer<IPinEvents0>;
-  // Type of the Pin 1 Debounced stream
-  using DeBounced1  =  IPinDebouncer<IPinEvents1>;
   // Type of the Merged events stream
-  using MergedIPins =  IPinEventMerger<DeBounced0, DeBounced1>;
+  using MergedIPins =  IPinEventMerger<IPinEvents0, IPinEvents1>;
 
   ///
   /// @brief Constructor
@@ -337,16 +332,11 @@ class GreyCodeTracker
   /// 
   GreyCodeTracker( 
     unsigned      startGreyCode, 
-    IPinEvents0&  eventsPin0Arg,
-    IPinEvents0&  eventsPin1Arg,
-    int deBounceTimeWindow
+    IPinEvents0*  eventsPin0Arg,
+    IPinEvents1*  eventsPin1Arg
   ) :
     currentGreyCode{ startGreyCode },
-    eventsPin0{ eventsPin0Arg },
-    eventsPin1{ eventsPin1Arg },
-    deBounced0{ eventsPin0, deBounceTimeWindow }, 
-    deBounced1{ eventsPin1, deBounceTimeWindow }, 
-    mergedIPins{ deBounced0, deBounced1 }
+    mergedIPins{ eventsPin0Arg, eventsPin1Arg }
   {
   }
   
@@ -409,10 +399,6 @@ class GreyCodeTracker
   private:
 
   unsigned int  currentGreyCode;
-  IPinEvents0&  eventsPin0;
-  IPinEvents1&  eventsPin1;
-  DeBounced0    deBounced0;
-  DeBounced1    deBounced1;
   MergedIPins   mergedIPins;
 };
 
