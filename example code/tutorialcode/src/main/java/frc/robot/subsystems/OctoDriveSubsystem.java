@@ -20,9 +20,13 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
   private DifferentialDrive drive;
 
-  /**
-   * Creates a new OctoDriveSubsystem.
-   */
+
+
+  /*
+  This is the OctoDriveSubsystem class.
+  It's role is to control the movement of the wheels, it uses a differential drive and an enum to store what it's
+  two motors are currently doing. Commands can use it's functions to change the dirrection of the wheels.
+  */
   public OctoDriveSubsystem() {
     rightState = motorState.STOPPED;
     leftState = motorState.STOPPED;
@@ -33,6 +37,13 @@ public class OctoDriveSubsystem extends SubsystemBase {
     drive = new DifferentialDrive(rightController, leftController);
   }
 
+
+
+  /*
+  The periodic function constantly runs after the subsystem is created. It automaticly updates the speed
+  of the drive's motors. Calling tankDrive periodicly is important as the DifferentialDrive is set
+  to shut off if not updated enough as a safty feature.
+  */
   @Override
   public void periodic() {
     double leftSpeed = convertStateToSpeed(leftState);
@@ -41,6 +52,11 @@ public class OctoDriveSubsystem extends SubsystemBase {
     drive.tankDrive(leftSpeed, rightSpeed);
   }
 
+
+  /*
+  convertStateToSpeed takes in a motor's state and return the speed that it should be going at.
+  Note that speed to the DifferentialDrive is mesured from -1.0 to 1.0.
+  */
   private double convertStateToSpeed(motorState state){
     double returnSpeed = 0.0;
     if (state == motorState.FORWARD){
@@ -52,12 +68,21 @@ public class OctoDriveSubsystem extends SubsystemBase {
     return (returnSpeed);
   }
 
+
+  /*
+  setMotors is called by other commands and changes the speed that the motors are going at.
+  These speeds will be sent to the DifferentialDrive next periodic command.
+  */
   public void setMotors(motorState newRightState, motorState newLeftState){
     rightState = newRightState;
     leftState = newLeftState;
   }
 
 
+  /*
+  An Enum with the role of storing the 3 possable states of a motor, going forwards
+  backwards or being stopped.
+  */
   public enum motorState{
     FORWARD,
     STOPPED,

@@ -8,7 +8,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-//This is a Singleton and is global.
+/*
+This is a singleton class, it is global. It's job is to dirrectly
+communicate with the robot. This class is here due to the fact that
+the octorobot does not have a roboRIO and must be talked to using the
+internet.
+*/
 public class InternetConnecter{
     private static InternetConnecter instance;
 
@@ -22,7 +27,12 @@ public class InternetConnecter{
 
     private String pipe;
 
-
+    /*
+    The init function. It connects to the robot here.
+    If the robot is unable to connect for whatever reason it will
+    mark isConnected as false, effectivly disabling the class as most
+    functions will not run unless is connected is true.
+    */
     private InternetConnecter(){
         int trycount = 0;
         isConnected = false;
@@ -43,6 +53,12 @@ public class InternetConnecter{
         }
     }
 
+    /*
+    Gets the instance of the internet connector. Due to
+    this class being a singleton, you must call this function
+    to get an InternetConnector. There will only ever be
+    one InternetConnector.
+    */
     public static InternetConnecter getInstance(){
         if (instance == null){
             instance = new InternetConnecter();
@@ -50,14 +66,32 @@ public class InternetConnecter{
         return instance;
     }
 
+    
+    /*
+    Adds commands to be sent to the robot. Does not
+    send them.
+    */
     public void addToPipe(String data){
         pipe = pipe + data + "\n";
     }
 
+
+    /*
+    Cleans out the pipe, effectily canceling any stored
+    commands.
+    */
     public void cleanPipe(){
         pipe = "\n";
     }
 
+
+    /*
+    This is not automaticly called and must
+    be called by another periodic function.
+    If there is text stored in the pipe, send it
+    to the robot. Then get any data that the robot is
+    trying to send back.
+    */
     public void periodic(){
         if(isConnected && pipe.length() != 0){
             System.out.print(pipe);
@@ -68,6 +102,11 @@ public class InternetConnecter{
         getData();
     }
 
+
+    /*
+    Gets the data that the robot is trying to send back.
+    It will get and print all the data that the robot has.
+    */
     public void getData(){
         if(isConnected){
             try {
