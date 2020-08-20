@@ -157,6 +157,136 @@ TEST( pipe_should, error_on_read_fail )
   }
 }
 
+//
+// Test the code that merges two IPIN streams.  Used by the encoder
+//
+TEST( pipe_should, merge_properly )
+{
+  const std::vector<IPinEvent> stream0 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }
+  };
+
+  const std::vector<IPinEvent> stream1 = {
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{0} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{6} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{10} }
+  };
+
+  const std::vector<MergedEvent> goldenOutput = {
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{0} }},
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} }},
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }},
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{5} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{6} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{10} }}
+  };
+
+  IPinEvents<15> events0;
+  for ( auto event: stream0 ) {
+    events0.write( event );
+  }
+
+  IPinEvents<15> events1;
+  for ( auto event: stream1 ) {
+    events1.write( event );
+  }
+
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( events0, events1 );
+
+  std::vector< MergedEvent > mergedEvents;
+  while( merger.hasEvents() ) {
+    mergedEvents.push_back( merger.read() );
+  }
+  ASSERT_EQ( false, events0.hasEvents() );
+  ASSERT_EQ( false, events1.hasEvents() );
+  
+  ASSERT_EQ( mergedEvents, goldenOutput ); 
+}
+
+//
+// Merge when only the "A" side has data
+//
+TEST( pipe_should, merge_case_2 )
+{
+  const std::vector<IPinEvent> stream0 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }
+  };
+
+  const std::vector<MergedEvent> goldenOutput = {
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }},
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
+  };
+
+  IPinEvents<15> events0;
+  for ( auto event: stream0 ) {
+    events0.write( event );
+  }
+
+  IPinEvents<15> events1;
+
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( events0, events1 );
+
+  std::vector< MergedEvent > mergedEvents;
+  while( merger.hasEvents() ) {
+    mergedEvents.push_back( merger.read() );
+  }
+  ASSERT_EQ( false, events0.hasEvents() );
+  ASSERT_EQ( false, events1.hasEvents() );
+  
+  ASSERT_EQ( mergedEvents, goldenOutput ); 
+}
+
+//
+// Merge when only the "B" side has data
+//
+TEST( pipe_should, merge_case_3 )
+{
+  const std::vector<IPinEvent> stream1 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }
+  };
+
+  const std::vector<MergedEvent> goldenOutput = {
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} }},
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} }},
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
+  };
+
+  IPinEvents<15> events0;
+
+  IPinEvents<15> events1;
+  for ( auto event: stream1 ) {
+    events1.write( event );
+  }
+
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( events0, events1 );
+
+  std::vector< MergedEvent > mergedEvents;
+  while( merger.hasEvents() ) {
+    std::cerr << "pop\n";
+    mergedEvents.push_back( merger.read() );
+  }
+  ASSERT_EQ( false, events0.hasEvents() );
+  ASSERT_EQ( false, events1.hasEvents() );
+  
+  ASSERT_EQ( mergedEvents, goldenOutput ); 
+}
 
 } // end Util namespace
 

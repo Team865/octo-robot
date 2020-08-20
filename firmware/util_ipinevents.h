@@ -121,6 +121,93 @@ class IPinEvents
   // The actual events.
   std::array< IPinEvent, N > events;
 };
+
+using MergedEvent = std::pair< int, IPinEvent >;
+
+///
+/// @brief Merge two IPin Events streams in chronological order, without doing
+///        any dynamic allocation.
+///
+/// Written for the encoder, which has two pins that need to be sorted chronologically
+/// 
+template< class IPinEventsA, class IPinEventsB >
+class IPinEventMerger
+{
+  public: 
+
+  IPinEventMerger( IPinEventsA& eventsAArg, IPinEventsB& eventsBArg )
+  : eventsA{ eventsAArg },
+    eventsB{ eventsBArg }
+  {
+  }
+
+  // @brief Are there any events available for read?
+  bool hasEvents()
+  {
+    drawEvents();
+    return hasEventA || hasEventB;
+  }
+
+  /// @brief Read the next event in the merged stream
+  MergedEvent read()
+  {
+    drawEvents();
+    if ( !hasEventA && !hasEventB ) 
+    {
+      // No events - programmer logic failure.
+      // Just lock it and force the WTD to crash
+      for( ;; );
+    }
+    if (  hasEventA && !hasEventB ) 
+    {
+      // Only an event A
+      hasEventA = false;
+      return MergedEvent( 0, eventA ); 
+    }
+    if ( !hasEventA &&  hasEventB )
+    {
+      // Only an event B
+      hasEventB = false;
+      return MergedEvent( 1, eventB ); 
+    }
+    // Both A and B.  Choose the lowest time
+    if ( eventB.second < eventA.second ) 
+    {
+      hasEventB = false;  
+      return MergedEvent( 1, eventB ); 
+    }
+    // Ties go to A 
+    hasEventA = false;  
+    return MergedEvent( 0, eventA ); 
+  }
+
+  private:
+
+  //
+  // Load events up from the downstream interfaces, if available.
+  //
+  void drawEvents() 
+  {
+    if ( !hasEventA && eventsA.hasEvents() ) {
+      eventA = eventsA.read();
+      hasEventA = true;
+    }  
+    if ( !hasEventB && eventsB.hasEvents() ) {
+      eventB = eventsB.read();
+      hasEventB = true;
+    }  
+  }
+
+  bool hasEventA = false;
+  bool hasEventB = false;
+  IPinEvent eventA;
+  IPinEvent eventB;
+
+  IPinEventsA& eventsA;
+  IPinEventsB& eventsB;
+};
+
+
 } // End util namespace
 
 #ifdef TODO_SAMPLE_HANDLER
