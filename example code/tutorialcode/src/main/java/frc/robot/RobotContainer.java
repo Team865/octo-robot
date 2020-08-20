@@ -10,7 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.TeleopCommand;
-//import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.OctoDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -21,9 +21,9 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  //private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-
-  private final TeleopCommand m_teleopCommand = new TeleopCommand();
+  
+  private final OctoDriveSubsystem m_octoDriveSubsystem = new OctoDriveSubsystem();
+  private final TeleopCommand m_teleopCommand = new TeleopCommand(m_octoDriveSubsystem);
 
 
 
