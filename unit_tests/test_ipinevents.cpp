@@ -279,13 +279,58 @@ TEST( pipe_should, merge_case_3 )
 
   std::vector< MergedEvent > mergedEvents;
   while( merger.hasEvents() ) {
-    std::cerr << "pop\n";
     mergedEvents.push_back( merger.read() );
   }
   ASSERT_EQ( false, events0.hasEvents() );
   ASSERT_EQ( false, events1.hasEvents() );
   
-  ASSERT_EQ( mergedEvents, goldenOutput ); 
+  ASSERT_EQ( goldenOutput, mergedEvents ); 
+}
+
+//
+// Test for the debouncer filter
+// 
+TEST( pipe_should, debounce_properly )
+{
+  // Raw input
+  const std::vector<IPinEvent> rawStream = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{100} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{105} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{110} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{115} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{120} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{220} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{300} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{305} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{310} }
+  };
+
+  // Golden output
+  const std::vector<IPinEvent> golden = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{120} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{220} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{310} }
+  };
+
+  // Populate events
+  IPinEvents<15> events;
+  for ( auto event: rawStream ) {
+    events.write( event );
+  }
+
+  // Create the filter
+  IPinDebouncer<IPinEvents<15>> debouncer( events, 20 );
+
+  // Draw from the filter.
+  std::vector< IPinEvent > deBouncedEvents;
+  while( debouncer.hasEvents() ) {
+    deBouncedEvents.push_back( debouncer.read() );
+  }
+  
+  // Test output
+  ASSERT_EQ( false, events.hasEvents() );
+  ASSERT_EQ( false, debouncer.hasEvents() );
+  ASSERT_EQ( golden, deBouncedEvents ); 
 }
 
 } // end Util namespace

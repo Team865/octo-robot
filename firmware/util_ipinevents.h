@@ -122,6 +122,100 @@ class IPinEvents
   std::array< IPinEvent, N > events;
 };
 
+///
+/// @brief A Filter that mostly conforms to an IPinEvents interface, and debounces
+/// 
+template< class DownstreamIpinEvents >
+class IPinDebouncer
+{
+  public:
+
+  ///
+  /// @brief Constructor
+  ///
+  /// @brief param[in] downstreamArg - the downstream source of IPin Events
+  /// @brief param[in] debouncTimeWindowArg 
+  ///     Ignore events if a second event comes in less than 
+  ///     "debouncTimeWidnowArg" microseconds after the first.
+  /// 
+  IPinDebouncer( DownstreamIpinEvents& downstreamArg, int deBounceTimeWindowArg  ) :
+    downstream{ downstreamArg },
+    deBounceTimeWindow{ deBounceTimeWindowArg }
+  {
+  }
+  IPinDebouncer() = delete;
+
+  ///
+  /// @brief Are there any events left after debounce filtering? 
+  /// 
+  bool hasEvents() {
+    drawEvents(); 
+    return inPipe != 0;  
+  }
+
+  ///
+  /// @brief Read a debounced event
+  /// 
+  IPinEvent read() {
+    // Fill the mini pipe
+    drawEvents();
+
+    // Crash if empty - this shouldn't have been called.
+    if ( inPipe == 0 ) {
+      for( ;; );  
+    }
+
+    // Non-empty.  Get the first entry in the pipe to return.
+    IPinEvent rval = pipe[0];
+
+    // Shift everthing over one @ return.
+    pipe[0] = pipe[1];
+    --inPipe;
+    return rval;
+  }
+
+  private:
+
+  //
+  // Draw events from the downstream source, squashing any that are too
+  // close together in time.
+  // 
+  void drawEvents() 
+  {
+    for ( ;; ) {
+      // Fill the pipe to max
+      while ( inPipe < 2 && downstream.hasEvents() ) {
+        pipe[ inPipe ] = downstream.read();
+        ++inPipe;
+      }
+
+      // If the pipe is less than 2, we're out of events downstream.
+      // Just return, there's nothing more to debounce.
+      if ( inPipe < 2 ) { return; }
+
+      // If the two times are far enough apart then return.  We can
+      // feed pipe[0] the next time that read is called.
+      if ( pipe[ 1 ].second - pipe[ 0 ].second > deBounceTimeWindow )
+      {
+        return;
+      }
+
+      // Squash pipe[0] and then loop around to try re-reading pipe[1],
+      // and maybe doing further squashes.
+      pipe[0] = pipe[1];
+      --inPipe;
+    }
+  }
+
+  private:
+
+  DownstreamIpinEvents& downstream;
+  const int deBounceTimeWindow;
+
+  size_t inPipe = 0;
+  IPinEvent pipe[2];
+};
+
 using MergedEvent = std::pair< int, IPinEvent >;
 
 ///
