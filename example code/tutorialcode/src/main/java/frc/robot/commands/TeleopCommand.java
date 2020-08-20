@@ -13,31 +13,40 @@ import frc.robot.subsystems.OctoDriveSubsystem.motorState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-/**
- * An example command that uses an example subsystem.
- */
+
+/*
+TeleopCommand is a command responcable for the robot's actions in
+the teleop period. It creates and gathers input from an XboxController
+and calls functions from the given OctoDrive to make it respond
+to the user's input.
+*/
 public class TeleopCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private XboxController driverController = new XboxController(0);
   private OctoDriveSubsystem octoDrive;
-  /**
-   * Creates a new ExampleCommand.
-   *
-   * @param subsystem The subsystem used by this command.
-   **/
 
+
+  /*
+  Init function. Stores the given OctoDriveSubsystem.
+  */
   public TeleopCommand(OctoDriveSubsystem initSubsystem) {
     octoDrive = initSubsystem;
-    // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(initSubsystem);
   }
   
-  // Called when the command is initially scheduled.
+
+
   @Override
   public void initialize() {
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
+
+  /*
+  The main function of TeleopCommand, this code is constantly
+  called. It updates the XboxController, get's the controller's
+  data, and with it tells the OctoDrive what state to set it's
+  motors too.
+  */
   @Override
   public void execute() {
     driverController.controllerPeriodic();
@@ -91,13 +100,17 @@ public class TeleopCommand extends CommandBase {
     octoDrive.setMotors(rightMotorState, leftMotorState);
   }
 
-  // Called once the command ends or is interrupted.
+
+  /*
+  When the command ends, stop the motors.
+  */
   @Override
   public void end(boolean interrupted) {
     octoDrive.setMotors(motorState.STOPPED, motorState.STOPPED);
   }
 
-  // Returns true when the command should end.
+
+
   @Override
   public boolean isFinished() {
     return false;
