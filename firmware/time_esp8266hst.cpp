@@ -3,7 +3,7 @@
 
 namespace 
 {
-  inline unsigned int readHardwareTime()
+  inline unsigned int ICACHE_RAM_ATTR readHardwareTime()
   {
     // Background, https://sub.nanona.fi/esp8266/timing-and-ticks.html
     //
@@ -28,7 +28,7 @@ namespace Time {
 
   constexpr unsigned int reduce=80;
 
-  DeviceTimeUS ESP8266_HST::usSinceDeviceStart()
+  DeviceTimeUS ICACHE_RAM_ATTR ESP8266_HST::usSinceDeviceStart()
   {
     const unsigned int ticksSinceBase = readHardwareTime() - baseHardwareTime; 
     const unsigned int usSinceBase = ticksSinceBase / reduce;

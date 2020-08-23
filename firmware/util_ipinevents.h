@@ -60,7 +60,7 @@ class IPinEvents
 
   /// @brief Write an event to the pipe.  Set error flag on overflow
   /// 
-  void write( const IPinEvent& event ) noexcept {
+  OCTO_INTERRUPT_FUNC(void) write( const IPinEvent& event ) noexcept {
     // Find the next empty write slot
     const std::size_t nextWriteSlot = ( writeSlot + 1 ) % N;
 
@@ -118,8 +118,15 @@ class IPinEvents
   bool writeErrorFlag;
   // Set to true if we underflow on read
   bool readErrorFlag;
-  // The actual events.
-  std::array< IPinEvent, N > events;
+  //
+  // The actual events...
+  //  
+  // I'd prefer to use an std::array here, because it's 2020, but this code 
+  // will be used by the interrupt and I want to guarantee the compiler
+  // doesn't add a function for the [] operator (as unlikely as it seems)
+  //
+  //std::array< IPinEvent, N > events;
+  IPinEvent events[N];
 };
 
 ///

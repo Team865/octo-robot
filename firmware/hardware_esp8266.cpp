@@ -43,7 +43,7 @@ class InputInterruptHandler
     esp8266Pin = pinMap.at( pin ); 
   }
   
-  void interrupt()
+  void ICACHE_RAM_ATTR interrupt()
   {
     // Record the pin state & time, and get out of here.
     events.write( Util::IPinEvent(
@@ -67,6 +67,24 @@ class InputInterruptHandler
 std::array<int, static_cast<size_t>(HW::Pin::END_OF_PINS)  > fastAbstractToRealPin;
 std::array<int, static_cast<size_t>(HW::PinState::END_OF_PIN_STATES) > fastAbstractToRealPinState; 
 std::array<std::unique_ptr<InputInterruptHandler>, static_cast<size_t>(HW::Pin::END_OF_PINS ) > pinToInputHandler;
+
+//
+// Programming with raw pointers and arrays, just like the 90s.
+// The ESP8266 interrupt handler HAS to be in RAM.  Raw arrays and
+// smart pointers aren't good C++ anymore, but in this case they're
+// easy to reason about.
+// 
+InputInterruptHandler* pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::END_OF_PINS) ];
+
+//
+// TODO - enable interrupts and add for each encoder type
+// 
+//void ICACHE_RAM_ATTR leftEncoderPin0Int()
+//{
+//  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN0) ];
+//  handler->interrupt();
+//}
+
 } // end anonymous namespace
 
 namespace HW {
@@ -102,10 +120,14 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
   pinMode( 1, FUNCTION_3 );
   pinMode( 3, FUNCTION_3 );
 
+  for ( size_t index = 0; index < static_cast<size_t>(HW::Pin::END_OF_PINS); ++index ) {
+    pinToInputHandlerRaw[ index ] = nullptr;
+  }
   for( Pin interruptInput : interruptInputs ) 
   {
     size_t slot = static_cast<size_t>(interruptInput);
     pinToInputHandler[ slot ] = std::unique_ptr<InputInterruptHandler>( new InputInterruptHandler(hst, interruptInput ));
+    pinToInputHandlerRaw[ slot ] = pinToInputHandler[ slot ].get();
   }
 }
 
@@ -138,8 +160,11 @@ unsigned int HardwareESP8266::AnalogRead( Pin pin)
 IEvent& HardwareESP8266::GetInputEvents( Pin pin )
 {
   auto& handler = pinToInputHandler[ static_cast<size_t>( pin ) ];
-    
-  handler->interrupt();   // fake an interrupt for now
+
+  // Fake an interrupt for now
+  InputInterruptHandler* rawHandler = pinToInputHandlerRaw[ static_cast<size_t>(pin ) ];
+  rawHandler->interrupt();
+
   return handler->getEvents();
 }
 }
