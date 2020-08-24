@@ -18,21 +18,21 @@ namespace Command {
 
 ProcessCommand::ProcessCommand(
     std::shared_ptr<NetInterface> netArg,
-    std::shared_ptr<HWI> hardwareArg,
+    std::shared_ptr<HW::I> hardwareArg,
     std::shared_ptr<DebugInterface> debugArg,
     std::shared_ptr<Time::Interface> timeArg,
-    std::shared_ptr<Command::Motor> motorAArg,
-    std::shared_ptr<Command::Motor> motorBArg,
-    std::shared_ptr<Command::Encoder> encoderAArg,
-    std::shared_ptr<Command::Encoder> encoderBArg,
+    std::shared_ptr<Command::Motor> motorLArg,
+    std::shared_ptr<Command::Motor> motorRArg,
+    std::shared_ptr<Command::Encoder> encoderLArg,
+    std::shared_ptr<Command::Encoder> encoderRArg,
     std::shared_ptr<Command::SR04> sr04Arg,
     std::shared_ptr<Time::HST> hstArg,
     std::shared_ptr<Command::Scheduler> schedulerArg,
     std::shared_ptr<Command::DataSend> dataSendArg
 ) : net{ netArg }, hardware{ hardwareArg }, debugLog{ debugArg }, 
     timeMgr{ timeArg }, 
-    motorA{ motorAArg }, motorB{ motorBArg }, 
-    encoderA{ encoderAArg }, encoderB{ encoderBArg },
+    motorL{ motorLArg }, motorR{ motorRArg }, 
+    encoderL{ encoderLArg }, encoderR{ encoderRArg },
     sr04{ sr04Arg },
     hst{ hstArg },
     scheduler{ schedulerArg },
@@ -78,10 +78,11 @@ const std::unordered_map<CommandParser::Command,
   ProcessCommand::commandImpl = 
 {
   { CommandParser::Command::Ping,         &ProcessCommand::doPing},
+  { CommandParser::Command::SetMotorL,    &ProcessCommand::doSetMotorL},
+  { CommandParser::Command::SetMotorR,    &ProcessCommand::doSetMotorR},
   { CommandParser::Command::SetMotorA,    &ProcessCommand::doSetMotorA},
-  { CommandParser::Command::SetMotorB,    &ProcessCommand::doSetMotorB},
-  { CommandParser::Command::GetEncoderA,  &ProcessCommand::doGetEncoderA},
-  { CommandParser::Command::GetEncoderB,  &ProcessCommand::doGetEncoderB},
+  { CommandParser::Command::GetEncoderL,  &ProcessCommand::doGetEncoderL},
+  { CommandParser::Command::GetEncoderR,  &ProcessCommand::doGetEncoderR},
   { CommandParser::Command::GetTimeMs,    &ProcessCommand::doGetTimeMs},
   { CommandParser::Command::GetTimeUs,    &ProcessCommand::doGetTimeUs},
   { CommandParser::Command::Profile,      &ProcessCommand::doProfile},
@@ -117,30 +118,40 @@ void ProcessCommand::doError( CommandParser::CommandPacket cp )
   log << "ERROR!!!!\n";
 }
 
+void ProcessCommand::doSetMotorL( CommandParser::CommandPacket cp )
+{
+  net->get() << cp.optionalArg << "\n";
+  motorL->setSpeed( cp.optionalArg );
+}
+
+void ProcessCommand::doSetMotorR( CommandParser::CommandPacket cp )
+{
+  net->get() << cp.optionalArg << "\n";
+  motorR->setSpeed( cp.optionalArg );
+}
+
 void ProcessCommand::doSetMotorA( CommandParser::CommandPacket cp )
 {
   net->get() << cp.optionalArg << "\n";
-  motorA->setSpeed( cp.optionalArg );
+  motorL->setSpeed( cp.optionalArg );
+  // Flip the right motor so the robot goes forward or backwards
+  motorR->setSpeed( -cp.optionalArg );
 }
 
-void ProcessCommand::doSetMotorB( CommandParser::CommandPacket cp )
-{
-  net->get() << cp.optionalArg << "\n";
-  motorB->setSpeed( cp.optionalArg );
-}
-
-void ProcessCommand::doGetEncoderA( CommandParser::CommandPacket cp )
+void ProcessCommand::doGetEncoderL( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  int position = encoderA->getPosition();
-  net->get() << "encodera " << position << "\n";
+  int position = encoderL->getPosition();
+  int rotation_speed = encoderL->getSpeed();
+  net->get() << "encoderl " << position << " " << rotation_speed << "\n";
 }
 
-void ProcessCommand::doGetEncoderB( CommandParser::CommandPacket cp )
+void ProcessCommand::doGetEncoderR( CommandParser::CommandPacket cp )
 {
   (void) cp;
-  int position = encoderB->getPosition();
-  net->get() << "encoderb " << position << "\n";
+  int position = encoderR->getPosition();
+  int rotation_speed = encoderR->getSpeed();
+  net->get() << "encoderr " << position << " " << rotation_speed << "\n";
 }
 
 void ProcessCommand::doGetTimeMs( CommandParser::CommandPacket cp )

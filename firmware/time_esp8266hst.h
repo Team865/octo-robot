@@ -15,7 +15,12 @@ namespace Time
     ~ESP8266_HST() {}
 
     virtual Time::DeviceTimeMS msSinceDeviceStart() override final;
-    virtual Time::DeviceTimeUS usSinceDeviceStart() override final;
+    virtual Time::DeviceTimeUS ICACHE_RAM_ATTR usSinceDeviceStart() override final
+    {
+      const unsigned int ticksSinceBase = readHardwareTime() - baseHardwareTime;
+      const unsigned int usSinceBase = ticksSinceBase / reduce;
+      return currentTime + usSinceBase;
+    }
     virtual Time::TimeUS execute() override final;
     virtual const char* debugName() override final;
 
@@ -23,6 +28,15 @@ namespace Time
       Time::DeviceTimeUS currentTime;
       unsigned int baseHardwareTime;
       unsigned int baseHardwareTimeMS;
+      unsigned int ICACHE_RAM_ATTR readHardwareTime() 
+      {
+        // Background, https://sub.nanona.fi/esp8266/timing-and-ticks.html
+        //
+        unsigned int ccount;
+        asm volatile ("rsr %0, ccount" : "=r"(ccount));
+        return ccount;
+      }
+      static constexpr unsigned int reduce=80;
   };
 }
 

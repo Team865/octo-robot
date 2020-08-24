@@ -3,6 +3,20 @@
 
 #include <array>
 
+#define OCTO_ESP8266_DEBUG
+
+// Building on a PC, for test purposes.  Blank out the flag that tells the
+// compiler to put a function into ram
+#ifdef PC_BUILD
+#define OCTO_INTERRUPT_FUNC( a ) a
+#else
+// Build target is the ESP8266.  Bring in the hardware_esp8266.h include to 
+// make sure ICACHE_RAM_ATTR is available then #define it to the flag we'll
+// use to say that a function or method has to be implemented in ram.
+#include "ESP8266WiFi.h"
+#define OCTO_INTERRUPT_FUNC( a ) a ICACHE_RAM_ATTR
+#endif
+
 namespace UrbanRobot
 {
 	const int noValue= -1;
@@ -76,6 +90,7 @@ namespace UrbanRobot
     bool operator==( TypeSafeNumber rhs ) const { return num == rhs.num; };
     bool operator!=( TypeSafeNumber rhs ) const { return num != rhs.num; };
     bool operator>(TypeSafeNumber rhs ) const { return num > rhs.num; };
+    bool operator>=(TypeSafeNumber rhs ) const { return num >= rhs.num; };
     TypeSafeNumber& operator+=(TypeSafeNumber rhs ) { num += rhs.num; return *this; }
     TypeSafeNumber operator*( int rhs ) const { return TypeSafeNumber( num * rhs ); }
 

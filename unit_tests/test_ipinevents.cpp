@@ -16,9 +16,9 @@ TEST( pipe_should, add_and_remove_events )
   IPinEvents<16> events;
 
   const std::vector<IPinEvent> golden = {
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
   };
 
   // 100 loops should be a good stress test
@@ -59,9 +59,9 @@ TEST( pipe_should, write_to_full )
   // Full is one less than the max (3) under the current implementation
   //
   const std::vector<IPinEvent> golden = {
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{2} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }
   };
 
   // 100 = stress test
@@ -98,10 +98,10 @@ TEST( pipe_should, error_on_write_fail )
   
   // Size 4 pipe can only hold 3 events, so feed it four events
   const std::vector<IPinEvent> golden = {
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
-    { HWI::PinState::INPUT_HIGH, Time::DeviceTimeUS{2} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{3} },
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{4} }
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{2} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{4} }
   };
   for ( const auto& event : golden ) {
     events.write( event );
@@ -126,7 +126,7 @@ TEST( pipe_should, error_on_write_fail )
 TEST( pipe_should, error_on_read_fail )
 {
   IPinEvent event = 
-    { HWI::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} };
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} };
 
   // Go through some test permutations...
   //
@@ -157,6 +157,257 @@ TEST( pipe_should, error_on_read_fail )
   }
 }
 
+//
+// Test the code that merges two IPIN streams.  Used by the encoder
+//
+TEST( pipe_should, merge_properly )
+{
+  const std::vector<IPinEvent> stream0 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }
+  };
+
+  const std::vector<IPinEvent> stream1 = {
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{0} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{6} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{10} }
+  };
+
+  const std::vector<MergedEvent> goldenOutput = {
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{0} }},
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{1} }},
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }},
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{5} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{6} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{10} }}
+  };
+
+  IPinEvents<15> events0;
+  for ( auto event: stream0 ) {
+    events0.write( event );
+  }
+
+  IPinEvents<15> events1;
+  for ( auto event: stream1 ) {
+    events1.write( event );
+  }
+
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
+
+  std::vector< MergedEvent > mergedEvents;
+  while( merger.hasEvents() ) {
+    mergedEvents.push_back( merger.read() );
+  }
+  ASSERT_EQ( false, events0.hasEvents() );
+  ASSERT_EQ( false, events1.hasEvents() );
+  
+  ASSERT_EQ( mergedEvents, goldenOutput ); 
+}
+
+//
+// Merge when only the "A" side has data
+//
+TEST( pipe_should, merge_case_2 )
+{
+  const std::vector<IPinEvent> stream0 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }
+  };
+
+  const std::vector<MergedEvent> goldenOutput = {
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }},
+    { 0, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} }},
+    { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
+  };
+
+  IPinEvents<15> events0;
+  for ( auto event: stream0 ) {
+    events0.write( event );
+  }
+
+  IPinEvents<15> events1;
+
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
+
+  std::vector< MergedEvent > mergedEvents;
+  while( merger.hasEvents() ) {
+    mergedEvents.push_back( merger.read() );
+  }
+  ASSERT_EQ( false, events0.hasEvents() );
+  ASSERT_EQ( false, events1.hasEvents() );
+  
+  ASSERT_EQ( mergedEvents, goldenOutput ); 
+}
+
+//
+// Merge when only the "B" side has data
+//
+TEST( pipe_should, merge_case_3 )
+{
+  const std::vector<IPinEvent> stream1 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }
+  };
+
+  const std::vector<MergedEvent> goldenOutput = {
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{3} }},
+    { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{4} }},
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{5} }},
+    { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
+  };
+
+  IPinEvents<15> events0;
+
+  IPinEvents<15> events1;
+  for ( auto event: stream1 ) {
+    events1.write( event );
+  }
+
+  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
+
+  std::vector< MergedEvent > mergedEvents;
+  while( merger.hasEvents() ) {
+    mergedEvents.push_back( merger.read() );
+  }
+  ASSERT_EQ( false, events0.hasEvents() );
+  ASSERT_EQ( false, events1.hasEvents() );
+  
+  ASSERT_EQ( goldenOutput, mergedEvents ); 
+}
+
+//
+// Test for the debouncer filter
+// 
+TEST( pipe_should, debounce_properly )
+{
+  // Raw input
+  const std::vector<IPinEvent> rawStream = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{100} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{105} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{110} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{115} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{120} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{220} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{300} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{305} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{310} }
+  };
+
+  // Golden output
+  const std::vector<IPinEvent> golden = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{120} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{220} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{310} }
+  };
+
+  // Populate events
+  IPinEvents<15> events;
+  for ( auto event: rawStream ) {
+    events.write( event );
+  }
+
+  // Create the filter
+  IPinDebouncer<IPinEvents<15>> debouncer( &events, 20 );
+
+  // Draw from the filter.
+  std::vector< IPinEvent > deBouncedEvents;
+  while( debouncer.hasEvents() ) {
+    deBouncedEvents.push_back( debouncer.read() );
+  }
+  
+  // Test output
+  ASSERT_EQ( false, events.hasEvents() );
+  ASSERT_EQ( false, debouncer.hasEvents() );
+  ASSERT_EQ( golden, deBouncedEvents ); 
+}
+
+///
+/// Tests the Grey Code event tracker class (GreyCodeTracker)
+/// 
+TEST( pipe_should, computeGreyCodesProperly )
+{
+  // Raw bouncy input from Pin 0
+  const std::vector<IPinEvent> rawStream0 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{100} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{105} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{110} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{115} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{120} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{420} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{700} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{705} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{710} }
+  };
+
+  // Raw bouncy input from Pin1
+  const std::vector<IPinEvent> rawStream1 = {
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{200} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{205} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{210} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{215} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{220} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{520} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{600} },
+    { HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{605} },
+    { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{610} }
+  };
+
+  const std::vector<GreyCodeTime> golden = {
+    // Assume we start with a value of 0
+    { 1,    Time::DeviceTimeUS{ 120 } },    // Bit 0 transition to "on"
+    { 3,    Time::DeviceTimeUS{ 220 } },    // Bit 1 transition to "on"
+    { 2,    Time::DeviceTimeUS{ 420 } },    // Bit 0 transition to "off"
+    { 0,    Time::DeviceTimeUS{ 520 } },    // Bit 1 transition to "off"
+    { 2,    Time::DeviceTimeUS{ 610 } },    // Bit 1 transition to "on"
+    { 3,    Time::DeviceTimeUS{ 710 } },    // Bit 0 transition to "on"
+  };
+
+  // Populate the two event streams
+  IPinEvents<15> events0;
+  for ( auto& event : rawStream0 )
+  {
+    events0.write( event );
+  } 
+
+  IPinEvents<15> events1;
+  for ( auto& event : rawStream1 )
+  {
+    events1.write( event );
+  } 
+
+  // Create debounces with a 50us debounce window
+  using DeBounce = Util::IPinDebouncer< IPinEvents<15> >;
+  DeBounce deBounce0( &events0, 50 );
+  DeBounce deBounce1( &events1, 50 );
+
+  GreyCodeTracker< DeBounce, DeBounce > tracker(
+      0,              // Start with grey code 0
+      &deBounce0,     // Debounced Events on pin 0
+      &deBounce1);    // Debounced Events on pin 1,
+
+  std::vector<GreyCodeTime> result;
+
+  while( tracker.hasEvents() ) {
+    result.push_back( tracker.read() );
+  }
+
+  // Compare golden to result
+  ASSERT_EQ( golden,  result );
+  ASSERT_EQ( false,   events0.hasEvents() );
+  ASSERT_EQ( false,   events1.hasEvents() );
+}
 
 } // end Util namespace
 

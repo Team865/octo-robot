@@ -1,6 +1,8 @@
 #include "hardware_interface.h"
 
-const std::unordered_map<HWI::Pin,std::string,EnumHash> HWI::pinNames = {
+namespace HW {
+
+const std::unordered_map<Pin,std::string,EnumHash> pinNames = {
     { Pin::MOTOR0_PIN0,     "Motor0 Pin0" },
     { Pin::MOTOR0_PIN1,     "Motor0 Pin1" },
     { Pin::MOTOR1_PIN0,     "Motor1 Pin0" },
@@ -13,7 +15,7 @@ const std::unordered_map<HWI::Pin,std::string,EnumHash> HWI::pinNames = {
     { Pin::SR04_ECHO,       "SR04 Echo" },
 };
 
-const std::unordered_map<HWI::PinState,std::string,EnumHash> HWI::pinStateNames = {
+const std::unordered_map<PinState,std::string,EnumHash> pinStateNames = {
   { PinState::MOTOR_POS,            "Voltage On"      },
   { PinState::MOTOR_NEG,            "Voltage Off"     },
   { PinState::INPUT_LOW,            "Input GND"       },
@@ -22,8 +24,10 @@ const std::unordered_map<HWI::PinState,std::string,EnumHash> HWI::pinStateNames 
   { PinState::ECHO_ON,              "SR04 Echo Pulse" }
 };
 
-const std::unordered_map<HWI::PinIOMode,std::string,EnumHash> HWI::pinIOModeNames = {
+const std::unordered_map<PinIOMode,std::string,EnumHash> pinIOModeNames = {
     { PinIOMode::M_INPUT,        "Input" },
     { PinIOMode::M_OUTPUT,       "Output" }
 };
+
+}; // end namespace HW
 

@@ -13,12 +13,12 @@ const Time::TimeUS idleReschedule{ 10000 };
 const Time::TimeUS activeReschedule{ 20 };
 
 SR04::SR04( 
-  std::shared_ptr<HWI> hwiArg, 
+  std::shared_ptr<HW::I> hwiArg, 
   std::shared_ptr<DebugInterface> debugArg, 
   std::shared_ptr<NetInterface> netArg, 
   std::shared_ptr<Time::HST> hstArg, 
-  HWI::Pin pinTrigArg,  
-  HWI::Pin pinEchoArg 
+  HW::Pin pinTrigArg,  
+  HW::Pin pinEchoArg 
 ) :
   hwi { hwiArg }, debug { debugArg }, net { netArg }, 
   hst{ hstArg },
@@ -27,9 +27,11 @@ SR04::SR04(
   distance{ READING_FAILED }
 {
   // Configure hardware pins for output
-  hwi->PinMode(pinTrig,  HWI::PinIOMode::M_OUTPUT );
-  hwi->PinMode(pinEcho,  HWI::PinIOMode::M_INPUT );
-  hwi->DigitalWrite( pinTrig, HWI::PinState::ECHO_OFF );
+#ifndef OCTO_ESP8266_DEBUG
+  hwi->PinMode(pinTrig,  HW::PinIOMode::M_OUTPUT );
+  hwi->PinMode(pinEcho,  HW::PinIOMode::M_INPUT );
+  hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
+#endif
 }
 
 
@@ -46,7 +48,7 @@ void SR04::handleAwaitingEcho()
     return;
   }
 
-  if ( hwi->DigitalRead( pinEcho ) == HWI::PinState::INPUT_LOW )
+  if ( hwi->DigitalRead( pinEcho ) == HW::PinState::INPUT_LOW )
   {
     //
     // The pulse came in sometime between now and the last time we checked
@@ -77,18 +79,18 @@ void SR04::handleAwaitingEcho()
 
 void SR04::handleSensorRequested()
 {
-  hwi->DigitalWrite( pinTrig, HWI::PinState::ECHO_OFF );
+  hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
   auto start = hst->usSinceDeviceStart();
   while (hst->usSinceDeviceStart() - start < 3 );
 
-  hwi->DigitalWrite( pinTrig, HWI::PinState::ECHO_ON );
+  hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_ON );
   start = hst->usSinceDeviceStart();
   while (hst->usSinceDeviceStart() - start < 11 );
 
-  hwi->DigitalWrite( pinTrig, HWI::PinState::ECHO_OFF );
+  hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
 
   start = hst->usSinceDeviceStart();
-  while( hwi->DigitalRead( pinEcho ) == HWI::PinState::INPUT_LOW ) 
+  while( hwi->DigitalRead( pinEcho ) == HW::PinState::INPUT_LOW ) 
   {
     // It looks like it takes about 500us to get a pulse out.
     if ( hst->usSinceDeviceStart() - start > 1000 ) 

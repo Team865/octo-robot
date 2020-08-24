@@ -53,12 +53,12 @@ class SR04: public Base {
   /// @param[in] pinEchoArg - "Echo" input on the sensor
   /// 
   SR04( 
-    std::shared_ptr<HWI> hwiArg, 
+    std::shared_ptr<HW::I> hwiArg, 
     std::shared_ptr<DebugInterface> debugArg, 
     std::shared_ptr<NetInterface> netArg, 
     std::shared_ptr<Time::HST> hstArg,
-    HWI::Pin pinTrigArg,  
-    HWI::Pin pinEchoArg);
+    HW::Pin pinTrigArg,  
+    HW::Pin pinEchoArg);
 
   ///
   /// @brief Standard time slice function
@@ -93,7 +93,7 @@ class SR04: public Base {
   };
 
   // @brief Interface to hardware (i.e., GPIO pins)
-  std::shared_ptr<HWI> hwi;
+  std::shared_ptr<HW::I> hwi;
   // @brief Interface to debug log
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
@@ -102,9 +102,9 @@ class SR04: public Base {
   std::shared_ptr<Time::HST > hst;
 
   // @brief Digital output to trigger a sound pulse
-  const HWI::Pin pinTrig;
+  const HW::Pin pinTrig;
   // @param Digital input to listen for the echo on
-  const HWI::Pin pinEcho;
+  const HW::Pin pinEcho;
 
   Mode mode;
   Time::DeviceTimeUS echoSentAt;

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
+#include <map>    
 
 #include "command_datasend.h"
 #include "command_motor.h"
@@ -140,24 +141,25 @@ class NetInterfaceSim: public NetInterface {
   NetConnectionSim defaultConnection;
 };
 
-class HWISim: public HWI
+namespace HW {
+class ISim: public I
 {
   public: 
 
   void PinMode( Pin pin, PinIOMode mode ) override
   {
-    std::cout << "PM (" << HWI::pinNames.at(pin) << ") = " << HWI::pinIOModeNames.at(mode) << "\n";
+    std::cout << "PM (" << HW::pinNames.at(pin) << ") = " << HW::pinIOModeNames.at(mode) << "\n";
   }
   void DigitalWrite( Pin pin, PinState state ) override
   {
-    const std::string name = HWI::pinNames.at(pin);
-    std::cout << "DW (" << HWI::pinNames.at(pin) 
-              << ") = " << HWI::pinStateNames.at( state ) 
+    const std::string name = HW::pinNames.at(pin);
+    std::cout << "DW (" << HW::pinNames.at(pin) 
+              << ") = " << HW::pinStateNames.at( state ) 
               << "\n";
   }
   PinState DigitalRead( Pin pin ) override
   {
-    return HWI::PinState::INPUT_LOW;
+    return HW::PinState::INPUT_LOW;
   }
   unsigned AnalogRead( Pin pin ) override
   {
@@ -168,7 +170,17 @@ class HWISim: public HWI
 
     return 200 + count_amp;
   }
+
+  IEvent& GetInputEvents( Pin pin ) override
+  {
+    return pinToEventMap[ pin ];
+  }
+
+  private:
+
+  std::map< Pin, IEvent > pinToEventMap;
 };
+}; // end HW namespace
 
 class DebugInterfaceSim: public DebugInterface
 {
@@ -193,7 +205,7 @@ Time::TimeUS loop() {
 void setup() {
   auto debug      = std::make_shared<DebugInterfaceSim>();
   auto wifi       = std::make_shared<NetInterfaceSim>( debug );
-  auto hardware   = std::make_shared<HWISim>();
+  auto hardware   = std::make_shared<HW::ISim>();
   auto hst        = std::make_shared<SimTimeHST>();
 
   scheduler = std::make_shared<Command::Scheduler>( 
@@ -203,20 +215,20 @@ void setup() {
   auto time       = std::make_shared<Time::Manager>( timeSim, hst );
   auto motorSimA  = std::make_shared<Command::Motor>( 
                           hardware, debug, wifi, 
-                          HWI::Pin::MOTOR0_PIN0, HWI::Pin::MOTOR0_PIN1 );
+                          HW::Pin::MOTOR0_PIN0, HW::Pin::MOTOR0_PIN1 );
   auto motorSimB  = std::make_shared<Command::Motor>( 
                           hardware, debug, wifi, 
-                          HWI::Pin::MOTOR1_PIN0, HWI::Pin::MOTOR1_PIN1 );
+                          HW::Pin::MOTOR1_PIN0, HW::Pin::MOTOR1_PIN1 );
   auto encoderASim = std::make_shared<Command::Encoder>(
                           hardware, debug, wifi, 
-                          HWI::Pin::ENCODER0_PIN0, HWI::Pin::ENCODER0_PIN1);
+                          HW::Pin::ENCODER0_PIN0, HW::Pin::ENCODER0_PIN1);
   auto encoderBSim = std::make_shared<Command::Encoder>(
                           hardware, debug, wifi, 
-                          HWI::Pin::ENCODER1_PIN0, HWI::Pin::ENCODER1_PIN1);
+                          HW::Pin::ENCODER1_PIN0, HW::Pin::ENCODER1_PIN1);
  
   auto sr04        = std::make_shared<Command::SR04> (
                           hardware, debug, wifi, hst,
-                          HWI::Pin::SR04_TRIG, HWI::Pin::SR04_ECHO );
+                          HW::Pin::SR04_TRIG, HW::Pin::SR04_ECHO );
 
   auto dataSend = std::make_shared<Command::DataSend>( 
                           debug, wifi, 

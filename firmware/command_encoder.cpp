@@ -4,19 +4,23 @@
 namespace Command{
 
 Encoder::Encoder( 
-  std::shared_ptr<HWI> hwiArg, 
+  std::shared_ptr<HW::I> hwiArg, 
   std::shared_ptr<DebugInterface> debugArg, 
   std::shared_ptr<NetInterface> netArg, 
-  HWI::Pin pin0Arg,  
-  HWI::Pin pin1Arg 
+  HW::Pin pin0Arg,  
+  HW::Pin pin1Arg 
 ) :
   hwi { hwiArg }, debug { debugArg }, net { netArg }, 
   pin0{ pin0Arg }, pin1{ pin1Arg},
   position{ 0 }
 {
   // Configure hardware pins for output
-  hwi->PinMode(pin0,  HWI::PinIOMode::M_INPUT );
-  hwi->PinMode(pin1,  HWI::PinIOMode::M_INPUT );
+  //
+  // Task delegated to the hardware layer because these are an interrupt driven
+  // inputs
+  // 
+  //hwi->PinMode(pin0,  HW::PinIOMode::M_INPUT );
+  //hwi->PinMode(pin1,  HW::PinIOMode::M_INPUT );
 
   lastGreyCode = getGreyCode();
 }
@@ -115,53 +119,119 @@ Encoder::Action Encoder::greyCodeActionTable[ 4 ][ 4 ] = {
 
 unsigned int Encoder::Encoder::getGreyCode()
 {
-  const bool pin0State = ( hwi->DigitalRead( pin0 ) == HWI::PinState::INPUT_HIGH );
-  const bool pin1State = ( hwi->DigitalRead( pin1 ) == HWI::PinState::INPUT_HIGH );
+  const bool pin0State = ( hwi->DigitalRead( pin0 ) == HW::PinState::INPUT_HIGH );
+  const bool pin1State = ( hwi->DigitalRead( pin1 ) == HW::PinState::INPUT_HIGH );
   return ( pin1State << 1 ) | pin0State;
 }
 
 
 Time::TimeUS Encoder::execute() 
 {
-  const unsigned int greyCode = getGreyCode();
-//  *net << greyCode << "\n";
- 
-  const Action action = greyCodeActionTable[ lastGreyCode ][ greyCode ];
-  lastGreyCode = greyCode;
+  HW::IEvent& pin0Events = hwi->GetInputEvents( pin0 ); 
+  HW::IEvent& pin1Events = hwi->GetInputEvents( pin1 ); 
 
-  switch ( action ) 
-  {
-    case Action::CW_ROTATION:
-      position++;
-      break;
-    case Action::CCW_ROTATION:
-      position--;
-      break;
-    case Action::NO_ACTION:
-      break;    // don't do anything
-    case Action::ILLEGAL:
-      break;    // what can we do?  :(  
+  //
+  // Some notes on the debouncer value...
+  // 
+  // - The encoder has 80 states, so that's 80 state changes / sec
+  // - Assume the wheel has top a rotation top speed of 16 rotates / sec)
+  // - The wheel is 66mm, or 20.7cm in diameter.
+  // - top robot speed = 20.7cm wheel diamater x 16 wheel rotations / sec;
+  // - or 3.31 m / sec
+  // - or 12km / hour, a clippy running pace.  The robot isn't going that fast
+  //
+  // The expected maximum encoder state change is maybe 781us
+  // I'm trying a 300us debounce window
+  //
+
+  using DeBounce = Util::IPinDebouncer< HW::IEvent >;
+
+  DeBounce deBounce0(
+      &pin0Events,      // Transitions on Pin 0
+      300 );            // 300us Debounce
+
+  DeBounce deBounce1(
+      &pin1Events,      // Transitions on Pin 0
+      300 );            // 300us Debounce
+
+  Util::GreyCodeTracker< DeBounce, DeBounce > greyCodeTracker( 
+      lastGreyCode,     // Initial State
+      &deBounce0,       // Transitions on Pin 0
+      &deBounce1);      // Transitions on Pin 1
+  
+  //
+  // Pull greycodes from the greycode tracker and update the encoder position
+  //
+  int speedTotal = 0;
+  int numSpeedSamples = 0;
+
+  while( greyCodeTracker.hasEvents() ) {
+ 
+    // Read the event and unpack it.  TODO - handle time
+    Util::GreyCodeTime event = greyCodeTracker.read();
+    unsigned int greyCode = event.first;
+    Time::DeviceTimeUS eventTime = event.second; 
+
+    const Action action = greyCodeActionTable[ lastGreyCode ][ greyCode ];
+    lastGreyCode = greyCode;
+    int dir = 0;
+
+    switch ( action ) 
+    {
+      case Action::CW_ROTATION:
+        dir = 1;
+        break;
+      case Action::CCW_ROTATION:
+        dir = -1; 
+        break;
+      case Action::NO_ACTION:
+        dir = 0; 
+        break;    // don't do anything
+      case Action::ILLEGAL:
+        dir = 0; 
+        break;    // what can we do?  :(  
+    }
+    position += dir;
+
+    if ( dir != 0 ) {
+      int64_t timeDelta = eventTime - lastStateChange;
+      // 
+      // 80 state changes / rotation
+      // Use 15.16 signed fix point to represent speed
+      //
+      // timePerRotation = timeDelta * 80;  (usec unit)
+      // rotationsPerSec = 1000000 / timePerRotation; 
+      // rotationsPerSec = 1000000 / (timeDelta * 80); 
+      // rotationsPerSec = 12500 / timeDelta;
+      //
+      // Convert to 15.16 fixed point by multiplying by 2^16, or 65536
+      //
+      // rotationsPerSec = 819200000 / timeDelta;
+      // 
+      int64_t speed64 = 819200000LL * ((int64_t) dir) / timeDelta;
+      speedTotal += (speed64);
+      numSpeedSamples++;
+      lastStateChange = eventTime;
+      //net->get() << "  " << greyCode << " " << ((unsigned) eventTime.get()) << " " << ((int) timeDelta) << "\n";    
+    }
+  }
+  if ( numSpeedSamples ) {
+    speed = speedTotal / numSpeedSamples;
+  }
+  else {
+    speed = 0;
   }
 
-  // Duration Query...
+  // Run this about 10 times a second.
   //
-  // How fast can we run this?
+  // During testing, when the robot was running full out, it looked like the
+  // wheels rotated about 1.5x / second.  The encoder has 80 positions, so
+  // that's 50 state changes / second.  
   //
-  // - Most calls to the encoder finish up in 11us.  The processor runs at
-  //   80Mhz, so each call is taking about 880 clock cycles.  That's not
-  //   great, but not terrible. 
-  // - A 156us delay is 7% of the CPU budget & 6400 updates / sec
-  // - Assume that means we can deal with 6400 encoder state changes / sec
-  // - The encoder has 80 states, so that's 80 rotations / sec
-  // - If we gear the encode down 5x from the wheel, 16 wheel rotations / sec
-  // - The wheel is 66mm, or 20.7cm in diameter.
-  // - so top speed = 20.7cm wheel diamater x 16 wheel rotations / sec;
-  // - or 3.31 m / sec
-  // - or 12km / hour, a clippy running pace.
-  //
-  // - TODO - adjust as needed.
-  //
-  return Time::TimeUS( 156 );
+  // Sampling about every 10th of a second gives 5 state changes / sample 
+  // to use for speed calculations.
+  // 
+  return Time::TimeUS( 100000 );
 }
 
 //
@@ -176,6 +246,12 @@ int Encoder::getPosition()
 {
   return position;
 }
+
+int Encoder::getSpeed()
+{
+  return speed;
+}
+
 
 } // End Command Namespace
 

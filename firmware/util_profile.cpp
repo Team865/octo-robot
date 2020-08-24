@@ -19,7 +19,7 @@ void Profile::reset()
 
 void Profile::addSample( Time::TimeUS sample )
 {
-  while ( sample > maxTime ) {
+  while ( sample >= maxTime ) {
     compress();
   }
   size_t slot = sample.get() / currentScale;

@@ -1,41 +1,116 @@
 #include <ESP8266WiFi.h>
 #include "hardware_esp8266.h"
-
-const std::unordered_map<HWI::Pin, int, EnumHash > HardwareESP8266::pinMap = 
-{
-  { Pin::MOTOR0_PIN0,     0     },
-  { Pin::MOTOR0_PIN1,     2     },
-  { Pin::MOTOR1_PIN0,     16    },
-  { Pin::MOTOR1_PIN1,     15    },
-  { Pin::ENCODER0_PIN0,   14    },
-  { Pin::ENCODER0_PIN1,   12    },
-  { Pin::ENCODER1_PIN0,   13    },
-  { Pin::ENCODER1_PIN1,   4     },
-  { Pin::SR04_TRIG,       1     },
-  { Pin::SR04_ECHO,       5     }
-};
-
-const std::unordered_map<HWI::PinState, int, EnumHash > HardwareESP8266::pinStateMap = {
-  { PinState::MOTOR_POS,      HIGH  },
-  { PinState::MOTOR_NEG,      LOW   },
-  { PinState::ECHO_ON,        HIGH  },
-  { PinState::ECHO_OFF,       LOW   }
-};
+#include <memory>
 
 namespace
 {
-  std::array<int, static_cast<size_t>(HWI::Pin::END_OF_PINS)  > fastAbstractToRealPin;
-  std::array<int, static_cast<size_t>(HWI::PinState::END_OF_PIN_STATES) > fastAbstractToRealPinState; 
+const std::unordered_map<HW::Pin, int, EnumHash > pinMap = 
+{
+  { HW::Pin::MOTOR0_PIN0,     0     },
+  { HW::Pin::MOTOR0_PIN1,     2     },
+  { HW::Pin::MOTOR1_PIN0,     16    },
+  { HW::Pin::MOTOR1_PIN1,     15    },
+  { HW::Pin::ENCODER0_PIN0,   14    },
+  { HW::Pin::ENCODER0_PIN1,   12    },
+  { HW::Pin::ENCODER1_PIN0,   13    },
+  { HW::Pin::ENCODER1_PIN1,   4     },
+  { HW::Pin::SR04_TRIG,       1     },
+  { HW::Pin::SR04_ECHO,       5     }
+};
+
+const std::vector< HW::Pin > interruptInputs = {
+  HW::Pin::ENCODER0_PIN0,
+  HW::Pin::ENCODER0_PIN1,
+  HW::Pin::ENCODER1_PIN0,
+  HW::Pin::ENCODER1_PIN1
+};
+
+const std::unordered_map<HW::PinState, int, EnumHash > pinStateMap = {
+  { HW::PinState::MOTOR_POS,      HIGH  },
+  { HW::PinState::MOTOR_NEG,      LOW   },
+  { HW::PinState::ECHO_ON,        HIGH  },
+  { HW::PinState::ECHO_OFF,       LOW   }
+};
+
+class InputInterruptHandler
+{
+  public:
+
+  InputInterruptHandler( std::shared_ptr< Time::HST> hstArg, HW::Pin pin )
+    : hst{ hstArg }
+  {
+    // Cache the actual pin
+    esp8266Pin = pinMap.at( pin ); 
+  }
+  
+  void ICACHE_RAM_ATTR interrupt()
+  {
+    // Record the pin state & time, and get out of here.
+    events.write( Util::IPinEvent(
+        digitalRead( esp8266Pin ) == HIGH ? 
+            HW::PinState::INPUT_HIGH : 
+            HW::PinState::INPUT_LOW,
+        hst->usSinceDeviceStart())
+    );
+  }
+
+  HW::IEvent& getEvents() {
+    return events;
+  }
+
+  private:
+  HW::IEvent events;
+  std::shared_ptr< Time::HST > hst; 
+  int esp8266Pin;
+};
+
+std::array<int, static_cast<size_t>(HW::Pin::END_OF_PINS)  > fastAbstractToRealPin;
+std::array<int, static_cast<size_t>(HW::PinState::END_OF_PIN_STATES) > fastAbstractToRealPinState; 
+std::array<std::unique_ptr<InputInterruptHandler>, static_cast<size_t>(HW::Pin::END_OF_PINS ) > pinToInputHandler;
+
+//
+// Programming with raw pointers and arrays, just like the 90s.
+// The ESP8266 interrupt handler HAS to be in RAM.  Raw arrays and
+// smart pointers aren't good C++ anymore, but in this case they're
+// easy to reason about.
+// 
+InputInterruptHandler* pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::END_OF_PINS) ];
+
+void ICACHE_RAM_ATTR leftEncoderPin0Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN0) ];
+  handler->interrupt();
+}
+
+void ICACHE_RAM_ATTR leftEncoderPin1Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN1) ];
+  handler->interrupt();
+}
+
+void ICACHE_RAM_ATTR rightEncoderPin0Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER1_PIN0) ];
+  handler->interrupt();
+}
+
+void ICACHE_RAM_ATTR rightEncoderPin1Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER1_PIN1) ];
+  handler->interrupt();
+}
+
 } // end anonymous namespace
 
-HardwareESP8266::HardwareESP8266()
+namespace HW {
+HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
 {
   // create cache for pin id
   for ( size_t index = 0 ; index < fastAbstractToRealPin.size(); ++index ) 
   {
     fastAbstractToRealPin[ index ] = 0;
   }
-  for ( const auto& entry :  HardwareESP8266::pinMap ) 
+  for ( const auto& entry :  pinMap ) 
   {
     size_t index = static_cast<size_t>(entry.first);
     if ( index >= fastAbstractToRealPin.size() ) {
@@ -48,7 +123,7 @@ HardwareESP8266::HardwareESP8266()
   {
     fastAbstractToRealPinState[ index ] = 0;
   }
-  for ( const auto& entry :  HardwareESP8266::pinStateMap) 
+  for ( const auto& entry : pinStateMap) 
   {
     size_t index = static_cast<size_t>(entry.first);
     if ( index >= fastAbstractToRealPinState.size() ) {
@@ -57,8 +132,30 @@ HardwareESP8266::HardwareESP8266()
     fastAbstractToRealPinState[ index ] = entry.second;
   }
 
+#ifndef OCTO_ESP8266_DEBUG
   pinMode( 1, FUNCTION_3 );
   pinMode( 3, FUNCTION_3 );
+#endif
+
+  for ( size_t index = 0; index < static_cast<size_t>(HW::Pin::END_OF_PINS); ++index ) {
+    pinToInputHandlerRaw[ index ] = nullptr;
+  }
+  for( Pin interruptInput : interruptInputs ) 
+  {
+    size_t slot = static_cast<size_t>(interruptInput);
+    pinToInputHandler[ slot ] = std::unique_ptr<InputInterruptHandler>( new InputInterruptHandler(hst, interruptInput ));
+    pinToInputHandlerRaw[ slot ] = pinToInputHandler[ slot ].get();
+  }
+
+  pinMode( pinMap.at( Pin::ENCODER0_PIN0 ), INPUT );
+  pinMode( pinMap.at( Pin::ENCODER1_PIN0 ), INPUT );
+  pinMode( pinMap.at( Pin::ENCODER0_PIN1 ), INPUT );
+  pinMode( pinMap.at( Pin::ENCODER1_PIN1 ), INPUT );
+
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN0 ) ), leftEncoderPin0Int, CHANGE );
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN1 ) ), leftEncoderPin1Int, CHANGE );
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN0 ) ), rightEncoderPin0Int, CHANGE );
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN1 ) ), rightEncoderPin1Int, CHANGE );
 }
 
 void HardwareESP8266::DigitalWrite( Pin pin, PinState state )
@@ -74,7 +171,7 @@ void HardwareESP8266::PinMode( Pin pin, PinIOMode mode )
   pinMode( actualPin, mode == PinIOMode::M_OUTPUT ? OUTPUT : INPUT );
 }
 
-HWI::PinState HardwareESP8266::DigitalRead( Pin pin)
+HW::PinState HardwareESP8266::DigitalRead( Pin pin)
 {
   const int actualPin = fastAbstractToRealPin[ static_cast<size_t>( pin ) ];
   const int actualState = digitalRead( actualPin );
@@ -87,4 +184,15 @@ unsigned int HardwareESP8266::AnalogRead( Pin pin)
   return analogRead( A0 );
 }
 
+IEvent& HardwareESP8266::GetInputEvents( Pin pin )
+{
+  auto& handler = pinToInputHandler[ static_cast<size_t>( pin ) ];
+
+  // Fake an interrupt for now
+  //InputInterruptHandler* rawHandler = pinToInputHandlerRaw[ static_cast<size_t>(pin ) ];
+  //rawHandler->interrupt();
+
+  return handler->getEvents();
+}
+}
 

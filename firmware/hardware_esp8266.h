@@ -2,23 +2,22 @@
 #define __HARDWARE_ARDUINO_H__
 
 #include "hardware_interface.h"
+#include "time_hst.h"
 
-class HardwareESP8266: public HWI
+namespace HW {
+class HardwareESP8266: public I
 {
   public:
 
-  HardwareESP8266();
+  HardwareESP8266( std::shared_ptr< Time::HST> hstArg );
   virtual ~HardwareESP8266() {}
 
   void     DigitalWrite( Pin pin, PinState state ) override;
   void     PinMode( Pin pin, PinIOMode state ) override;
   PinState DigitalRead( Pin pin) override;
   unsigned AnalogRead( Pin pin) override;
-
-  private:
- 
-  static const std::unordered_map<HWI::Pin, int, EnumHash > pinMap;
-  static const std::unordered_map<HWI::PinState, int, EnumHash > pinStateMap;
+  IEvent& GetInputEvents( Pin pin) override;
+};
 };
 
 #endif

@@ -63,6 +63,8 @@ IF (GTEST_FOUND)
 ELSE()
   MESSAGE (STATUS  "GTEST not found, skipping unit tests")
 ENDIF (GTEST_FOUND)
+  
+add_definitions( -DPC_BUILD )
 
 add_executable(firmware_sim ${FIRMWARE_SIM_SOURCES})
 target_link_libraries(firmware_sim firmware_lib )
