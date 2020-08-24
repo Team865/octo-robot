@@ -117,8 +117,10 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
     fastAbstractToRealPinState[ index ] = entry.second;
   }
 
+#ifndef OCTO_ESP8266_DEBUG
   pinMode( 1, FUNCTION_3 );
   pinMode( 3, FUNCTION_3 );
+#endif
 
   for ( size_t index = 0; index < static_cast<size_t>(HW::Pin::END_OF_PINS); ++index ) {
     pinToInputHandlerRaw[ index ] = nullptr;

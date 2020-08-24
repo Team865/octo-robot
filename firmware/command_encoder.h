@@ -53,6 +53,11 @@ class Encoder: public Base {
   ///
   int getPosition();
 
+  ///
+  /// Gets the encoder's current rotation speed
+  ///
+  int getSpeed();
+
   private:
 
   enum class Action {
@@ -83,6 +88,8 @@ class Encoder: public Base {
 
   unsigned int lastGreyCode;
   int position;
+  int speed;
+  Time::DeviceTimeUS lastStateChange;
 };
 
 }; // end Command namespace.

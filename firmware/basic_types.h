@@ -3,6 +3,8 @@
 
 #include <array>
 
+#define OCTO_ESP8266_DEBUG
+
 // Building on a PC, for test purposes.  Blank out the flag that tells the
 // compiler to put a function into ram
 #ifdef PC_BUILD

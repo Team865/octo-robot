@@ -27,9 +27,11 @@ SR04::SR04(
   distance{ READING_FAILED }
 {
   // Configure hardware pins for output
+#ifndef OCTO_ESP8266_DEBUG
   hwi->PinMode(pinTrig,  HW::PinIOMode::M_OUTPUT );
   hwi->PinMode(pinEcho,  HW::PinIOMode::M_INPUT );
   hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
+#endif
 }
 
 

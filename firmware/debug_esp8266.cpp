@@ -1,10 +1,15 @@
 #include <ESP8266WiFi.h>
+#include "basic_types.h"
 #include "debug_esp8266.h"
 
 DebugESP8266::DebugESP8266()
 {
-	//Serial.begin( 115200 );
+#ifdef OCTO_ESP8266_DEBUG
+	Serial.begin( 115200 );
+  isDisabled = false;
+#else
   isDisabled = true;
+#endif
 }
 
 void DebugESP8266::disable()

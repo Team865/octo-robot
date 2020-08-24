@@ -29,10 +29,11 @@ class CommandTemplate
 const std::vector<CommandTemplate> commandTemplates =
 {
   { "ping",       Command::Ping,          HasArg::No   },
-  { "motorl",     Command::SetMotorA,     HasArg::Yes  },
-  { "motorr",     Command::SetMotorB,     HasArg::Yes  },
-  { "encoderl",   Command::GetEncoderA,   HasArg::No   },
-  { "encoderr",   Command::GetEncoderB,   HasArg::No   },
+  { "motorl",     Command::SetMotorL,     HasArg::Yes  },
+  { "motorr",     Command::SetMotorR,     HasArg::Yes  },
+  { "motora",     Command::SetMotorA,     HasArg::Yes  },
+  { "encoderl",   Command::GetEncoderL,   HasArg::No   },
+  { "encoderr",   Command::GetEncoderR,   HasArg::No   },
   { "timems",     Command::GetTimeMs,     HasArg::No   },
   { "timeus",     Command::GetTimeUs,     HasArg::No   },
   { "profile",    Command::Profile,       HasArg::No   },

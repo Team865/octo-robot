@@ -14,10 +14,11 @@ namespace CommandParser {
   enum class Command {
     StartOfCommands = 0,  ///<  Start of the command list
     Ping            = 0,  ///<  Send a pong
-    SetMotorA,            ///<  Set motor A to a value
-    SetMotorB,            ///<  Set motor B to a value
-    GetEncoderA,          ///<  Get the current encoder A value
-    GetEncoderB,          ///<  Get the current encoder B value
+    SetMotorL,            ///<  Set left motor to a value
+    SetMotorR,            ///<  Set right motor to a value
+    SetMotorA,            ///<  Set both motors to a value (for debugging)
+    GetEncoderL,          ///<  Get the current left encoder value
+    GetEncoderR,          ///<  Get the current right encoder value
     GetTimeMs,            ///<  Get ms since device start
     GetTimeUs,            ///<  Get us since device start
     Profile,              ///<  Dump profiling data to net

@@ -162,23 +162,51 @@ Time::TimeUS Encoder::execute()
  
     // Read the event and unpack it.  TODO - handle time
     Util::GreyCodeTime event = greyCodeTracker.read();
-    unsigned int greyCode = event.first; 
+    unsigned int greyCode = event.first;
+    Time::DeviceTimeUS eventTime = event.second; 
 
     const Action action = greyCodeActionTable[ lastGreyCode ][ greyCode ];
     lastGreyCode = greyCode;
+    int dir = 0;
 
     switch ( action ) 
     {
       case Action::CW_ROTATION:
-        position++;
+        dir = 1;
         break;
       case Action::CCW_ROTATION:
-        position--;
+        dir = -1; 
         break;
       case Action::NO_ACTION:
+        dir = 0; 
         break;    // don't do anything
       case Action::ILLEGAL:
+        dir = 0; 
         break;    // what can we do?  :(  
+    }
+    position += dir;
+
+    if ( dir != 0 ) {
+      int64_t timeDelta = eventTime - lastStateChange;
+      // 
+      // 80 state changes / rotation
+      // Use 15.16 signed fix point to represent speed
+      //
+      // timePerRotation = timeDelta * 80;  (usec unit)
+      // rotationsPerSec = 1000000 / timePerRotation; 
+      // rotationsPerSec = 1000000 / (timeDelta * 80); 
+      // rotationsPerSec = 12500 / timeDelta;
+      //
+      // Convert to 15.16 fixed point by multiplying by 2^16, or 65536
+      //
+      // rotationsPerSec = 819200000 / timeDelta;
+      // 
+      int64_t speed64 = 819200000LL * ((int64_t) dir) / timeDelta;
+      speed = speed64;
+      lastStateChange = eventTime;
+      //net->get() << greyCode << " " << ((unsigned) eventTime.get()) << " " << ((int) timeDelta) << "\n";    
+    } else {
+      // TODO, reason about speed when the wheel is no longer spinning
     }
   }
 
@@ -200,6 +228,12 @@ int Encoder::getPosition()
 {
   return position;
 }
+
+int Encoder::getSpeed()
+{
+  return speed;
+}
+
 
 } // End Command Namespace
 

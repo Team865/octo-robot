@@ -22,8 +22,8 @@ DataSend::DataSend(
 Time::TimeUS DataSend::execute() 
 {
   if ( isOutputting ) {
-    net->get() << "ENA " << encoderA->getPosition() << "\n";  
-    net->get() << "ENB " << encoderB->getPosition() << "\n";  
+    net->get() << "ENL " << encoderA->getPosition() << " " << encoderA->getSpeed() << "\n";  
+    net->get() << "ENR " << encoderB->getPosition() << " " << encoderB->getSpeed() << "\n";  
   }
   return Time::TimeMS( 20 );  // 50 updates / second
 }

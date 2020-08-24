@@ -47,21 +47,24 @@ class ProcessCommand: public Base
   /// @param[in] hardwareArg  - Interface to the Hardware
   /// @param[in] debugArg     - Interface to the debug logger.
   /// @param[in] timeArg      - A simple time interfaced
-  /// @param[in] motorAArg    - The class that controls "motor a"
-  /// @param[in] motorBArg    - The class that controls "motor b"
-  /// @param[in] encoderAArg  - The encoder for "motor a"
-  /// @param[in] encoderBArg  - The encoder for "motor b"
+  /// @param[in] motorLArg    - The class that controls the left motor
+  /// @param[in] motorRArg    - The class that controls the right motor
+  /// @param[in] encoderLArg  - The encoder for left motor 
+  /// @param[in] encoderRArg  - The encoder for right motor
+  /// @param[in] sr04Arg      - The s404 sonar range finder
   /// @param[in] hstArg       - Interface for the High Speed Timer
+  /// @param[in] schedulerArg - The schedululer.  Used to display profiling
+  /// @param[in] dataSendArg  - Sends data to the host every 1/50 sec
   ///
   ProcessCommand( 
 		std::shared_ptr<NetInterface> netArg,
 		std::shared_ptr<HW::I> hardwareArg,
 		std::shared_ptr<DebugInterface> debugArg,
 		std::shared_ptr<Time::Interface> timeArg,
-		std::shared_ptr<Command::Motor> motorAArg,
-		std::shared_ptr<Command::Motor> motorBArg,
-		std::shared_ptr<Command::Encoder> encoderAArg,
-		std::shared_ptr<Command::Encoder> encoderBArg,
+		std::shared_ptr<Command::Motor> motorLArg,
+		std::shared_ptr<Command::Motor> motorRArg,
+		std::shared_ptr<Command::Encoder> encoderLArg,
+		std::shared_ptr<Command::Encoder> encoderRArg,
 		std::shared_ptr<Command::SR04> sr04Arg,
 		std::shared_ptr<Time::HST> hstArg, 
 		std::shared_ptr<Command::Scheduler > schedulerArg,
@@ -106,10 +109,11 @@ class ProcessCommand: public Base
   Time::TimeUS stateError( void );
 
   void doPing( CommandParser::CommandPacket );
+  void doSetMotorL( CommandParser::CommandPacket );
+  void doSetMotorR( CommandParser::CommandPacket );
   void doSetMotorA( CommandParser::CommandPacket );
-  void doSetMotorB( CommandParser::CommandPacket );
-  void doGetEncoderA( CommandParser::CommandPacket );
-  void doGetEncoderB( CommandParser::CommandPacket );
+  void doGetEncoderL( CommandParser::CommandPacket );
+  void doGetEncoderR( CommandParser::CommandPacket );
   void doGetTimeMs( CommandParser::CommandPacket );
   void doGetTimeUs( CommandParser::CommandPacket );
   void doProfile( CommandParser::CommandPacket );
@@ -123,14 +127,14 @@ class ProcessCommand: public Base
   std::shared_ptr<DebugInterface> debugLog;
   std::shared_ptr<Time::Interface> timeMgr;
   
-  /// @brief Interface to Motor A
-  std::shared_ptr<Command::Motor> motorA;
-  /// @brief Interface to Motor B
-  std::shared_ptr<Command::Motor> motorB;
-  /// @brief Interface to Encoder A
-  std::shared_ptr<Command::Encoder> encoderA;
-  /// @brief Interface to Encoder B
-  std::shared_ptr<Command::Encoder> encoderB;
+  /// @brief Interface to the Left Motor 
+  std::shared_ptr<Command::Motor> motorL;
+  /// @brief Interface to the Right Motor 
+  std::shared_ptr<Command::Motor> motorR;
+  /// @brief Interface to the Left Encoder 
+  std::shared_ptr<Command::Encoder> encoderL;
+  /// @brief Interface to the Right Encoder
+  std::shared_ptr<Command::Encoder> encoderR;
   /// @brief Interface to SR04 Sonar Range Finder
   std::shared_ptr<Command::SR04> sr04;
   /// @brief Interface to the high speed timer
