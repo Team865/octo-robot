@@ -9,10 +9,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 /*
-This is a singleton class, it is global. It's job is to dirrectly
-communicate with the robot. This class is here due to the fact that
-the octorobot does not have a roboRIO and must be talked to using the
-internet.
+InternetConnecter's job is to dirrectly communicate with the robot.
+This class exists due to the fact that the octorobot does not have
+a roboRIO and must be talked to using wifi. This is a singleton class.
 */
 public class InternetConnecter{
     private static InternetConnecter instance;
@@ -66,31 +65,25 @@ public class InternetConnecter{
         return instance;
     }
 
-    
     /*
-    Adds commands to be sent to the robot. Does not
-    send them.
+    Adds commands to be sent to the robot. Does not send them.
     */
     public void addToPipe(String data){
         pipe = pipe + data + "\n";
     }
 
-
     /*
-    Cleans out the pipe, effectily canceling any stored
-    commands.
+    Cleans out the pipe, canceling any stored commands.
     */
     public void cleanPipe(){
         pipe = "\n";
     }
 
-
     /*
-    This is not automaticly called and must
-    be called by another periodic function.
-    If there is text stored in the pipe, send it
-    to the robot. Then get any data that the robot is
-    trying to send back.
+    This is not automaticly called and must be called by
+    another periodic function. If there is text stored in
+    the pipe, send it to the robot. Then get any data that
+    the robot is trying to send back.
     */
     public void periodic(){
         if(isConnected && pipe.length() != 0){
