@@ -9,10 +9,8 @@ package frc.robot.commands;
 
 import frc.robot.lib.XboxController;
 import frc.robot.subsystems.OctoDriveSubsystem;
-import frc.robot.subsystems.OctoDriveSubsystem.motorState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
 
 /*
 TeleopCommand is a command responcable for the robot's actions in
@@ -34,23 +32,21 @@ public class TeleopCommand extends CommandBase {
     addRequirements(initSubsystem);
   }
   
-
-
   @Override
   public void initialize() {
   }
 
-
   /*
-  The main function of TeleopCommand, this code is constantly
-  called. It updates the XboxController, get's the controller's
-  data, and with it tells the OctoDrive what state to set it's
-  motors too.
+  The main function of TeleopCommand, this code is called 50 times a second.
+  It updates the XboxController, get's the controller's data, and updates
+  the speed of the OctoDrive's motors.
   */
   @Override
   public void execute() {
+    //Update the XboxController.
     driverController.controllerPeriodic();
 
+    //Display the XboxController's state using the SmartDashboard
     SmartDashboard.putString("A Button", driverController.getIsAButtonPressed() + "");
     SmartDashboard.putString("B Button", driverController.getIsBButtonPressed() + "");
     SmartDashboard.putString("X Button", driverController.getIsXButtonPressed() + "");
@@ -59,10 +55,11 @@ public class TeleopCommand extends CommandBase {
     SmartDashboard.putString("L Bumper", driverController.getIsLBumperPressed() + "");
     SmartDashboard.putString("R Bumper", driverController.getIsRBumperPressed() + "");
 
+    //Calculate the new speeds for the motors.
     int rightMotorDirection = 0;
     int leftMotorDirection = 0;
-    motorState rightMotorState = motorState.STOPPED;
-    motorState leftMotorState = motorState.STOPPED;
+    double rightMotorSpeed = 0.0;
+    double leftMotorSpeed = 0.0;
 
     if(driverController.getIsBButtonPressed()){
       rightMotorDirection++;
@@ -83,33 +80,31 @@ public class TeleopCommand extends CommandBase {
 
     
     if(rightMotorDirection > 0){
-      rightMotorState = motorState.FORWARD;
+      rightMotorSpeed = 1.0;
     }
     else if(rightMotorDirection < 0){
-      rightMotorState = motorState.BACKWARDS;
+      rightMotorSpeed = -1.0;
     }
 
 
     if(leftMotorDirection > 0){
-      leftMotorState = motorState.FORWARD;
+      leftMotorSpeed = 1.0;
     }
     else if(leftMotorDirection < 0){
-      leftMotorState = motorState.BACKWARDS;
+      leftMotorSpeed = -1.0;
     }
 
-    octoDrive.setMotors(rightMotorState, leftMotorState);
+    //Update the DifferentialDrive's motors.
+    octoDrive.setMotors(rightMotorSpeed, leftMotorSpeed);
   }
-
 
   /*
   When the command ends, stop the motors.
   */
   @Override
   public void end(boolean interrupted) {
-    octoDrive.setMotors(motorState.STOPPED, motorState.STOPPED);
+    octoDrive.setMotors(0.0, 0.0);
   }
-
-
 
   @Override
   public boolean isFinished() {

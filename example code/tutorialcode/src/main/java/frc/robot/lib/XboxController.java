@@ -55,8 +55,6 @@ public class XboxController {
         isRBumperPressed = (buttonValues & (1 << 5)) != 0;
     }
 
-
-
     /*
     Bunch of get functions to check to see if a button is
     being pushed down.
@@ -65,31 +63,21 @@ public class XboxController {
         return(isAButtonPressed);
     }
 
-
-
     public boolean getIsBButtonPressed(){
         return(isBButtonPressed);
     }
-
-
 
     public boolean getIsXButtonPressed(){
         return(isXButtonPressed);
     }
 
-
-
     public boolean getIsYButtonPressed(){
         return(isYButtonPressed);
     }
 
-
-
     public boolean getIsLBumperPressed(){
         return(isLBumperPressed);
     }
-
-
 
     public boolean getIsRBumperPressed(){
         return(isRBumperPressed);

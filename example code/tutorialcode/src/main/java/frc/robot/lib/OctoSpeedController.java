@@ -29,7 +29,6 @@ public class OctoSpeedController implements SpeedController {
         name = setName;
     }
 
-
     /*
     Sets the speed of it's motor to 0.
     */
@@ -37,7 +36,6 @@ public class OctoSpeedController implements SpeedController {
     public void disable(){
         update(0.0);
     }
-
 
     /*
     Returns the speed of it's motor
@@ -47,7 +45,6 @@ public class OctoSpeedController implements SpeedController {
         return (motorSpeed);
     }
 
-
     /*
     Returns if the motor is invereted or not.
     */
@@ -55,7 +52,6 @@ public class OctoSpeedController implements SpeedController {
     public boolean getInverted(){
         return (inverted);
     }
-
 
     /*
     Sets the speed of the motor. Since the DifferentialDrive
@@ -67,7 +63,6 @@ public class OctoSpeedController implements SpeedController {
         update(speed * 100);
     }
 
-
     /*
     Sets the speed of the motor and updates the motor.
     */
@@ -77,7 +72,6 @@ public class OctoSpeedController implements SpeedController {
         update(motorSpeed);
     }
 
-
     /*
     Sets the speed of it's motor to 0.
     */
@@ -86,17 +80,14 @@ public class OctoSpeedController implements SpeedController {
         update(0.0);
     }
 
-
     @Override
     public void pidWrite(double output) {
     }
 
-
     /*
-    This function is called through the set function periodicly. If there is
-    a new speed to send to the motor it puts said speed into the internet connector's pipe.
-    The call to the Internet Connector's periodic is important as it's what actualy
-    triggers the commands in the pipe to be sent to the robot.
+    This function sends commands to the octorobot's pipe. It is called
+    periodicly by the set function. If the speed has changed it updates
+    the motor's speed.
     */
     private void update(double newSpeed){
         InternetConnecter internet = InternetConnecter.getInstance();
