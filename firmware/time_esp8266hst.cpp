@@ -1,19 +1,6 @@
 #include <Arduino.h>
 #include "time_esp8266hst.h"
 
-namespace 
-{
-  inline unsigned int ICACHE_RAM_ATTR readHardwareTime()
-  {
-    // Background, https://sub.nanona.fi/esp8266/timing-and-ticks.html
-    //
-    unsigned int ccount;
-    asm volatile ("rsr %0, ccount" : "=r"(ccount));
-    return ccount;
-  }
-
-} // end anonymous namespace
-
 namespace Time {
   ESP8266_HST::ESP8266_HST()
   {
@@ -24,15 +11,6 @@ namespace Time {
   DeviceTimeMS ESP8266_HST::msSinceDeviceStart()
   {
     return DeviceTimeMS(millis() - baseHardwareTimeMS );
-  }
-
-  constexpr unsigned int reduce=80;
-
-  DeviceTimeUS ICACHE_RAM_ATTR ESP8266_HST::usSinceDeviceStart()
-  {
-    const unsigned int ticksSinceBase = readHardwareTime() - baseHardwareTime; 
-    const unsigned int usSinceBase = ticksSinceBase / reduce;
-    return currentTime + usSinceBase;
   }
 
   TimeUS ESP8266_HST::execute()

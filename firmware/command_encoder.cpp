@@ -15,8 +15,12 @@ Encoder::Encoder(
   position{ 0 }
 {
   // Configure hardware pins for output
-  hwi->PinMode(pin0,  HW::PinIOMode::M_INPUT );
-  hwi->PinMode(pin1,  HW::PinIOMode::M_INPUT );
+  //
+  // Task delegated to the hardware layer because these are an interrupt driven
+  // inputs
+  // 
+  //hwi->PinMode(pin0,  HW::PinIOMode::M_INPUT );
+  //hwi->PinMode(pin1,  HW::PinIOMode::M_INPUT );
 
   lastGreyCode = getGreyCode();
 }
@@ -158,6 +162,9 @@ Time::TimeUS Encoder::execute()
   //
   // Pull greycodes from the greycode tracker and update the encoder position
   //
+  int speedTotal = 0;
+  int numSpeedSamples = 0;
+
   while( greyCodeTracker.hasEvents() ) {
  
     // Read the event and unpack it.  TODO - handle time
@@ -202,18 +209,29 @@ Time::TimeUS Encoder::execute()
       // rotationsPerSec = 819200000 / timeDelta;
       // 
       int64_t speed64 = 819200000LL * ((int64_t) dir) / timeDelta;
-      speed = speed64;
+      speedTotal += (speed64);
+      numSpeedSamples++;
       lastStateChange = eventTime;
-      //net->get() << greyCode << " " << ((unsigned) eventTime.get()) << " " << ((int) timeDelta) << "\n";    
-    } else {
-      // TODO, reason about speed when the wheel is no longer spinning
+      //net->get() << "  " << greyCode << " " << ((unsigned) eventTime.get()) << " " << ((int) timeDelta) << "\n";    
     }
   }
+  if ( numSpeedSamples ) {
+    speed = speedTotal / numSpeedSamples;
+  }
+  else {
+    speed = 0;
+  }
 
+  // Run this about 10 times a second.
   //
-  // - TODO - Retune.
+  // During testing, when the robot was running full out, it looked like the
+  // wheels rotated about 1.5x / second.  The encoder has 80 positions, so
+  // that's 50 state changes / second.  
   //
-  return Time::TimeUS( 156 );
+  // Sampling about every 10th of a second gives 5 state changes / sample 
+  // to use for speed calculations.
+  // 
+  return Time::TimeUS( 100000 );
 }
 
 //

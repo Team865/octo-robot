@@ -76,14 +76,29 @@ std::array<std::unique_ptr<InputInterruptHandler>, static_cast<size_t>(HW::Pin::
 // 
 InputInterruptHandler* pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::END_OF_PINS) ];
 
-//
-// TODO - enable interrupts and add for each encoder type
-// 
-//void ICACHE_RAM_ATTR leftEncoderPin0Int()
-//{
-//  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN0) ];
-//  handler->interrupt();
-//}
+void ICACHE_RAM_ATTR leftEncoderPin0Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN0) ];
+  handler->interrupt();
+}
+
+void ICACHE_RAM_ATTR leftEncoderPin1Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN1) ];
+  handler->interrupt();
+}
+
+void ICACHE_RAM_ATTR rightEncoderPin0Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER1_PIN0) ];
+  handler->interrupt();
+}
+
+void ICACHE_RAM_ATTR rightEncoderPin1Int()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER1_PIN1) ];
+  handler->interrupt();
+}
 
 } // end anonymous namespace
 
@@ -131,6 +146,16 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
     pinToInputHandler[ slot ] = std::unique_ptr<InputInterruptHandler>( new InputInterruptHandler(hst, interruptInput ));
     pinToInputHandlerRaw[ slot ] = pinToInputHandler[ slot ].get();
   }
+
+  pinMode( pinMap.at( Pin::ENCODER0_PIN0 ), INPUT );
+  pinMode( pinMap.at( Pin::ENCODER1_PIN0 ), INPUT );
+  pinMode( pinMap.at( Pin::ENCODER0_PIN1 ), INPUT );
+  pinMode( pinMap.at( Pin::ENCODER1_PIN1 ), INPUT );
+
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN0 ) ), leftEncoderPin0Int, CHANGE );
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN1 ) ), leftEncoderPin1Int, CHANGE );
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN0 ) ), rightEncoderPin0Int, CHANGE );
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN1 ) ), rightEncoderPin1Int, CHANGE );
 }
 
 void HardwareESP8266::DigitalWrite( Pin pin, PinState state )
@@ -164,8 +189,8 @@ IEvent& HardwareESP8266::GetInputEvents( Pin pin )
   auto& handler = pinToInputHandler[ static_cast<size_t>( pin ) ];
 
   // Fake an interrupt for now
-  InputInterruptHandler* rawHandler = pinToInputHandlerRaw[ static_cast<size_t>(pin ) ];
-  rawHandler->interrupt();
+  //InputInterruptHandler* rawHandler = pinToInputHandlerRaw[ static_cast<size_t>(pin ) ];
+  //rawHandler->interrupt();
 
   return handler->getEvents();
 }
