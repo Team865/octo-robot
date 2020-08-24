@@ -9,7 +9,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OctoDriveSubsystem;
-import frc.robot.subsystems.OctoDriveSubsystem.motorState;
 
 public class AutonomousCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -38,7 +37,7 @@ public class AutonomousCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        octoDrive.setMotors(motorState.STOPPED, motorState.STOPPED);
+        octoDrive.setMotors(0.0, 0.0);
     }
 
 
