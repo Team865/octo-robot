@@ -6,12 +6,14 @@ namespace Command{
 DataSend::DataSend( 
   std::shared_ptr<DebugInterface> debugArg, 
   std::shared_ptr<NetInterface> netArg, 
-  std::shared_ptr<Command::Encoder> encoderAArg,
-  std::shared_ptr<Command::Encoder> encoderBArg
+  std::shared_ptr<Command::Encoder> encoderLArg,
+  std::shared_ptr<Command::Encoder> encoderRArg,
+  std::shared_ptr<Command::SR04> rangeFinderArg
 ) :
   debug { debugArg }, net { netArg }, 
-  encoderA{ encoderAArg },
-  encoderB{ encoderBArg },
+  encoderL{ encoderLArg },
+  encoderR{ encoderRArg },
+  rangeFinder{ rangeFinderArg },
   isOutputting{ false }
 {
 }
@@ -22,10 +24,11 @@ DataSend::DataSend(
 Time::TimeUS DataSend::execute() 
 {
   if ( isOutputting ) {
-    net->get() << "ENL " << encoderA->getPosition() << " " << encoderA->getSpeed() << "\n";  
-    net->get() << "ENR " << encoderB->getPosition() << " " << encoderB->getSpeed() << "\n";  
+    net->get() << "ENL " << encoderL->getPosition() << " " << encoderL->getSpeed() << "\n";  
+    net->get() << "ENR " << encoderR->getPosition() << " " << encoderR->getSpeed() << "\n";
+    rangeFinder->sensorRequest();  
   }
-  return Time::TimeMS( 20 );  // 50 updates / second
+  return Time::TimeMS( 100 );  // 10 updates / second
 }
 
 //

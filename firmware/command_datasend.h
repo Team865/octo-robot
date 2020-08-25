@@ -4,6 +4,7 @@
 #include <memory>   // for std::shared_ptr
 #include "command_base.h"
 #include "command_encoder.h"
+#include "command_sr04.h"
 #include "net_interface.h"
 #include "debug_interface.h"
 
@@ -18,14 +19,18 @@ class DataSend: public Base {
   ///
   /// @brief Constructor
   ///
-  /// @param[in] debugArg - A debug console interface
-  /// @param[in] netArg   - Interface to the WIFI network
+  /// @param[in] debugArg       - A debug console interface
+  /// @param[in] netArg         - Interface to the WIFI network
+  /// @param[in] encoderLArg    - Interface to the left motor's encoder
+  /// @param[in] encoderRArg    - Interface to the right motor's encoder
+  /// @param[in] rangeFinderArg - Interface to the SR04 range finder
   /// 
   DataSend( 
     std::shared_ptr<DebugInterface>     debugArg,
     std::shared_ptr<NetInterface>       netArg,
-    std::shared_ptr<Command::Encoder>   encoderAArg,
-    std::shared_ptr<Command::Encoder>   encoderBArg
+    std::shared_ptr<Command::Encoder>   encoderLArg,
+    std::shared_ptr<Command::Encoder>   encoderRArg,
+    std::shared_ptr<Command::SR04>      rangeFinderArg
   );
 
   ///
@@ -53,10 +58,12 @@ class DataSend: public Base {
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
-  // @brief Interface to Motor A's encoder
-  std::shared_ptr<Encoder> encoderA;
-  // @brief Interface to Motor B's encoder
-  std::shared_ptr<Encoder> encoderB;
+  // @brief Interface to Left Motor's encoder
+  std::shared_ptr<Encoder> encoderL;
+  // @brief Interface to Right Motor's encoder
+  std::shared_ptr<Encoder> encoderR;
+  // @brief Interface to sonar range finder
+  std::shared_ptr<SR04> rangeFinder;
   // @brief Are we currently outputting data
   bool isOutputting;
 };

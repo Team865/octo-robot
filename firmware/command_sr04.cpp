@@ -81,7 +81,7 @@ void SR04::handleAwaitingEcho()
   // 3 Handle unsuccessful pulse events
   // 
   if ( !pulseDownSeen ) {
-    net->get() << "RANGE FAIL NOECHO\n";
+    net->get() << "RNG FAIL_NOECHO\n";
     mode = Mode::IDLE;
     distance = READING_FAILED;
     return;
@@ -99,7 +99,7 @@ void SR04::handleAwaitingEcho()
   // = usSinceEchoSent * 17 / 100;
   //
   distance = delay.get() * 17 / 100;
-  net->get() << "RANGE " << distance << "\n";
+  net->get() << "RNG " << distance << "\n";
   mode = Mode::IDLE;
 }
 
