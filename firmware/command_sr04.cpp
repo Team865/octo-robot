@@ -1,6 +1,7 @@
 #include "command_sr04.h"
 #include "wifi_debug_ostream.h"
 #include "wifi_debug_ostream.h"
+#include <algorithm>    // for std::sort
 
 namespace Command{
 
@@ -45,7 +46,7 @@ SR04::SR04(
 // 4.  Figure out how long the echo pulse was
 // 5.  Compute the distance using the time
 // 
-void SR04::handleAwaitingEcho()
+void SR04::processPulseResult()
 {
   HW::IEvent& echoEvents = hwi->GetInputEvents( pinEcho );
   bool pulseUpSeen = false;
@@ -96,49 +97,60 @@ void SR04::handleAwaitingEcho()
   // = usSinceEchoSent * .17
   // = usSinceEchoSent * 17 / 100;
   //
-  unsigned int distance = delay.get() * 17 / 100;
-  net->get() << "RNG " << distance << "\n";
-  mode = Mode::IDLE;
+  samples.at( currentSample ) = delay.get() * 17 / 100;
 }
 
 //
-// Handle a request for a sonar rangle find.
+// Send a sonar pulse out
 //
-// 1. Pulse the echo pin, which will trigger the SR04 range finder
-// 2. Change mode to "waiting for echo"
+// 1. Reset the Trigger pin for >2ms
+// 2. Activate the Trigger pin for 10us
+// 3. Reset the Trigger pin again
 // 
-void SR04::handleSensorRequested()
+void SR04::sendPulse()
 {
-  // 1. Pulse the echo pin, which will trigger the SR04 range finder
+  // 1. Reset the Trigger pin for >2ms
   //
   hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
   auto start = hst->usSinceDeviceStart();
   while (hst->usSinceDeviceStart() - start < 3 );
 
+  // 2. Activate the Trigger pin for 10us
+  //
   hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_ON );
   start = hst->usSinceDeviceStart();
-  while (hst->usSinceDeviceStart() - start < 11 );
+  while (hst->usSinceDeviceStart() - start < 13 );
 
-  hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
-
-  // 2. Change mode to "waiting for echo"
+  // 3. Reset the Trigger pin again
   //
-  mode = Mode::AWAITING_ECHO;
+  hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
 }
 
 Time::TimeUS SR04::execute() 
 {
-  switch( mode ) {
-    case Mode::IDLE:
-      break;
-    case Mode::SENSOR_REQUESTED:
-      handleSensorRequested();
-      break;
-    case Mode::AWAITING_ECHO:
-      handleAwaitingEcho();
-      break;
-    default:
-      break;
+  if ( mode == Mode::DOING_READING ) {
+    if ( currentSample != -1 ) {
+      // If we're not doing the first reading there should be a pulse result
+      SR04::processPulseResult();
+    }
+    if ( currentSample < numSamples-1 ) {
+      // If we're not doing the last reading then we need to send a pulse
+      SR04::sendPulse();
+    }
+    ++currentSample;
+    if ( currentSample == numSamples ) {
+      //
+      // Output the medium and reset the state.
+      //
+      // The medium sample was used because the range finder I tested seems
+      // to occasionally produce a very inaccurate result.  i.e.,  I'd get
+      // readings like 1005, 998, 500 when the object was about 10cm away.
+      //
+      std::sort( samples.begin(), samples.end() );
+      net->get() << "RNG " << samples[numSamples/2] << "\n";
+      currentSample = -1;
+      mode = Mode::IDLE;
+    }
   }
 
   // Update at 50x a second
@@ -156,7 +168,8 @@ const char* SR04::debugName()
 void SR04::sensorRequest() 
 {
   if ( mode == Mode::IDLE ) {
-    mode = Mode::SENSOR_REQUESTED;
+    mode = Mode::DOING_READING;
+    currentSample = -1;
   }
 }
 

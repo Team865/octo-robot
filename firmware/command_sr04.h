@@ -83,13 +83,12 @@ class SR04: public Base {
 
   private:
 
-  void handleAwaitingEcho();
-  void handleSensorRequested();
+  void processPulseResult();
+  void sendPulse();
 
   enum class Mode {
     IDLE,
-    SENSOR_REQUESTED,
-    AWAITING_ECHO
+    DOING_READING
   };
 
   // @brief Interface to hardware (i.e., GPIO pins)
@@ -103,10 +102,20 @@ class SR04: public Base {
 
   // @brief Digital output to trigger a sound pulse
   const HW::Pin pinTrig;
-  // @param Digital input to listen for the echo on
+  // @brief Digital input to listen for the echo on
   const HW::Pin pinEcho;
 
+  // @brief Are we doing a reading or are we idle?
   Mode mode;
+  
+  // @brief How many samples should we take during a reading
+  static constexpr int numSamples = 3;
+
+  // @brief What sample are we receiving right now?
+  int currentSample;
+
+  // @brief The samples done to date
+  std::array<unsigned int, numSamples > samples;
 };
 
 }; // end Command namespace.
