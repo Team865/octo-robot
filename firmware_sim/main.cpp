@@ -240,7 +240,7 @@ void setup() {
 
   auto dataSend = std::make_shared<Command::DataSend>( 
                           debug, wifi, 
-                          encoderASim, encoderBSim, sr04 );
+                          encoderASim, encoderBSim, sr04, hardware );
 
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                           wifi, hardware, debug, 

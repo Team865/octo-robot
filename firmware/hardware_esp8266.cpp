@@ -20,6 +20,8 @@ const std::unordered_map<HW::Pin, int, EnumHash > pinMap =
   { HW::Pin::LED_PIN,         3     }
 };
 
+constexpr int LOCAL_LED_PIN=3;
+
 const std::vector< HW::Pin > interruptInputs = {
   HW::Pin::ENCODER0_PIN0,
   HW::Pin::ENCODER0_PIN1,
@@ -113,7 +115,7 @@ void ICACHE_RAM_ATTR echoPinInt()
 }
 #endif
 
-Adafruit_NeoPixel strip;
+Adafruit_NeoPixel strip = Adafruit_NeoPixel( 8, LOCAL_LED_PIN, NEO_GRB + NEO_KHZ800 );
 
 } // end anonymous namespace
 
@@ -179,8 +181,6 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
 #ifndef OCTO_ESP8266_DEBUG
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::SR04_ECHO) ), echoPinInt, CHANGE );
 
-
-  strip = Adafruit_NeoPixel( 8, pinMap.at( Pin::LED_PIN ), NEO_GRB + NEO_KHZ800 );
   strip.begin();
 
   for ( int i = 0; i < 8; ++i ) {

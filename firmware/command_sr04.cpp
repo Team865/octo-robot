@@ -18,7 +18,8 @@ SR04::SR04(
   hwi { hwiArg }, debug { debugArg }, net { netArg }, 
   hst{ hstArg },
   pinTrig{ pinTrigArg }, pinEcho{ pinEchoArg },
-  mode{ Mode::IDLE }
+  mode{ Mode::IDLE },
+  lastSensorReading{ -1 }
 {
   // Configure hardware pins for output
 #ifndef OCTO_ESP8266_DEBUG
@@ -81,7 +82,8 @@ void SR04::processPulseResult()
   // 3 Handle unsuccessful pulse events
   // 
   if ( !pulseDownSeen ) {
-    net->get() << "RNG FAIL_NOECHO\n";
+    //net->get() << "RNG FAIL_NOECHO\n";
+    lastSensorReading = -1;
     mode = Mode::IDLE;
     return;
   }
@@ -147,7 +149,8 @@ Time::TimeUS SR04::execute()
       // readings like 1005, 998, 500 when the object was about 10cm away.
       //
       std::sort( samples.begin(), samples.end() );
-      net->get() << "RNG " << samples[numSamples/2] << "\n";
+      //net->get() << "RNG " << samples[numSamples/2] << "\n";
+      lastSensorReading = samples[numSamples/2];
       currentSample = -1;
       mode = Mode::IDLE;
     }
@@ -171,6 +174,11 @@ void SR04::sensorRequest()
     mode = Mode::DOING_READING;
     currentSample = -1;
   }
+}
+
+int SR04::getLastSensorReading()
+{
+  return lastSensorReading;
 }
 
 } // End Command Namespace

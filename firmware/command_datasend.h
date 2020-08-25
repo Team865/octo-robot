@@ -5,8 +5,9 @@
 #include "command_base.h"
 #include "command_encoder.h"
 #include "command_sr04.h"
-#include "net_interface.h"
 #include "debug_interface.h"
+#include "hardware_interface.h"
+#include "net_interface.h"
 
 namespace Command {
 
@@ -24,13 +25,15 @@ class DataSend: public Base {
   /// @param[in] encoderLArg    - Interface to the left motor's encoder
   /// @param[in] encoderRArg    - Interface to the right motor's encoder
   /// @param[in] rangeFinderArg - Interface to the SR04 range finder
+  /// @param[in] hwiArg         - Interface to the hardware, for LED setting
   /// 
   DataSend( 
     std::shared_ptr<DebugInterface>     debugArg,
     std::shared_ptr<NetInterface>       netArg,
     std::shared_ptr<Command::Encoder>   encoderLArg,
     std::shared_ptr<Command::Encoder>   encoderRArg,
-    std::shared_ptr<Command::SR04>      rangeFinderArg
+    std::shared_ptr<Command::SR04>      rangeFinderArg,
+    std::shared_ptr<HW::I>              hwiArg
   );
 
   ///
@@ -54,6 +57,8 @@ class DataSend: public Base {
 
   private:
 
+  void updateLEDs();
+
   // @brief Interface to debug log
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
@@ -63,9 +68,13 @@ class DataSend: public Base {
   // @brief Interface to Right Motor's encoder
   std::shared_ptr<Encoder> encoderR;
   // @brief Interface to sonar range finder
-  std::shared_ptr<SR04> rangeFinder;
+  std::shared_ptr<SR04>   rangeFinder;
+  // @brief Interface to hardware, for setting LEDs.
+  std::shared_ptr<HW::I>  hwi;
   // @brief Are we currently outputting data
   bool isOutputting;
+  // @brief How many times have we been called?
+  unsigned int timesCalled;
 };
 
 }; // end Command namespace.

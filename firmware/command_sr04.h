@@ -77,9 +77,14 @@ class SR04: public Base {
   ///
   /// @brief Request a sensor reading.
   ///
-  /// The result will be outputting to the net when the reading completes
-  ///
   void sensorRequest();
+
+  ///
+  /// @brief  Get the last sensor reading
+  /// 
+  /// @return The distance in mm, or -1 if the sensor reading failed
+  /// 
+  int getLastSensorReading();
 
   private:
 
@@ -116,6 +121,8 @@ class SR04: public Base {
 
   // @brief The samples done to date
   std::array<unsigned int, numSamples > samples;
+
+  int lastSensorReading;
 };
 
 }; // end Command namespace.
