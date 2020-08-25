@@ -9,9 +9,9 @@
 
 namespace WifiSecrets {
   // Hostname
-	constexpr const char* hostname = "urban-octo";	     
+	constexpr const char* hostname = "octorobot";	     
   // Default SSID for the robot's Access Point
-	constexpr const char* ssid     = "urbanocto";	     
+	constexpr const char* ssid     = "octorobot";	     
   // Default Password for the Robot's Access Point
   // 
   // TODO - Creating some kind of default web page so custom configurations

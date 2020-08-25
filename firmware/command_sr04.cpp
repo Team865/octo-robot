@@ -6,12 +6,6 @@ namespace Command{
 
 const Time::DeviceTimeUS echoTimeout{ 4500 };
 
-// Update at 100x a second when in idle mode
-const Time::TimeUS idleReschedule{ 10000 };
-
-// Update at 20us when taking a sensor reading
-const Time::TimeUS activeReschedule{ 20 };
-
 SR04::SR04( 
   std::shared_ptr<HW::I> hwiArg, 
   std::shared_ptr<DebugInterface> debugArg, 
@@ -29,56 +23,96 @@ SR04::SR04(
   // Configure hardware pins for output
 #ifndef OCTO_ESP8266_DEBUG
   hwi->PinMode(pinTrig,  HW::PinIOMode::M_OUTPUT );
-  hwi->PinMode(pinEcho,  HW::PinIOMode::M_INPUT );
+
+  //
+  // The ECHO pin mode setup will be set by the hardware interface.  Echo is an
+  // interrupt driven interrupt, so the support for it is a bit more complex
+  // :(
+  //
+  // hwi->PinMode(pinEcho,  HW::PinIOMode::M_INPUT );
+  //
   hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
 #endif
 }
 
 
+//
+// We're in a state where we sent out an echo.  Process results.
+//
+// 1.  Process all events on the echo input pin that took place while we slept
+// 1a. Record the start of the echo pulse 
+// 2b. Record the end of the echo pulse
+// 3.  Handle unsuccessful pulse events
+// 4.  Figure out how long the echo pulse was
+// 5.  Compute the distance using the time
+// 
 void SR04::handleAwaitingEcho()
 {
-  Time::DeviceTimeUS time = hst->usSinceDeviceStart();
-  Time::DeviceTimeUS usSinceEchoSent{ time - echoSentAt };
- 
-  if ( usSinceEchoSent > echoTimeout  ) {   // timeout
-    // TODO - retry bad readings?
-    net->get() << "RANGE FAIL NOECHO " << usSinceEchoSent.get() << "\n";
+  HW::IEvent& echoEvents = hwi->GetInputEvents( pinEcho );
+  bool pulseUpSeen = false;
+  bool pulseDownSeen = false;
+  Time::DeviceTimeUS pulseUpTime;
+  Time::DeviceTimeUS pulseDownTime;
+
+  // 1.  Process all events on the echo input pin that took place while we slept
+  //
+  while( echoEvents.hasEvents() ) 
+  {
+    const Util::IPinEvent event   = echoEvents.read();
+    const HW::PinState pinState   = event.first;
+    const Time::DeviceTimeUS time = event.second;
+
+    if ( !pulseUpSeen && pinState == HW::PinState::INPUT_HIGH ) 
+    {
+      // 1a. Record the start of the echo pulse
+      // 
+      pulseUpSeen = true;
+      pulseUpTime = time;
+    }
+    if ( pulseUpSeen && !pulseDownSeen && pinState == HW::PinState::INPUT_LOW )
+    {
+      // 2b. Record the end of the echo pulse
+      //
+      pulseDownSeen = true;
+      pulseDownTime = time;
+    } 
+  }
+
+  // 3 Handle unsuccessful pulse events
+  // 
+  if ( !pulseDownSeen ) {
+    net->get() << "RANGE FAIL NOECHO\n";
     mode = Mode::IDLE;
     distance = READING_FAILED;
     return;
   }
 
-  if ( hwi->DigitalRead( pinEcho ) == HW::PinState::INPUT_LOW )
-  {
-    //
-    // The pulse came in sometime between now and the last time we checked
-    // So take the average as the best guess.
-    //
-    // TODO - We're hoping for 20us delays, but the actual delays may be
-    //        longer if we have to respond to something like a network 
-    //        event.  The tail latency there can be over 100us.  Maybe
-    //        throw out readings with a long delay and restart.
-    //
-    Time::DeviceTimeUS avgTime { ( usSinceEchoSent.get() + lastCheck.get() ) / 2};
-    unsigned int error = (usSinceEchoSent- lastCheck) / 2;
+  // 4.  Figure out how long the echo pulse was
+  //
+  Time::DeviceTimeUS delay { pulseDownTime.get() - pulseUpTime.get() };
  
-    //
-    // distance in cm = usSinceEchoSent * .034 / 2 ( see header for details)
-    // distance in mm = usSinceEchoSent * .34 / 2;
-    // = usSinceEchoSent * .17
-    // = usSinceEchoSent * 17 / 100;
-    //
-    distance = avgTime.get() * 17 / 100;
-    unsigned int errorDistance = error * 17 / 100;
-    net->get() << "RANGE " << distance << " ERROR " << errorDistance << "\n";
-    mode = Mode::IDLE;
-    return;
-  }
-  lastCheck = usSinceEchoSent;  // record the last time we checked
+  // 5.  Compute the distance using the time
+  //
+  // distance in cm = usSinceEchoSent * .034 / 2 ( see header for details)
+  // distance in mm = usSinceEchoSent * .34 / 2;
+  // = usSinceEchoSent * .17
+  // = usSinceEchoSent * 17 / 100;
+  //
+  distance = delay.get() * 17 / 100;
+  net->get() << "RANGE " << distance << "\n";
+  mode = Mode::IDLE;
 }
 
+//
+// Handle a request for a sonar rangle find.
+//
+// 1. Pulse the echo pin, which will trigger the SR04 range finder
+// 2. Change mode to "waiting for echo"
+// 
 void SR04::handleSensorRequested()
 {
+  // 1. Pulse the echo pin, which will trigger the SR04 range finder
+  //
   hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
   auto start = hst->usSinceDeviceStart();
   while (hst->usSinceDeviceStart() - start < 3 );
@@ -89,24 +123,10 @@ void SR04::handleSensorRequested()
 
   hwi->DigitalWrite( pinTrig, HW::PinState::ECHO_OFF );
 
-  start = hst->usSinceDeviceStart();
-  while( hwi->DigitalRead( pinEcho ) == HW::PinState::INPUT_LOW ) 
-  {
-    // It looks like it takes about 500us to get a pulse out.
-    if ( hst->usSinceDeviceStart() - start > 1000 ) 
-    {
-      net->get() << "RANGE FAIL TRIG TIMEOUT\n";
-      mode = Mode::IDLE;
-      distance = READING_FAILED;
-      return;
-    }
-  }
-
-  mode = Mode::AWAITING_ECHO;
+  // 2. Change mode to "waiting for echo"
+  //
   distance = READING_IN_PROGRESS;
-
-  echoSentAt = hst->usSinceDeviceStart();
-  lastCheck =  Time::DeviceTimeUS{0};
+  mode = Mode::AWAITING_ECHO;
 }
 
 Time::TimeUS SR04::execute() 
@@ -124,7 +144,8 @@ Time::TimeUS SR04::execute()
       break;
   }
 
-  return ( mode == Mode::IDLE ) ? idleReschedule : activeReschedule; 
+  // Update at 50x a second
+  return Time::TimeUS{ 20000 };
 }
 
 //

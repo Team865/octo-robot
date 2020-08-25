@@ -107,8 +107,6 @@ class SR04: public Base {
   const HW::Pin pinEcho;
 
   Mode mode;
-  Time::DeviceTimeUS echoSentAt;
-  Time::DeviceTimeUS lastCheck;
 
   static constexpr int READING_IN_PROGRESS = -1;
   static constexpr int READING_FAILED = -2;

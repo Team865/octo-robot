@@ -22,7 +22,10 @@ const std::vector< HW::Pin > interruptInputs = {
   HW::Pin::ENCODER0_PIN0,
   HW::Pin::ENCODER0_PIN1,
   HW::Pin::ENCODER1_PIN0,
-  HW::Pin::ENCODER1_PIN1
+  HW::Pin::ENCODER1_PIN1,
+#ifndef OCTO_ESP8266_DEBUG
+  HW::Pin::SR04_ECHO
+#endif
 };
 
 const std::unordered_map<HW::PinState, int, EnumHash > pinStateMap = {
@@ -100,6 +103,14 @@ void ICACHE_RAM_ATTR rightEncoderPin1Int()
   handler->interrupt();
 }
 
+#ifndef OCTO_ESP8266_DEBUG
+void ICACHE_RAM_ATTR echoPinInt()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::SR04_ECHO ) ];
+  handler->interrupt();
+}
+#endif
+
 } // end anonymous namespace
 
 namespace HW {
@@ -151,11 +162,17 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
   pinMode( pinMap.at( Pin::ENCODER1_PIN0 ), INPUT );
   pinMode( pinMap.at( Pin::ENCODER0_PIN1 ), INPUT );
   pinMode( pinMap.at( Pin::ENCODER1_PIN1 ), INPUT );
+#ifndef OCTO_ESP8266_DEBUG
+  pinMode( pinMap.at( Pin::SR04_ECHO     ), INPUT );
+#endif
 
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN0 ) ), leftEncoderPin0Int, CHANGE );
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN1 ) ), leftEncoderPin1Int, CHANGE );
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN0 ) ), rightEncoderPin0Int, CHANGE );
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN1 ) ), rightEncoderPin1Int, CHANGE );
+#ifndef OCTO_ESP8266_DEBUG
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::SR04_ECHO) ), echoPinInt, CHANGE );
+#endif
 }
 
 void HardwareESP8266::DigitalWrite( Pin pin, PinState state )
@@ -187,11 +204,6 @@ unsigned int HardwareESP8266::AnalogRead( Pin pin)
 IEvent& HardwareESP8266::GetInputEvents( Pin pin )
 {
   auto& handler = pinToInputHandler[ static_cast<size_t>( pin ) ];
-
-  // Fake an interrupt for now
-  //InputInterruptHandler* rawHandler = pinToInputHandlerRaw[ static_cast<size_t>(pin ) ];
-  //rawHandler->interrupt();
-
   return handler->getEvents();
 }
 }
