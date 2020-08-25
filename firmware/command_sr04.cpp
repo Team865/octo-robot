@@ -17,8 +17,7 @@ SR04::SR04(
   hwi { hwiArg }, debug { debugArg }, net { netArg }, 
   hst{ hstArg },
   pinTrig{ pinTrigArg }, pinEcho{ pinEchoArg },
-  mode{ Mode::IDLE },
-  distance{ READING_FAILED }
+  mode{ Mode::IDLE }
 {
   // Configure hardware pins for output
 #ifndef OCTO_ESP8266_DEBUG
@@ -83,7 +82,6 @@ void SR04::handleAwaitingEcho()
   if ( !pulseDownSeen ) {
     net->get() << "RNG FAIL_NOECHO\n";
     mode = Mode::IDLE;
-    distance = READING_FAILED;
     return;
   }
 
@@ -98,7 +96,7 @@ void SR04::handleAwaitingEcho()
   // = usSinceEchoSent * .17
   // = usSinceEchoSent * 17 / 100;
   //
-  distance = delay.get() * 17 / 100;
+  unsigned int distance = delay.get() * 17 / 100;
   net->get() << "RNG " << distance << "\n";
   mode = Mode::IDLE;
 }
@@ -125,7 +123,6 @@ void SR04::handleSensorRequested()
 
   // 2. Change mode to "waiting for echo"
   //
-  distance = READING_IN_PROGRESS;
   mode = Mode::AWAITING_ECHO;
 }
 
@@ -159,7 +156,6 @@ const char* SR04::debugName()
 void SR04::sensorRequest() 
 {
   if ( mode == Mode::IDLE ) {
-    distance = READING_IN_PROGRESS;
     mode = Mode::SENSOR_REQUESTED;
   }
 }

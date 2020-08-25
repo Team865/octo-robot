@@ -107,12 +107,6 @@ class SR04: public Base {
   const HW::Pin pinEcho;
 
   Mode mode;
-
-  static constexpr int READING_IN_PROGRESS = -1;
-  static constexpr int READING_FAILED = -2;
-
-  // distance in mm.  -1 means no reading yet.  -2 means the reading failed.
-  int distance;
 };
 
 }; // end Command namespace.
