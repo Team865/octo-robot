@@ -176,6 +176,14 @@ class ISim: public I
     return pinToEventMap[ pin ];
   }
 
+  void LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) override 
+  {
+  }
+
+  void LEDUpdate() override
+  {
+  }
+
   private:
 
   std::map< Pin, IEvent > pinToEventMap;

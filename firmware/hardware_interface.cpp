@@ -13,6 +13,7 @@ const std::unordered_map<Pin,std::string,EnumHash> pinNames = {
     { Pin::ENCODER1_PIN1,   "Encoder1 Pin1" },
     { Pin::SR04_TRIG,       "SR04 Trigger" },
     { Pin::SR04_ECHO,       "SR04 Echo" },
+    { Pin::LED_PIN,         "WS2812 Out" },
 };
 
 const std::unordered_map<PinState,std::string,EnumHash> pinStateNames = {

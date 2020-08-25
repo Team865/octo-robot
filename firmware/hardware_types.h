@@ -33,6 +33,7 @@ enum class Pin {
   ENCODER1_PIN1,
   SR04_TRIG,
   SR04_ECHO,
+  LED_PIN,
   END_OF_PINS 
 };
 
