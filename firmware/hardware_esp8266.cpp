@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <Adafruit_NeoPixel.h>
 #include "hardware_esp8266.h"
 #include <memory>
 
@@ -15,14 +16,20 @@ const std::unordered_map<HW::Pin, int, EnumHash > pinMap =
   { HW::Pin::ENCODER1_PIN0,   13    },
   { HW::Pin::ENCODER1_PIN1,   4     },
   { HW::Pin::SR04_TRIG,       1     },
-  { HW::Pin::SR04_ECHO,       5     }
+  { HW::Pin::SR04_ECHO,       5     },
+  { HW::Pin::LED_PIN,         3     }
 };
+
+constexpr int LOCAL_LED_PIN=3;
 
 const std::vector< HW::Pin > interruptInputs = {
   HW::Pin::ENCODER0_PIN0,
   HW::Pin::ENCODER0_PIN1,
   HW::Pin::ENCODER1_PIN0,
-  HW::Pin::ENCODER1_PIN1
+  HW::Pin::ENCODER1_PIN1,
+#ifndef OCTO_ESP8266_DEBUG
+  HW::Pin::SR04_ECHO
+#endif
 };
 
 const std::unordered_map<HW::PinState, int, EnumHash > pinStateMap = {
@@ -100,6 +107,16 @@ void ICACHE_RAM_ATTR rightEncoderPin1Int()
   handler->interrupt();
 }
 
+#ifndef OCTO_ESP8266_DEBUG
+void ICACHE_RAM_ATTR echoPinInt()
+{
+  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::SR04_ECHO ) ];
+  handler->interrupt();
+}
+#endif
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel( 8, LOCAL_LED_PIN, NEO_GRB + NEO_KHZ800 );
+
 } // end anonymous namespace
 
 namespace HW {
@@ -133,8 +150,10 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
   }
 
 #ifndef OCTO_ESP8266_DEBUG
-  pinMode( 1, FUNCTION_3 );
-  pinMode( 3, FUNCTION_3 );
+  // todo - constants
+  pinMode( pinMap.at( Pin::SR04_TRIG ), FUNCTION_3 );
+  pinMode( pinMap.at( Pin::LED_PIN),    FUNCTION_3 );
+  pinMode( pinMap.at( Pin::LED_PIN),    OUTPUT );
 #endif
 
   for ( size_t index = 0; index < static_cast<size_t>(HW::Pin::END_OF_PINS); ++index ) {
@@ -151,11 +170,24 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
   pinMode( pinMap.at( Pin::ENCODER1_PIN0 ), INPUT );
   pinMode( pinMap.at( Pin::ENCODER0_PIN1 ), INPUT );
   pinMode( pinMap.at( Pin::ENCODER1_PIN1 ), INPUT );
+#ifndef OCTO_ESP8266_DEBUG
+  pinMode( pinMap.at( Pin::SR04_ECHO     ), INPUT );
+#endif
 
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN0 ) ), leftEncoderPin0Int, CHANGE );
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN1 ) ), leftEncoderPin1Int, CHANGE );
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN0 ) ), rightEncoderPin0Int, CHANGE );
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN1 ) ), rightEncoderPin1Int, CHANGE );
+#ifndef OCTO_ESP8266_DEBUG
+  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::SR04_ECHO) ), echoPinInt, CHANGE );
+
+  strip.begin();
+
+  for ( int i = 0; i < 8; ++i ) {
+    LEDSet( i, 0, 128, 0 );
+  }
+  LEDUpdate();
+#endif
 }
 
 void HardwareESP8266::DigitalWrite( Pin pin, PinState state )
@@ -187,12 +219,18 @@ unsigned int HardwareESP8266::AnalogRead( Pin pin)
 IEvent& HardwareESP8266::GetInputEvents( Pin pin )
 {
   auto& handler = pinToInputHandler[ static_cast<size_t>( pin ) ];
-
-  // Fake an interrupt for now
-  //InputInterruptHandler* rawHandler = pinToInputHandlerRaw[ static_cast<size_t>(pin ) ];
-  //rawHandler->interrupt();
-
   return handler->getEvents();
 }
+
+void HardwareESP8266::LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b )
+{
+  strip.setPixelColor( led, strip.Color( r, g, b ));
+}
+
+void HardwareESP8266::LEDUpdate()
+{
+  strip.show();
+}
+
 }
 

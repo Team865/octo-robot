@@ -32,6 +32,8 @@ class I
   virtual unsigned AnalogRead( Pin pin ) = 0;
   virtual PinState DigitalRead( Pin pin) = 0;
   virtual IEvent& GetInputEvents( Pin pin ) = 0;
+  virtual void LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) = 0;
+  virtual void LEDUpdate() = 0;
 };
 };  // End HW namespace
 

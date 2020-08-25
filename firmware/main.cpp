@@ -50,7 +50,7 @@ void setup() {
                         HW::Pin::SR04_TRIG, HW::Pin::SR04_ECHO );
           
   auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, 
-                        encoderA, encoderB );
+                        encoderA, encoderB, sr04, hardware );
 
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                         wifi, hardware, debug, 

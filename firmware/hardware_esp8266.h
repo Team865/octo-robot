@@ -12,11 +12,13 @@ class HardwareESP8266: public I
   HardwareESP8266( std::shared_ptr< Time::HST> hstArg );
   virtual ~HardwareESP8266() {}
 
-  void     DigitalWrite( Pin pin, PinState state ) override;
-  void     PinMode( Pin pin, PinIOMode state ) override;
-  PinState DigitalRead( Pin pin) override;
-  unsigned AnalogRead( Pin pin) override;
-  IEvent& GetInputEvents( Pin pin) override;
+  void      DigitalWrite( Pin pin, PinState state ) override;
+  void      PinMode( Pin pin, PinIOMode state ) override;
+  PinState  DigitalRead( Pin pin) override;
+  unsigned  AnalogRead( Pin pin) override;
+  IEvent&   GetInputEvents( Pin pin) override;
+  void      LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) override;
+  void      LEDUpdate() override;
 };
 };
 

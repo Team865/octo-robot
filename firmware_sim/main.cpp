@@ -176,6 +176,14 @@ class ISim: public I
     return pinToEventMap[ pin ];
   }
 
+  void LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) override 
+  {
+  }
+
+  void LEDUpdate() override
+  {
+  }
+
   private:
 
   std::map< Pin, IEvent > pinToEventMap;
@@ -232,7 +240,7 @@ void setup() {
 
   auto dataSend = std::make_shared<Command::DataSend>( 
                           debug, wifi, 
-                          encoderASim, encoderBSim );
+                          encoderASim, encoderBSim, sr04, hardware );
 
   auto commandProcessor= std::make_shared<Command::ProcessCommand>( 
                           wifi, hardware, debug, 
