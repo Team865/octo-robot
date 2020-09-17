@@ -72,9 +72,11 @@ class DataSend: public Base {
   // @brief Interface to hardware, for setting LEDs.
   std::shared_ptr<HW::I>  hwi;
   // @brief Are we currently outputting data
-  bool isOutputting;
+  bool isOutputting = false;
   // @brief How many times have we been called?
-  unsigned int timesCalled;
+  unsigned int timesCalled  = 0;
+  // @brief Last valid sensor reading - for LED display only.  Default = invalid
+  int lastValidSensorReading = -1;
 };
 
 }; // end Command namespace.
