@@ -15,22 +15,41 @@ public class AutonomousCommand extends CommandBase {
     
     private OctoDriveSubsystem octoDrive;
 
+    int counter;
+
     public AutonomousCommand(OctoDriveSubsystem initSubsystem) {
         octoDrive = initSubsystem;
         addRequirements(initSubsystem);
+        counter = 0;
     }
 
 
 
     @Override
     public void initialize() {
+        counter = 0;
     }
 
 
 
     @Override
     public void execute() {
-
+        if(counter < 150){
+            octoDrive.setMotors(1.0, 1.0);
+        }
+        else if(counter < 200){
+            octoDrive.setMotors(-1.0, -1.0);
+        }
+        else if(counter < 250){
+            octoDrive.setMotors(0.0, 0.0);
+        }
+        else if(counter < 300){
+            octoDrive.setMotors(1.0, -1.0);
+        }
+        else{
+            octoDrive.setMotors(0.0, 0.0);
+        }
+        counter++;
     }
 
 
@@ -44,6 +63,6 @@ public class AutonomousCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-      return false;
+      return (false);
     }
 }

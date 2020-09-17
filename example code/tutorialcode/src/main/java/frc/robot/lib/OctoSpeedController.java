@@ -93,11 +93,12 @@ public class OctoSpeedController implements SpeedController {
         InternetConnecter internet = InternetConnecter.getInstance();
         if(newSpeed != motorSpeed){
             motorSpeed = newSpeed;
+            //System.out.println(newSpeed);
             if(!inverted){
-                internet.addToPipe(name + "=" + (int)motorSpeed);
+                internet.addToOutPipe(name + "=" + (int)motorSpeed);
             }
             else{
-                internet.addToPipe(name + "=" + (int)(motorSpeed * -1.0));
+                internet.addToOutPipe(name + "=" + (int)(motorSpeed * -1.0));
             }
         }
         internet.periodic();

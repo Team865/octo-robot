@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.AutonomousCommand;
 import frc.robot.commands.TeleopCommand;
 import frc.robot.subsystems.OctoDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,6 +23,7 @@ public class RobotContainer {
   
   private final OctoDriveSubsystem m_octoDriveSubsystem = new OctoDriveSubsystem();
   private final TeleopCommand m_teleopCommand = new TeleopCommand(m_octoDriveSubsystem);
+  private final AutonomousCommand m_autonomousCommand = new AutonomousCommand(m_octoDriveSubsystem);
 
 
 
@@ -31,12 +33,12 @@ public class RobotContainer {
   public RobotContainer() {
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in teleop
-   */
+
   public Command getTeleopCommand() {
-    return m_teleopCommand;
+    return (m_teleopCommand);
+  }
+
+  public Command getAutonomousCommand(){
+    return (m_autonomousCommand);
   }
 }

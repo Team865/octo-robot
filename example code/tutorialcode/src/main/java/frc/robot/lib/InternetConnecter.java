@@ -24,7 +24,8 @@ public class InternetConnecter{
   
     private boolean isConnected;
 
-    private String pipe;
+    private String outpipe;
+    private String inpipe;
 
     /*
     The init function. It connects to the robot here.
@@ -35,7 +36,8 @@ public class InternetConnecter{
     private InternetConnecter(){
         int trycount = 0;
         isConnected = false;
-        pipe = "\n";
+        outpipe = "\n";
+        inpipe = "\n";
         while (trycount <= 3 && !isConnected){
             try {
                 socket = new Socket("192.168.4.1", 4999);
@@ -68,15 +70,26 @@ public class InternetConnecter{
     /*
     Adds commands to be sent to the robot. Does not send them.
     */
-    public void addToPipe(String data){
-        pipe = pipe + data + "\n";
+    public void addToOutPipe(String data){
+        outpipe = outpipe + data + "\n";
+    }
+
+    public String getInPipe(){
+        if(inpipe.length() > 100){
+            inpipe.substring(50);
+        }
+        return(inpipe);
     }
 
     /*
     Cleans out the pipe, canceling any stored commands.
     */
-    public void cleanPipe(){
-        pipe = "\n";
+    public void cleanInPipe(){
+        inpipe = "\n";
+    }
+
+    public void cleanOutPipe(){
+        outpipe = "\n";
     }
 
     /*
@@ -86,11 +99,11 @@ public class InternetConnecter{
     the robot is trying to send back.
     */
     public void periodic(){
-        if(isConnected && pipe.length() != 0){
-            System.out.print(pipe);
-            writer.print(pipe);
+        if(isConnected && outpipe.length() != 0){
+            //System.out.print(outpipe);
+            writer.print(outpipe);
             writer.flush();
-            pipe = "";
+            outpipe = "";
         }
         getData();
     }
@@ -104,7 +117,9 @@ public class InternetConnecter{
         if(isConnected){
             try {
                 while(input.available() > 0){
-                    System.out.print((char)reader.read());
+                    char readChar = (char)reader.read();
+                    inpipe = inpipe + readChar;
+                    //System.out.print(readChar);
                 }
             }
             catch (IOException e) {
