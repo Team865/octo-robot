@@ -16,9 +16,7 @@ DataSend::DataSend(
   encoderL{ encoderLArg },
   encoderR{ encoderRArg },
   rangeFinder{ rangeFinderArg },
-  hwi{ hwiArg},
-  isOutputting{ false },
-  timesCalled{ 0 }
+  hwi{ hwiArg}
 {
 }
 
@@ -63,17 +61,24 @@ void DataSend::updateLEDs()
   //
   // 1. Use the Sonar Range finder current distance for the center color
   // 
-  int range = rangeFinder->getLastSensorReading();
-  if ( range < 0 ) {
+  const int range = rangeFinder->getLastSensorReading();
+  if ( range >= 0 ) { 
+    lastValidSensorReading = range;
+  }
+  if ( lastValidSensorReading < 0 ) {
     center[ R ] = 0;
     center[ G ] = 255;
     center[ B ] = 0;
   }
   else {
-    // max 140cm, or 1400mm
-    range = std::min( range, 1400 );
-    // Blue is cold ( like the hotter / colder game ).  Set to full at max
-    center[ B ] = 255 * range / 1400;
+    // Display a color from red to blue, depending on how close the wall
+    // is.  Red = closer (hotter), blue = further (colder).  For the purpose
+    // of the display, go full blue at 500mm, or 50cm.
+    constexpr int maxRangeForDisplayPurposes = 500;
+    const int drange = std::min( lastValidSensorReading , maxRangeForDisplayPurposes );
+    // Full Blue:  drange = maxRangeForDisplayPurposes 
+    // Full Red:   drange = 0
+    center[ B ] = 255 * drange / maxRangeForDisplayPurposes;
     center[ R ] = 255 - center[B];
     center[ G ] = 0;
   }
