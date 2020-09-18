@@ -60,6 +60,12 @@ public class OctoSpeedController implements SpeedController {
     */
     @Override
     public void set(double speed){
+        if(speed > 100){
+            speed = 100;
+        }
+        else if(speed < -100){
+            speed = -100;
+        }
         update(speed * 100);
     }
 

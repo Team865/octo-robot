@@ -40,9 +40,12 @@ public class OctoDriveSubsystem extends SubsystemBase {
     rightSpeed = 0.0;
     leftSpeed = 0.0;
 
-    alignedDrive = true;
+    alignedDrive = false;
 
     drive = new DifferentialDrive(rightController, leftController);
+
+    leftEncoder.setDistancePerPulse(19.4/80.0);
+    rightEncoder.setDistancePerPulse(19.4/80.0);
   }
 
   /*
@@ -54,6 +57,14 @@ public class OctoDriveSubsystem extends SubsystemBase {
   public void periodic() {
     rightEncoder.periodic();
     leftEncoder.periodic();
+
+    if(!alignedDrive && (Math.signum(rightSpeed) == Math.signum(leftSpeed) && rightSpeed != 0.0)){
+      leftEncoder.reset();
+      rightEncoder.reset();
+      System.out.println("reset!");
+    }
+
+    alignedDrive = Math.signum(rightSpeed) == Math.signum(leftSpeed) && rightSpeed != 0.0;
 
     if(alignedDrive){
       doAlignedDrive();
@@ -75,6 +86,19 @@ public class OctoDriveSubsystem extends SubsystemBase {
   }
 
   public void doAlignedDrive(){
+    double kP = 0.05;
+    double error = leftEncoder.getDistance() + rightEncoder.getDistance();
+    double idealSpeed = 0.8;
+
+    leftSpeed  = (idealSpeed - kP * error * Math.signum(leftSpeed)) * Math.signum(leftSpeed);
+    rightSpeed = (idealSpeed + kP * error * Math.signum(rightSpeed)) * Math.signum(rightSpeed);
+    
+    System.out.println(error);
+    System.out.println(leftSpeed);
+    System.out.println(rightSpeed);
+    //System.out.println(leftEncoder.get());
+    //System.out.println(rightEncoder.get());
+    System.out.println("===================");
   }
 
   public void setAlignedDrive(boolean newAlignedDrive){

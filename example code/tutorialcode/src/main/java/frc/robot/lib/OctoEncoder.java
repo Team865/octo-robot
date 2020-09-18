@@ -39,6 +39,8 @@ public class OctoEncoder{
         stopped = newTurns - raw == 0;
 
         rate = newSpeed;
+
+        //System.out.println(name + " " + count);
     }
 
     private void parseInput(String input){
