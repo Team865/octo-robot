@@ -67,7 +67,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
     alignedDrive = Math.signum(rightSpeed) == Math.signum(leftSpeed) && rightSpeed != 0.0;
 
     if(alignedDrive){
-      doAlignedDrive();
+      //doAlignedDrive();
     }
 
     drive.tankDrive(leftSpeed, rightSpeed);
@@ -86,18 +86,26 @@ public class OctoDriveSubsystem extends SubsystemBase {
   }
 
   public void doAlignedDrive(){
-    double kP = 0.05;
-    double error = leftEncoder.getDistance() + rightEncoder.getDistance();
+    double pMod = 0.02;
+    double dMod = 0.225;
+    int pWeight = 0;
+    int dWeight = 1;
+    double pError = (leftEncoder.getDistance() - rightEncoder.getDistance()) * pMod;
+    double dError = (leftEncoder.getRate() - rightEncoder.getRate()) * dMod;
     double idealSpeed = 0.8;
 
-    leftSpeed  = (idealSpeed - kP * error * Math.signum(leftSpeed)) * Math.signum(leftSpeed);
-    rightSpeed = (idealSpeed + kP * error * Math.signum(rightSpeed)) * Math.signum(rightSpeed);
+    double totalError = ((pError * pWeight) + (dError * dWeight)) / (pWeight + dWeight);
+
+    leftSpeed  = (idealSpeed - totalError * Math.signum(leftSpeed)) * Math.signum(leftSpeed);
+    rightSpeed = (idealSpeed + totalError * Math.signum(rightSpeed)) * Math.signum(rightSpeed);
     
-    System.out.println(error);
+    //System.out.println(pError);
+    System.out.println(dError);
+    //System.out.println(totalError);
     System.out.println(leftSpeed);
     System.out.println(rightSpeed);
-    //System.out.println(leftEncoder.get());
-    //System.out.println(rightEncoder.get());
+    //System.out.println(leftEncoder.getRate());
+    //System.out.println(rightEncoder.getRate());
     System.out.println("===================");
   }
 
