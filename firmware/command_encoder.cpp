@@ -243,18 +243,18 @@ Time::TimeUS Encoder::execute()
     updatesWithNoEvent = 0;  
   }
   else {
-    // If we're here we didn't see an encoder event in 1/10th of a second, the
-    // update time.  That's fine, but if we go 3 updates ( ~1/3rd of a second)
+    // If we're here we didn't see an encoder event in 1/100th of a second, the
+    // update time.  That's fine, but if we go 30 updates ( ~1/3rd of a second)
     // with no event then let's set the speed to 0.
     ++updatesWithNoEvent;
-    if ( updatesWithNoEvent == 3 ) {
+    if ( updatesWithNoEvent == 30 ) {
       speed = 0;    // I suppose we're stopped.
     }
   }
 
-  // Run this about 10 times a second.
+  // Run this about 100 times a second.
   //
-  return Time::TimeUS( 100000 );
+  return Time::TimeUS( 10000 );
 }
 
 //
