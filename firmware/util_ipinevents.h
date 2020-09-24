@@ -44,7 +44,7 @@ using IPinEvent = std::pair< HW::PinState, Time::DeviceTimeUS >;
 ///
 /// @input[in] N   - the size of the event pipe
 ///
-template< std::size_t N > 
+template< std::size_t N, int deBounceTime > 
 class IPinEvents
 {
   public:
@@ -76,9 +76,34 @@ class IPinEvents
     }
 
     //
-    // Advance to the next write slot and record the event.
+    // Do debounce.  We need to do this during the interrupt because we
+    // can (and have) filled the pipe with "bounce" and lost events.
+    // When an encoder is bouncing, the bounce time can be as small as 10us.
+    // 
+    // There are three cases we're testing for here.
+    //  
+    // 1. If there's no data in the pipe we always add a new entry
+    // 2. If there's data in the pipe, and the difference between the last
+    //    and current timestamp is greater than deBounceTime, we add a new
+    //    entry 
+    // 3. If the difference between timestamps is less than deBounceTime, we
+    //    replace the current entry
     //
-    writeSlot = nextWriteSlot;
+    const bool noDataInPipe = ( readSlot == writeSlot );
+    const bool diffGreaterThanDebounce = 
+        event.second - events[ writeSlot ].second > deBounceTime;
+
+    if ( noDataInPipe || diffGreaterThanDebounce )
+    {
+      //
+      // Advance to the next write slot
+      //
+      writeSlot = nextWriteSlot;
+    }
+
+    //
+    // record the event.
+    //
     events[writeSlot] = event;
   }
 

@@ -13,7 +13,7 @@ namespace Util {
 // 
 TEST( pipe_should, add_and_remove_events )
 {
-  IPinEvents<16> events;
+  IPinEvents<16, 0> events;
 
   const std::vector<IPinEvent> golden = {
     { HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{1} },
@@ -54,7 +54,7 @@ TEST( pipe_should, add_and_remove_events )
 //
 TEST( pipe_should, write_to_full )
 {
-  IPinEvents<4> events;
+  IPinEvents<4, 0> events;
 
   // Full is one less than the max (3) under the current implementation
   //
@@ -94,7 +94,7 @@ TEST( pipe_should, write_to_full )
 //
 TEST( pipe_should, error_on_write_fail )
 {
-  IPinEvents<4> events;
+  IPinEvents<4, 0> events;
   
   // Size 4 pipe can only hold 3 events, so feed it four events
   const std::vector<IPinEvent> golden = {
@@ -133,7 +133,7 @@ TEST( pipe_should, error_on_read_fail )
   // prefeedCount:  How many events to add and remove at the beginning of the test
   for ( std::size_t prefeedCount = 0; prefeedCount < 100; ++prefeedCount )
   {
-    IPinEvents<15> events;
+    IPinEvents<15, 0> events;
 
     // Prefeed events
     for ( std::size_t prefeed = 0; prefeed < prefeedCount; ++prefeed ) {
@@ -189,17 +189,17 @@ TEST( pipe_should, merge_properly )
     { 1, {HW::PinState::INPUT_HIGH, Time::DeviceTimeUS{10} }}
   };
 
-  IPinEvents<15> events0;
+  IPinEvents<15, 0> events0;
   for ( auto event: stream0 ) {
     events0.write( event );
   }
 
-  IPinEvents<15> events1;
+  IPinEvents<15, 0> events1;
   for ( auto event: stream1 ) {
     events1.write( event );
   }
 
-  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
+  IPinEventMerger<IPinEvents<15, 0>,IPinEvents<15, 0>> merger( &events0, &events1 );
 
   std::vector< MergedEvent > mergedEvents;
   while( merger.hasEvents() ) {
@@ -230,14 +230,14 @@ TEST( pipe_should, merge_case_2 )
     { 0, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
   };
 
-  IPinEvents<15> events0;
+  IPinEvents<15, 0> events0;
   for ( auto event: stream0 ) {
     events0.write( event );
   }
 
-  IPinEvents<15> events1;
+  IPinEvents<15, 0> events1;
 
-  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
+  IPinEventMerger<IPinEvents<15, 0>,IPinEvents<15, 0>> merger( &events0, &events1 );
 
   std::vector< MergedEvent > mergedEvents;
   while( merger.hasEvents() ) {
@@ -268,14 +268,14 @@ TEST( pipe_should, merge_case_3 )
     { 1, {HW::PinState::INPUT_LOW,  Time::DeviceTimeUS{9} }},
   };
 
-  IPinEvents<15> events0;
+  IPinEvents<15, 0> events0;
 
-  IPinEvents<15> events1;
+  IPinEvents<15, 0> events1;
   for ( auto event: stream1 ) {
     events1.write( event );
   }
 
-  IPinEventMerger<IPinEvents<15>,IPinEvents<15>> merger( &events0, &events1 );
+  IPinEventMerger<IPinEvents<15, 0>,IPinEvents<15, 0>> merger( &events0, &events1 );
 
   std::vector< MergedEvent > mergedEvents;
   while( merger.hasEvents() ) {
@@ -313,13 +313,13 @@ TEST( pipe_should, debounce_properly )
   };
 
   // Populate events
-  IPinEvents<15> events;
+  IPinEvents<15, 0> events;
   for ( auto event: rawStream ) {
     events.write( event );
   }
 
   // Create the filter
-  IPinDebouncer<IPinEvents<15>> debouncer( &events, 20 );
+  IPinDebouncer<IPinEvents<15, 0>> debouncer( &events, 20 );
 
   // Draw from the filter.
   std::vector< IPinEvent > deBouncedEvents;
@@ -375,20 +375,20 @@ TEST( pipe_should, computeGreyCodesProperly )
   };
 
   // Populate the two event streams
-  IPinEvents<15> events0;
+  IPinEvents<15, 0> events0;
   for ( auto& event : rawStream0 )
   {
     events0.write( event );
   } 
 
-  IPinEvents<15> events1;
+  IPinEvents<15, 0> events1;
   for ( auto& event : rawStream1 )
   {
     events1.write( event );
   } 
 
   // Create debounces with a 50us debounce window
-  using DeBounce = Util::IPinDebouncer< IPinEvents<15> >;
+  using DeBounce = Util::IPinDebouncer< IPinEvents<15, 0> >;
   DeBounce deBounce0( &events0, 50 );
   DeBounce deBounce1( &events1, 50 );
 

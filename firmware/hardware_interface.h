@@ -10,15 +10,10 @@
 namespace HW {
 
 //
-// Start with a 64 event buffer.  That should be overkill unless the encoder
-// bounces and generates a pile of events.  
+// 128 event buffer.  I've noticed the encounter input bouncing with a 
+// 10us delay between bounces.  Missed events == unreliable encoder.
 //
-// If that does seem to happen, maybe the interrupt routine can detect the 
-// fact that the pin is changing quickly and just over-write the top entry
-// in the pipe.  I'd prefer to not have to deal with that inside the interrupt
-// route if possible.
-//
-using IEvent = Util::IPinEvents<64>;
+using IEvent = Util::IPinEvents<128,200>;
 
 /// @brief Interface to the hardware
 class I
