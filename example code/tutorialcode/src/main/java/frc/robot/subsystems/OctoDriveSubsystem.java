@@ -67,7 +67,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
     alignedDrive = Math.signum(rightSpeed) == Math.signum(leftSpeed) && rightSpeed != 0.0;
 
     if(alignedDrive){
-      //doAlignedDrive();
+      doAlignedDrive();
     }
 
     drive.tankDrive(leftSpeed, rightSpeed);
@@ -86,26 +86,27 @@ public class OctoDriveSubsystem extends SubsystemBase {
   }
 
   public void doAlignedDrive(){
-    double pMod = 0.02;
-    double dMod = 0.225;
-    int pWeight = 0;
+    double pMod = 0.1;
+    double dMod = /*0.225*/ .15;
+    int pWeight = 1;
     int dWeight = 1;
-    double pError = (leftEncoder.getDistance() - rightEncoder.getDistance()) * pMod;
-    double dError = (leftEncoder.getRate() - rightEncoder.getRate()) * dMod;
-    double idealSpeed = 0.8;
+    double pError = (-leftEncoder.getDistance() - rightEncoder.getDistance()) * pMod;
+    double dError = (-leftEncoder.getRate() - rightEncoder.getRate()) * dMod;
+    double idealSpeed = 0.9;
 
     double totalError = ((pError * pWeight) + (dError * dWeight)) / (pWeight + dWeight);
 
-    leftSpeed  = (idealSpeed - totalError * Math.signum(leftSpeed)) * Math.signum(leftSpeed);
-    rightSpeed = (idealSpeed + totalError * Math.signum(rightSpeed)) * Math.signum(rightSpeed);
+    leftSpeed  = (idealSpeed + totalError * Math.signum(leftSpeed)) * Math.signum(leftSpeed);
+    rightSpeed = (idealSpeed - totalError * Math.signum(rightSpeed)) * Math.signum(rightSpeed);
     
     //System.out.println(pError);
-    System.out.println(dError);
+    System.out.println("DERR " + dError);
+    System.out.println("PERR " + pError);
     //System.out.println(totalError);
-    System.out.println(leftSpeed);
-    System.out.println(rightSpeed);
-    //System.out.println(leftEncoder.getRate());
-    //System.out.println(rightEncoder.getRate());
+    System.out.println("LEFT " + leftSpeed);
+    System.out.println("RIGH " + rightSpeed);
+    System.out.println("LENC  " + -leftEncoder.getRate());
+    System.out.println("RENC " + rightEncoder.getRate());
     System.out.println("===================");
   }
 
