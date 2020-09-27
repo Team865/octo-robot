@@ -34,7 +34,7 @@ public class AutonomousCommand extends CommandBase {
 
     @Override
     public void execute() {
-        if(counter < 150){
+        if(counter < 350){
             octoDrive.setMotors(1.0, 1.0);
         }
         else if(counter < 200){
