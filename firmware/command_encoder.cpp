@@ -130,35 +130,50 @@ Time::TimeUS Encoder::execute()
   HW::IEvent& pin0Events = hwi->GetInputEvents( pin0 ); 
   HW::IEvent& pin1Events = hwi->GetInputEvents( pin1 ); 
 
+#define HARD_CRASH_ON_ERROR
+#ifdef HARD_CRASH_ON_ERROR
+  if ( pin0Events.hasWriteError() ) {
+    for(;;);
+  }
+  if ( pin1Events.hasWriteError() ) {
+    for(;;);
+  }
+#endif
+
   //
-  // Some notes on the debouncer value...
+  // TODO, do we need to debounce here? We're already debouncing in the
+  // interrupt (ugg).  This just seems like extra complexity now.
+  //
+  // Turning off for now. 
   // 
-  // - The encoder has 80 states, so that's 80 state changes / sec
-  // - Assume the wheel has top a rotation top speed of 16 rotates / sec)
-  // - The wheel is 66mm, or 20.7cm in diameter.
-  // - top robot speed = 20.7cm wheel diamater x 16 wheel rotations / sec;
-  // - or 3.31 m / sec
-  // - or 12km / hour, a clippy running pace.  The robot isn't going that fast
-  //
-  // The expected maximum encoder state change is maybe 781us
-  // I'm trying a 300us debounce window
-  //
+
+//#define DEBOUNCED_ENCODERS
+#ifdef DEBOUNCED_ENCODERS
+  
+  constexpr int deBounceWindow = 500;
 
   using DeBounce = Util::IPinDebouncer< HW::IEvent >;
 
   DeBounce deBounce0(
       &pin0Events,      // Transitions on Pin 0
-      300 );            // 300us Debounce
+      deBounceWindow );
 
   DeBounce deBounce1(
       &pin1Events,      // Transitions on Pin 0
-      300 );            // 300us Debounce
+      deBounceWindow);  
 
   Util::GreyCodeTracker< DeBounce, DeBounce > greyCodeTracker( 
       lastGreyCode,     // Initial State
       &deBounce0,       // Transitions on Pin 0
       &deBounce1);      // Transitions on Pin 1
-  
+
+#else
+  Util::GreyCodeTracker< HW::IEvent,  HW::IEvent > greyCodeTracker( 
+      lastGreyCode,     // Initial State
+      &pin0Events,       // Transitions on Pin 0
+      &pin1Events);      // Transitions on Pin 1
+#endif
+
   //
   // Pull greycodes from the greycode tracker and update the encoder position
   //
@@ -167,7 +182,6 @@ Time::TimeUS Encoder::execute()
 
   while( greyCodeTracker.hasEvents() ) {
  
-    // Read the event and unpack it.  TODO - handle time
     Util::GreyCodeTime event = greyCodeTracker.read();
     unsigned int greyCode = event.first;
     Time::DeviceTimeUS eventTime = event.second; 
@@ -193,45 +207,54 @@ Time::TimeUS Encoder::execute()
     }
     position += dir;
 
-    if ( dir != 0 ) {
-      int64_t timeDelta = eventTime - lastStateChange;
+    // Technically, the encoders have 80 states, but only 20 are really
+    // usable.  The problem is that the the amount of time between between
+    // state transitions isn't constant.  Update speed on multiples of 4.
+
+    if ( dir != 0 && ( position % 4 ) == 0  ) {
+      int64_t timeDelta = eventTime - lastZeroStateChange;
       // 
-      // 80 state changes / rotation
+      // 20 "position mod 4 == 0" events per rotation
       // Use 15.16 signed fix point to represent speed
       //
-      // timePerRotation = timeDelta * 80;  (usec unit)
+      // timePerRotation = timeDelta * 20;  (usec unit)
       // rotationsPerSec = 1000000 / timePerRotation; 
-      // rotationsPerSec = 1000000 / (timeDelta * 80); 
-      // rotationsPerSec = 12500 / timeDelta;
+      // rotationsPerSec = 1000000 / (timeDelta * 20); 
+      // rotationsPerSec = 50000 / timeDelta;
       //
       // Convert to 15.16 fixed point by multiplying by 2^16, or 65536
       //
-      // rotationsPerSec = 819200000 / timeDelta;
+      // rotationsPerSec = 3276800000 / timeDelta;
       // 
-      int64_t speed64 = 819200000LL * ((int64_t) dir) / timeDelta;
+      int64_t speed64 = 3276800000LL * ((int64_t) dir) / timeDelta;
       speedTotal += (speed64);
       numSpeedSamples++;
-      lastStateChange = eventTime;
-      //net->get() << "  " << greyCode << " " << ((unsigned) eventTime.get()) << " " << ((int) timeDelta) << "\n";    
+      lastZeroStateChange = eventTime;
     }
+//#define GREY_DEBUG
+#ifdef GREY_DEBUG
+    if ( dir != 0 ) {
+      net->get() << "  " << greyCode << " " << ((unsigned) eventTime.get()) << "\n";
+    }
+#endif   
   }
   if ( numSpeedSamples ) {
     speed = speedTotal / numSpeedSamples;
+    updatesWithNoEvent = 0;  
   }
   else {
-    speed = 0;
+    // If we're here we didn't see an encoder event in 1/100th of a second, the
+    // update time.  That's fine, but if we go 30 updates ( ~1/3rd of a second)
+    // with no event then let's set the speed to 0.
+    ++updatesWithNoEvent;
+    if ( updatesWithNoEvent == 30 ) {
+      speed = 0;    // I suppose we're stopped.
+    }
   }
 
-  // Run this about 10 times a second.
+  // Run this about 100 times a second.
   //
-  // During testing, when the robot was running full out, it looked like the
-  // wheels rotated about 1.5x / second.  The encoder has 80 positions, so
-  // that's 50 state changes / second.  
-  //
-  // Sampling about every 10th of a second gives 5 state changes / sample 
-  // to use for speed calculations.
-  // 
-  return Time::TimeUS( 100000 );
+  return Time::TimeUS( 10000 );
 }
 
 //

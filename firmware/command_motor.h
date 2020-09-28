@@ -114,7 +114,7 @@ class Motor: public Base {
   // @brief What was the motor last set to?
   Pulse lastPulse;
 
-  static constexpr unsigned int periodInMS = 50;
+  static constexpr unsigned int periodInMS = 100;
 };
 
 }; // end Command namespace.

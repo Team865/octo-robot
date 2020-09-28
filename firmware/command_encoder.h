@@ -89,7 +89,8 @@ class Encoder: public Base {
   unsigned int lastGreyCode;
   int position;
   int speed;
-  Time::DeviceTimeUS lastStateChange;
+  Time::DeviceTimeUS lastZeroStateChange;
+  int updatesWithNoEvent = 0;
 };
 
 }; // end Command namespace.
