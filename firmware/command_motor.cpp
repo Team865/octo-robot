@@ -3,58 +3,89 @@
 
 namespace Command{
 
-Motor::Motor( 
+//=======================================================================
+
+MotorHardware::MotorHardware(
   std::shared_ptr<HW::I> hwiArg, 
-  std::shared_ptr<DebugInterface> debugArg, 
-  std::shared_ptr<NetInterface> netArg, 
   HW::Pin pin0Arg,  
   HW::Pin pin1Arg 
 ) :
-  hwi { hwiArg }, debug { debugArg }, net { netArg }, 
-  pin0{ pin0Arg }, pin1{ pin1Arg},
-  dir { Motor::Dir::FORWARD }, speedAsPercent{ 0 }, counter{ 0 }, 
-  lastPulse{ Pulse::NONE }
+  hwi{hwiArg}, pin0{ pin0Arg }, pin1{ pin1Arg} 
 {
   // Configure hardware pins for output
   hwi->PinMode(pin0,  HW::PinIOMode::M_OUTPUT );
   hwi->PinMode(pin1,  HW::PinIOMode::M_OUTPUT );
-  // set output to "off" (both lines powered down)
-  doPulse( Pulse::NONE );
+
+  // Set the motor to off
+  setMotorStop();
+}
+
+void MotorHardware::setMotorForward()
+{
+  // Forward, one input on, the other input off
+  hwi->DigitalWrite( pin0, HW::PinState::MOTOR_POS );
+  hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
+}
+
+void MotorHardware::setMotorBackward()
+{
+  // Backward, one input off, the other input on
+  hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
+  hwi->DigitalWrite( pin1, HW::PinState::MOTOR_POS );
+}
+
+void MotorHardware::setMotorStop()
+{
+  // Stopped,  Both inputs off.
+  hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
+  hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
+}
+
+//=======================================================================
+
+MotorState::MotorState(
+  std::shared_ptr<HW::I> hwiArg, 
+  HW::Pin pin0Arg,  
+  HW::Pin pin1Arg 
+) :
+  motorHardware{ hwiArg, pin0Arg, pin1Arg }, lastPulse{ Pulse::NONE }
+{
 }
 
 //
 // Set the motor controller output as per pulse
 // 
-void Motor::doPulse( Motor::Pulse pulse )
+void MotorState::doPulse( MotorState::Pulse pulse )
 {
+  if ( lastPulse == pulse ) {
+    return;
+  }
+  lastPulse = pulse;
+
   switch( pulse ) 
   {
     case Pulse::FORWARD:
-      // Forward, one input on, the other input off
-      hwi->DigitalWrite( pin0, HW::PinState::MOTOR_POS );
-      hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
+      motorHardware.setMotorForward();
       break;
     case Pulse::BACKWARD:
-      // Backward, one input off, the other input on
-      hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
-      hwi->DigitalWrite( pin1, HW::PinState::MOTOR_POS );
+      motorHardware.setMotorBackward();
       break;
     case Pulse::NONE:
-      // Stopped,  Both inputs off.
-      hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
-      hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
+      motorHardware.setMotorStop();
       break;
   }
-  lastPulse = pulse;
 }
 
-// Set the motor controller output, but only if it's changed.
-void Motor::doPulseIfChanged( Motor::Pulse pulse )
+//=======================================================================
+
+Motor::Motor( 
+  std::shared_ptr<HW::I> hwiArg, 
+  HW::Pin pin0Arg,  
+  HW::Pin pin1Arg 
+) :
+  motorState{ hwiArg, pin0Arg, pin1Arg }, 
+  dir { Motor::Dir::FORWARD }, speedAsPercent{ 0 }, counter{ 0 }
 {
-  if ( lastPulse != pulse )
-  {
-    doPulse( pulse );
-  }
 }
 
 //
@@ -96,14 +127,14 @@ Time::TimeUS Motor::execute()
   // 4. Set the hardware to the new state
   // 
   if ( !shouldTurnMotorOn) {
-    doPulseIfChanged( Pulse::NONE );
+    motorState.doPulse( MotorState::Pulse::NONE );
   }
   else {
     if ( dir == Motor::Dir::FORWARD ) {
-      doPulseIfChanged( Pulse::FORWARD );
+      motorState.doPulse( MotorState::Pulse::FORWARD );
     }
     else {
-      doPulseIfChanged( Pulse::BACKWARD );
+      motorState.doPulse( MotorState::Pulse::BACKWARD );
     }
   }
 

@@ -222,10 +222,10 @@ void setup() {
   auto timeSim    = std::make_shared<TimeInterfaceSim>();
   auto time       = std::make_shared<Time::Manager>( timeSim, hst );
   auto motorSimA  = std::make_shared<Command::Motor>( 
-                          hardware, debug, wifi, 
+                          hardware, 
                           HW::Pin::MOTOR0_PIN0, HW::Pin::MOTOR0_PIN1 );
   auto motorSimB  = std::make_shared<Command::Motor>( 
-                          hardware, debug, wifi, 
+                          hardware, 
                           HW::Pin::MOTOR1_PIN0, HW::Pin::MOTOR1_PIN1 );
   auto encoderASim = std::make_shared<Command::Encoder>(
                           hardware, debug, wifi, 
