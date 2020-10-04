@@ -1,12 +1,13 @@
-WIP  - Get robot frame CADed
+Done - Get robot frame CADed
 Done - Firmware for sonar range finder (C++ code programed on microcontroler)
 Done - Code to comunicate with robot via wifi (Java)
 Done - Create driver for motor with functionality of a FIRST driver
-ToDo - Create driver for encoders with functionality of a FIRST driver
+Done - Create driver for encoders with functionality of a FIRST driver
 ToDo - Create driver for sonar with functionality of a FIRST driver
 Done - Create a demo program that uses a joystick
+WIP  - Create a demo autonomous mode program
 
 -=Production milestones=-
 Done - Circit boards
 WIP  - Create detailed tutorials
-WIP  - Firmware finished
+Done - Firmware finished
