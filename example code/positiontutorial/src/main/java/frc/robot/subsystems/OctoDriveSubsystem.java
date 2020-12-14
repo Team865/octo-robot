@@ -24,7 +24,16 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
   private DifferentialDrive drive;
 
-  private boolean alignedDrive;
+  //private boolean alignedDrive;
+
+  private double x = 0.0;
+  private double y = 0.0;
+  private double angle = 0.0;
+
+  private double lastLeftEncoder = 0;
+  private double lastRightEncoder = 0;
+
+  private boolean lastInitted = false;
 
   /*
   OctoDriveSubsystem controls the movement of the wheels, it uses a WPIlib DifferentialDrive object. 
@@ -40,12 +49,13 @@ public class OctoDriveSubsystem extends SubsystemBase {
     rightSpeed = 0.0;
     leftSpeed = 0.0;
 
-    alignedDrive = false;
-
     drive = new DifferentialDrive(rightController, leftController);
 
-    leftEncoder.setDistancePerPulse(19.4/80.0);
-    rightEncoder.setDistancePerPulse(19.4/80.0);
+    leftEncoder.setDistancePerPulse(19.4/80.0 * 1.108);
+    rightEncoder.setDistancePerPulse(19.4/80.0 * 1.108);
+
+    leftEncoder.reset();
+    rightEncoder.reset();    
   }
 
   /*
@@ -58,22 +68,12 @@ public class OctoDriveSubsystem extends SubsystemBase {
     rightEncoder.periodic();
     leftEncoder.periodic();
 
-    if(!alignedDrive && (Math.signum(rightSpeed) == Math.signum(leftSpeed) && rightSpeed != 0.0)){
-      leftEncoder.reset();
-      rightEncoder.reset();
-      System.out.println("reset!");
-    }
 
-    alignedDrive = Math.signum(rightSpeed) == Math.signum(leftSpeed) && rightSpeed != 0.0;
-
-    if(alignedDrive){
       doAlignedDrive();
-    }
+    
 
     drive.tankDrive(leftSpeed, rightSpeed);
 
-    //System.out.println(rightEncoder.getRaw());
-    //System.out.println(leftEncoder.getRaw());
   }
 
   /*
@@ -81,36 +81,114 @@ public class OctoDriveSubsystem extends SubsystemBase {
   These speeds will be sent to the DifferentialDrive next periodic command.
   */
   public void setMotors(double newRightSpeed, double newLeftSpeed){
-    rightSpeed = newRightSpeed;
-    leftSpeed = newLeftSpeed;
+    // Adjusting by ~50% and adding .5 gets us a sort of linear
+    // input speed to actual speed curve.
+    double adjustedRightSpeed = 0;
+    if ( newRightSpeed > 0 ) {
+      adjustedRightSpeed = newRightSpeed * .5 + .5;
+    }
+    if ( newRightSpeed < 0 ) {
+      adjustedRightSpeed = newRightSpeed * .5 - .5;
+    }
+    double adjustedLeftSpeed = 0;
+    if ( newLeftSpeed > 0 ) {
+      adjustedLeftSpeed = newLeftSpeed * .5 + .5;
+    }
+    if ( newLeftSpeed < 0 ) {
+      adjustedLeftSpeed = newLeftSpeed * .5 - .5;
+    }
+
+    if ( rightSpeed != adjustedRightSpeed || leftSpeed != adjustedLeftSpeed )
+    {
+      rightSpeed = adjustedRightSpeed;
+      leftSpeed = adjustedLeftSpeed;
+      System.out.println("New Speed " + leftSpeed + "," + rightSpeed); 
+    }
   }
 
   public void doAlignedDrive(){
-    double pMod = 0.1;
-    double dMod = /*0.225*/ .15;
-    int pWeight = 1;
-    int dWeight = 1;
-    double pError = (-leftEncoder.getDistance() - rightEncoder.getDistance()) * pMod;
-    double dError = (-leftEncoder.getRate() - rightEncoder.getRate()) * dMod;
-    double idealSpeed = 0.9;
 
-    double totalError = ((pError * pWeight) + (dError * dWeight)) / (pWeight + dWeight);
+    double leftDistance = leftEncoder.getDistance();
+    double rightDistance = rightEncoder.getDistance();
 
-    leftSpeed  = (idealSpeed + totalError * Math.signum(leftSpeed)) * Math.signum(leftSpeed);
-    rightSpeed = (idealSpeed - totalError * Math.signum(rightSpeed)) * Math.signum(rightSpeed);
-    
-    //System.out.println(pError);
-    System.out.println("DERR " + dError);
-    System.out.println("PERR " + pError);
-    //System.out.println(totalError);
-    System.out.println("LEFT " + leftSpeed);
-    System.out.println("RIGH " + rightSpeed);
-    System.out.println("LENC  " + -leftEncoder.getRate());
-    System.out.println("RENC " + rightEncoder.getRate());
-    System.out.println("===================");
+    if ( !lastInitted ) {
+      lastLeftEncoder = leftDistance;
+      lastRightEncoder = rightDistance;
+      lastInitted = true;
+    }
+
+    double leftDelta = -(leftDistance - lastLeftEncoder);
+    double rightDelta = rightDistance - lastRightEncoder;
+
+    lastLeftEncoder = leftDistance;
+    lastRightEncoder = rightDistance;
+
+    if ( Math.abs( leftDelta ) > 10.0 || Math.abs( rightDelta ) > 10.0 )
+    {
+      return;
+    }
+
+    // 17 cm gap between left and right, approx
+    // 8.5cm radius from the center
+    //
+    // Let C be the center that the robot is pivoting around
+    //
+    // leftDelta * ( c - 8.5 ) = rightDelta * ( c + 8.5 )
+    // leftDelta * c + leftdelta * 8.5 = rightDelta * c - rightDelta * 8.5
+    // (leftDelta - rightDelta ) * c = -rightDelta * 8.5 - leftDelta * 8.5
+    // c = ( rightDelta * 8.5 + leftDelta * 8.5 ) / ( leftDelta - rightDelta )
+
+    if ( leftDelta == rightDelta ) {
+      x += Math.cos( angle ) * leftDelta;
+      y += Math.sin( angle ) * leftDelta;
+    }
+    else
+    {
+      double centerToWheel = 8.5;
+      double c =   ( rightDelta * centerToWheel + leftDelta * centerToWheel ) /
+                   ( leftDelta - rightDelta );
+      // assume we move forward the average of the two wheels
+      double forward = ( leftDelta + rightDelta ) / 2.0;
+
+      System.out.println("MDeltas " + leftDelta +  " " + rightDelta + " c= " + c);
+
+      double wheelPos;
+      double wheelDistance;
+
+      if ( Math.abs( leftDelta ) > Math.abs( rightDelta )) {
+        wheelDistance = leftDelta;
+        wheelPos = - centerToWheel;       
+      }                  
+      else {
+        wheelDistance = rightDelta;
+        wheelPos = centerToWheel;
+      }
+      x += Math.cos( angle ) * forward;
+      y += Math.sin( angle ) * forward;
+
+      double angleChange = wheelDistance / ( wheelPos - c );
+
+      System.out.println( "C=" + c + " angleChange " + angleChange );
+      angle += angleChange;
+    }
+
+    if ( leftDelta != 0.0 || rightDelta != 0.0 ) {
+      System.out.println("Deltas " + leftDelta +  " " + rightDelta);
+      System.out.println("X = " + x + " y = " + y + " angle = " + angle/2/3.141536*360.0 );
+    }
+
+    return;
   }
 
-  public void setAlignedDrive(boolean newAlignedDrive){
-    alignedDrive = newAlignedDrive;
+  public double getX() {
+    return x;
   }
+  public double getY() {
+    return y;
+  }
+
+  public double getAngle() {
+    return angle;
+  }
+
 }

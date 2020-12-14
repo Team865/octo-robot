@@ -8,61 +8,51 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.OctoDriveSubsystem;
+import frc.robot.commands.ForwardCommand;
+import frc.robot.commands.TurnCommand;
 
 public class AutonomousCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     
-    private OctoDriveSubsystem octoDrive;
+    private SequentialCommandGroup commandList;
 
-    int counter;
-
-    public AutonomousCommand(OctoDriveSubsystem initSubsystem) {
-        octoDrive = initSubsystem;
-        addRequirements(initSubsystem);
-        counter = 0;
+    public AutonomousCommand(OctoDriveSubsystem drive ) {
+        commandList = new SequentialCommandGroup(
+            new ForwardCommand( drive, 20.0 ),            
+            new TurnCommand   ( drive, Math.PI/2 ),
+            new ForwardCommand( drive, 20.0 ),
+            new TurnCommand   ( drive, Math.PI ),
+            new ForwardCommand( drive, 20.0 ),            
+            new TurnCommand   ( drive, 1.5 * Math.PI ),
+            new ForwardCommand( drive, 20.0 ),            
+            new TurnCommand   ( drive, 0.0 )           
+        );
     }
-
 
 
     @Override
     public void initialize() {
-        counter = 0;
+        commandList.initialize();
     }
-
-
 
     @Override
     public void execute() {
-        if(counter < 350){
-            octoDrive.setMotors(1.0, 1.0);
-        }
-        else if(counter < 200){
-            octoDrive.setMotors(-1.0, -1.0);
-        }
-        else if(counter < 250){
-            octoDrive.setMotors(0.0, 0.0);
-        }
-        else if(counter < 300){
-            octoDrive.setMotors(1.0, -1.0);
-        }
-        else{
-            octoDrive.setMotors(0.0, 0.0);
-        }
-        counter++;
+        commandList.execute();
     }
 
 
 
     @Override
     public void end(boolean interrupted) {
-        octoDrive.setMotors(0.0, 0.0);
+        commandList.end( interrupted );
     }
 
 
 
     @Override
     public boolean isFinished() {
-      return (false);
+        return commandList.isFinished();
     }
 }
