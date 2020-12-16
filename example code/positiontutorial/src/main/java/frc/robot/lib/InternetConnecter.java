@@ -100,7 +100,7 @@ public class InternetConnecter{
     */
     public void periodic(){
         if(isConnected && outpipe.length() != 0){
-            System.out.print(outpipe);
+            //System.out.print(outpipe);
             writer.print(outpipe);
             writer.flush();
             outpipe = "";

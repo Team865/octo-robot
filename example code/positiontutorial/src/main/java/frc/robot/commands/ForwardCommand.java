@@ -41,7 +41,12 @@ public class ForwardCommand extends CommandBase {
         //    difference -= 360;
         //}
 
-        drive.setMotors(1.0, 1.0);
+        if ( count < 60 ) {
+            drive.setMotors(1.0, 1.0);
+        }
+        else {
+            drive.setMotors(0.0, 0.0);
+        }
 
         ++count;
     }
@@ -53,7 +58,7 @@ public class ForwardCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        if ( count > 60 ) {
+        if ( count > 90 ) {
             return true;
         }
         return (false);
