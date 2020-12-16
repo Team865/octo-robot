@@ -20,10 +20,10 @@ public class TurnCommand extends CommandBase {
     // Computes angle x - y;
     //
     int subtractDegrees( int x, int y ) {
-        x %= 360;                               // Fix range from 0 - 359
-        y %= 360;                               // Fix range from 0 - 359
+        x = ( x + 360*100) % 360;               // Fix range from 0 - 359
+        y = ( y + 360*100) % 360;               // Fix range from 0 - 359
         int diff = x - y;                       // Take the difference
-        diff = ( diff + 360 ) % 360;            // Difference range 0 - 359
+        diff = ( diff + 360*100 ) % 360;            // Difference range 0 - 359
         diff = diff < 180 ? diff : diff - 360;  // If difference is above 180, negate it
         return diff;
     }
@@ -45,21 +45,25 @@ public class TurnCommand extends CommandBase {
         //
         final int currentIntAngle = toDegrees( drive.getAngle() );
         final int diff = subtractDegrees( targetIntAngle, currentIntAngle );
-        final double diffMag = Math.min(1.0, Math.abs(((double) diff) / 200.0));
+        final double diffMag = Math.max(.7, Math.min(1.0, Math.abs(((double) diff) / 50.0)));
+
+        //System.out.println( "Angle " + currentIntAngle + " " + drive.getAngle() );
+
+        // If we're close, exit the command
+        //
+        if ( Math.abs( diff ) < 10 ) {
+            atCorrectAngle = true;
+            drive.setMotors( 0, 0 );
+            return;
+        }
 
         // Set the motors
         //
         if ( diff < 0 ) {
-            drive.setMotors( diffMag, -diffMag );
+            drive.setMotors( diffMag, diffMag/2 );
         }
         else {
-            drive.setMotors( -diffMag, diffMag );
-        }
-
-        // If we're close, exit the command
-        //
-        if ( Math.abs( diff ) < 5 ) {
-            atCorrectAngle = true;
+            drive.setMotors( diffMag/2, diffMag );
         }
     }
 

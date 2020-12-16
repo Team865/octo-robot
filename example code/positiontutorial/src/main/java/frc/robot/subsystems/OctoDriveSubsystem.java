@@ -102,8 +102,116 @@ public class OctoDriveSubsystem extends SubsystemBase {
     {
       rightSpeed = adjustedRightSpeed;
       leftSpeed = adjustedLeftSpeed;
-      System.out.println("New Speed " + leftSpeed + "," + rightSpeed); 
+      //System.out.println("New Speed " + leftSpeed + "," + rightSpeed); 
     }
+  }
+
+  static double computeAngleChange( double leftDelta, double rightDelta ) 
+  {
+    // 17 cm gap between left and right, approx
+    // 8.5cm radius from the center
+    //
+    // Let centerToWheel = 8.5cm
+    // let wheelGap = 17cm
+    //
+    // Basics:  If the wheel speed isn't equal the robot goes in a circle.  Define:
+    //
+    // leftRadius = the left wheel's circle radius
+    // rightRadius = the right whee's circle radius
+    // 
+    // leftCircumfrance = leftRadius * 2 * Pi
+    // rightCircumfrance = rightRadius * 2 * Pi
+    //
+    // leftCircumfrance / LeftSpeedMag = rightCircumfrance / rightSpeedMag
+    // leftRadius * 2 * Pi / leftSpeedMag = rightRadius * 2 * Pi / rightSpeedMag
+    // leftRadius / leftSpeedMag = rightRadius / rightSpeedMag
+    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag    
+    //
+    // =============================================================
+    //
+    // Suppose the Right Wheel moves faster than the Left wheel
+    // The robot turns in a center centered to the left of the left wheel
+    // 
+    // rightRadius = leftRadius + wheelGap (we pivot to the left of the left wheel)
+    //
+    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag       
+    // leftRadius * rightSpeedMag = ( leftRadius + wheelGap ) * leftSpeedMag
+    // leftRadius * rightSpeedMag = leftRadius * leftSpeedMag + wheelGap * leftSpeedMag
+    // leftRadius * ( rightSpeedMag - LeftSpeedMag ) = wheelGap * leftSpeedMag
+    // leftRadius = wheelGap * leftSpeedMag / (rightSpeedMag - LeftSpeedMag )
+    // 
+    // Suppose the Left Wheel moves faster than the Right wheel
+    // The robot turns in a center centered to the right of the right wheel
+    // 
+    // rightRadius = leftRadius - wheelGap (we pivot to the right of the right wheel
+    // 
+    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag        
+    // leftRadius * rightSpeedMag = ( leftRadius - wheelGap ) * leftSpeedMag
+    // leftRadius * rightSpeedMag = leftRadius * leftSpeedMag - wheelGap * leftSpeedMag
+    // leftRadius * ( rightSpeedMag - LeftSpeedMag ) = -wheelGap * leftSpeedMag
+    // leftRadius = -wheelGap * leftSpeedMag / (rightSpeedMag - LeftSpeedMag ) 
+    //
+    // Suppose the left and right wheels move in opposite directions
+    //
+    // rightRadius = wheelGap - leftRadius
+    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag        
+    // leftRadius * rightSpeedMag = ( wheelGap - leftRadus ) * leftSpeedMag
+    // leftRadius * rightSpeedMag = - leftRadius * leftSpeedMag + wheelGap * leftSpeedMag
+    // leftRadius * ( rightSpeedMag + LeftSpeedMag ) = wheelGap * leftSpeedMag
+    // leftRadius = wheelGap * leftSpeedMag / (rightSpeedMag + LeftSpeedMag ) 
+    //
+    // Suppose the left and right wheels move at the same speed...  We're going straight
+    //
+    // Computing angle (radians) change from radius and wheel distance traveled
+    // 
+    // circumfrance = radius * 2 * Pi
+    // angle = ( wheelDistanceTraveled / circumfrance ) * M_PI * 2
+    //       = wheelDistanceTraveled / (radius * M_PI * 2 ) * M_PI * 2
+    //       = wheelDistanceTraveled / radius
+
+    double angleDelta; // change in angle
+
+    final double leftSpeedMag = Math.abs( leftDelta );
+    final double rightSpeedMag = Math.abs( rightDelta );
+
+    if ( leftDelta == rightDelta ) {
+      angleDelta = 0;
+    }
+    else {
+      double leftRadius;
+      double rightRadius;
+
+      final boolean leftDeltaPos = leftDelta >= 0;
+      final boolean rightDeltaPos = rightDelta >= 0;
+
+      final double wheelGap = 17.0;
+
+      if ( leftDeltaPos != rightDeltaPos ) { // sign mismatch
+        leftRadius = wheelGap * leftSpeedMag / ( rightSpeedMag + leftSpeedMag );
+        rightRadius = wheelGap - leftRadius;
+      }
+      else if ( leftSpeedMag > rightSpeedMag ) {
+        leftRadius = -wheelGap * leftSpeedMag / (rightSpeedMag - leftSpeedMag );
+        rightRadius = leftRadius - wheelGap;
+      }
+      else {
+        leftRadius =  wheelGap * leftSpeedMag / (rightSpeedMag - leftSpeedMag );
+        rightRadius = leftRadius + wheelGap;
+      }
+      double radiusForAngleDelta;
+      double speedMagForAngleDelta;
+      if ( leftRadius > rightRadius ) {
+        radiusForAngleDelta = leftRadius;
+        speedMagForAngleDelta = leftSpeedMag;
+      }
+      else {
+        radiusForAngleDelta = rightRadius;
+        speedMagForAngleDelta = rightSpeedMag;
+      }
+      angleDelta = speedMagForAngleDelta / radiusForAngleDelta;
+      //System.out.println("radius: " + radiusForAngleDelta + " speed: " + speedMagForAngleDelta + " angle delta: " + angleDelta );    
+    }
+    return angleDelta;
   }
 
   public void doAlignedDrive(){
@@ -128,54 +236,24 @@ public class OctoDriveSubsystem extends SubsystemBase {
       return;
     }
 
-    // 17 cm gap between left and right, approx
-    // 8.5cm radius from the center
-    //
-    // Let C be the center that the robot is pivoting around
-    //
-    // leftDelta * ( c - 8.5 ) = rightDelta * ( c + 8.5 )
-    // leftDelta * c + leftdelta * 8.5 = rightDelta * c - rightDelta * 8.5
-    // (leftDelta - rightDelta ) * c = -rightDelta * 8.5 - leftDelta * 8.5
-    // c = ( rightDelta * 8.5 + leftDelta * 8.5 ) / ( leftDelta - rightDelta )
+    final double leftSpeedMag = Math.abs( leftDelta );
+    final double rightSpeedMag = Math.abs( rightDelta );
 
-    if ( leftDelta == rightDelta ) {
-      x += Math.cos( angle ) * leftDelta;
-      y += Math.sin( angle ) * leftDelta;
-    }
-    else
-    {
-      double centerToWheel = 8.5;
-      double c =   ( rightDelta * centerToWheel + leftDelta * centerToWheel ) /
-                   ( leftDelta - rightDelta );
-      // assume we move forward the average of the two wheels
-      double forward = ( leftDelta + rightDelta ) / 2.0;
-
-      System.out.println("MDeltas " + leftDelta +  " " + rightDelta + " c= " + c);
-
-      double wheelPos;
-      double wheelDistance;
-
-      if ( Math.abs( leftDelta ) > Math.abs( rightDelta )) {
-        wheelDistance = leftDelta;
-        wheelPos = - centerToWheel;       
-      }                  
-      else {
-        wheelDistance = rightDelta;
-        wheelPos = centerToWheel;
-      }
-      x += Math.cos( angle ) * forward;
-      y += Math.sin( angle ) * forward;
-
-      double angleChange = wheelDistance / ( wheelPos - c );
-
-      System.out.println( "C=" + c + " angleChange " + angleChange );
-      angle += angleChange;
+    if ( leftSpeedMag < .01 && rightSpeedMag < .01 ) {
+      return;
     }
 
-    if ( leftDelta != 0.0 || rightDelta != 0.0 ) {
-      System.out.println("Deltas " + leftDelta +  " " + rightDelta);
-      System.out.println("X = " + x + " y = " + y + " angle = " + angle/2/3.141536*360.0 );
-    }
+    double angleDelta = computeAngleChange( leftDelta, rightDelta );
+ 
+    final double angleForPosCalc = angle + angleDelta / 2.0;
+    // assume we move forward the average of the two wheels
+    final double forward = ( leftDelta + rightDelta ) / 2.0;
+
+    x += Math.cos( angleForPosCalc ) * forward;
+    y += Math.sin( angleForPosCalc ) * forward;
+    
+    angle += angleDelta;
+    //System.out.println( "lEncoder: " + leftDelta + " rEncoder: " + rightDelta + " x: " + x + " y: " + y + " angle: " + (((int) (angle * 180.0 / Math.PI)) + 360*100 ) % 360 + " rangle: " + (((int) (angle * 180.0 / Math.PI))) );
 
     return;
   }
