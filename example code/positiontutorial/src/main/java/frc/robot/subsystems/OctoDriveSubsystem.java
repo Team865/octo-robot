@@ -184,19 +184,23 @@ public class OctoDriveSubsystem extends SubsystemBase {
       final boolean leftDeltaPos = leftDelta >= 0;
       final boolean rightDeltaPos = rightDelta >= 0;
 
-      final double wheelGap = 17.0;
+      final double wheelGap = 16.5;
+      float turnDirection;  // 1 = counterclockwise, -1 = clockwise
 
       if ( leftDeltaPos != rightDeltaPos ) { // sign mismatch
         leftRadius = wheelGap * leftSpeedMag / ( rightSpeedMag + leftSpeedMag );
         rightRadius = wheelGap - leftRadius;
+        turnDirection = leftDeltaPos ? -1 : 1;
       }
       else if ( leftSpeedMag > rightSpeedMag ) {
         leftRadius = -wheelGap * leftSpeedMag / (rightSpeedMag - leftSpeedMag );
         rightRadius = leftRadius - wheelGap;
+        turnDirection = -1;
       }
       else {
         leftRadius =  wheelGap * leftSpeedMag / (rightSpeedMag - leftSpeedMag );
         rightRadius = leftRadius + wheelGap;
+        turnDirection = 1;        
       }
       double radiusForAngleDelta;
       double speedMagForAngleDelta;
@@ -208,7 +212,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
         radiusForAngleDelta = rightRadius;
         speedMagForAngleDelta = rightSpeedMag;
       }
-      angleDelta = speedMagForAngleDelta / radiusForAngleDelta;
+      angleDelta = turnDirection * speedMagForAngleDelta / radiusForAngleDelta;
       //System.out.println("radius: " + radiusForAngleDelta + " speed: " + speedMagForAngleDelta + " angle delta: " + angleDelta );    
     }
     return angleDelta;
@@ -253,8 +257,8 @@ public class OctoDriveSubsystem extends SubsystemBase {
     y += Math.sin( angleForPosCalc ) * forward;
     
     angle += angleDelta;
-    //System.out.println( "lEncoder: " + leftDelta + " rEncoder: " + rightDelta + " x: " + x + " y: " + y + " angle: " + (((int) (angle * 180.0 / Math.PI)) + 360*100 ) % 360 + " rangle: " + (((int) (angle * 180.0 / Math.PI))) );
-
+    //System.out.println( "lEncoder: " + leftDelta + " rEncoder: " + rightDelta + " angle: " + (((int) (angle * 180.0 / Math.PI)) + 360*100 ) % 360 + " adelta " + angleDelta );
+    //System.out.println( "     " + "x= " + x + " y= " + y); 
     return;
   }
 

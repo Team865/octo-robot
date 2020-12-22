@@ -18,16 +18,22 @@ public class AutonomousCommand extends CommandBase {
     
     private SequentialCommandGroup commandList;
 
+    static double toRadians( double degrees ) {
+        return degrees / 180 * Math.PI;
+    }
+
     public AutonomousCommand(OctoDriveSubsystem drive ) {
         commandList = new SequentialCommandGroup(
-            new ForwardCommand( drive, 20.0 ),            
-            new TurnCommand   ( drive, Math.PI/2 ),
-            new ForwardCommand( drive, 20.0 ),
-            new TurnCommand   ( drive, Math.PI ),
-            new ForwardCommand( drive, 20.0 ),            
-            new TurnCommand   ( drive, 1.5 * Math.PI ),
-            new ForwardCommand( drive, 20.0 ),            
-            new TurnCommand   ( drive, 0.0 )           
+            // Forward 1 meter
+            new ForwardCommand( drive, 100.0, 0.0 ),
+            // Left turn, stop short of 90 degrees because we drift a bit
+            new TurnCommand   ( drive, toRadians(75.0) ), 
+            // Forward about 50cm
+            new ForwardCommand( drive, 100.0, 50.0 ),  
+            // Turn around.  Again, stop a bit short of the target angle          
+            new TurnCommand   ( drive, toRadians( 190 ) ),      
+            // Back to the start.         
+            new ForwardCommand( drive, 0.0, 0.0 )  
         );
     }
 
