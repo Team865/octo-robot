@@ -36,6 +36,7 @@ public class TurnCommand extends CommandBase {
     @Override
     public void initialize() {
         atCorrectAngle = false;
+        System.out.println("==== START TURN =====");        
     }
 
     @Override
@@ -44,26 +45,28 @@ public class TurnCommand extends CommandBase {
         // Compute a target turn rate
         //
         final int currentIntAngle = toDegrees( drive.getAngle() );
-        final int diff = subtractDegrees( targetIntAngle, currentIntAngle );
-        final double diffMag = Math.max(.7, Math.min(1.0, Math.abs(((double) diff) / 50.0)));
+        final int angleDiff = subtractDegrees( targetIntAngle, currentIntAngle );
+        final double motorPower = Math.max(.5, Math.min(1.0, Math.abs(((double) angleDiff) / 100.0)));
 
         //System.out.println( "Angle " + currentIntAngle + " " + drive.getAngle() );
 
-        // If we're close, exit the command
         //
-        if ( Math.abs( diff ) < 10 ) {
+        // If we're close, exit the command.  TODO: I'm being pretty liberal about close
+        // (45 degrees) because there's a lot of drift.
+        //
+        if ( Math.abs( angleDiff ) < 45 ) {
             atCorrectAngle = true;
             drive.setMotors( 0, 0 );
             return;
         }
 
-        // Set the motors
+        // Set the motors for a tight turn.  This seems to be the most accurate
         //
-        if ( diff < 0 ) {
-            drive.setMotors( diffMag, diffMag/2 );
+        if ( angleDiff < 0 ) {
+            drive.setMotors( motorPower, -motorPower );
         }
         else {
-            drive.setMotors( diffMag/2, diffMag );
+            drive.setMotors( -motorPower, motorPower );
         }
     }
 
