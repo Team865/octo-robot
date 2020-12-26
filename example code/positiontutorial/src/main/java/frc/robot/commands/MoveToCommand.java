@@ -3,7 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OctoDriveSubsystem;
 
-public class ForwardCommand extends CommandBase {
+public class MoveToCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     
     private OctoDriveSubsystem drive;
@@ -11,7 +11,7 @@ public class ForwardCommand extends CommandBase {
     private double yTarget;
     boolean isFinishedFlag = false;
 
-    public ForwardCommand(OctoDriveSubsystem driveArg, double xTargetArg, double yTargetArg) {
+    public MoveToCommand(OctoDriveSubsystem driveArg, double xTargetArg, double yTargetArg) {
         drive = driveArg;
         xTarget = xTargetArg;
         yTarget = yTargetArg;
@@ -19,7 +19,7 @@ public class ForwardCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        System.out.println("==== START FORWARD =====");
+        System.out.println("==== START MOVE TO =====");
     }
 
     // Converts an angle from radians to degrees.
@@ -48,7 +48,7 @@ public class ForwardCommand extends CommandBase {
     public void execute() {
         final double deltaX = xTarget - drive.getX();
         final double deltaY = yTarget - drive.getY();
-        final double currentAngle = drive.getAngle();
+        final double currentAngle = drive.getTheta();
         final double distanceLeft = Math.sqrt( deltaX * deltaX + deltaY * deltaY );
 
         final double targetAngle = Math.atan2( deltaY, deltaX );

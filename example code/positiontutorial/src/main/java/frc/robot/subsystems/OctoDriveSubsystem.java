@@ -13,6 +13,33 @@ import frc.robot.lib.OctoEncoder;
 import frc.robot.lib.OctoSpeedController;
 
 public class OctoDriveSubsystem extends SubsystemBase {
+
+  /**
+   * Captures the concept of a left & right encoder pair
+   */
+  class EncoderPair {
+    EncoderPair( double leftArg, double rightArg )
+    {
+      left = leftArg;
+      right = rightArg;
+    }
+    EncoderPair sub( EncoderPair rhs ) {
+      return new EncoderPair( left - rhs.left, right - rhs.right );
+    }
+
+    double mag() {
+      return Math.sqrt( left*left + right*right );
+    }
+
+    public String toString()
+    {
+      return "EncoderP{ " + left + " , " + right + " }";
+    }
+
+    public double left;
+    public double right;
+  };
+
   private double rightSpeed;
   private double leftSpeed;
 
@@ -24,16 +51,11 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
   private DifferentialDrive drive;
 
-  //private boolean alignedDrive;
-
   private double x = 0.0;
   private double y = 0.0;
-  private double angle = 0.0;
+  private double theta = 0.0;
 
-  private double lastLeftEncoder = 0;
-  private double lastRightEncoder = 0;
-
-  private boolean lastInitted = false;
+  EncoderPair lastEncoderPos = null;
 
   /*
   OctoDriveSubsystem controls the movement of the wheels, it uses a WPIlib DifferentialDrive object. 
@@ -69,14 +91,24 @@ public class OctoDriveSubsystem extends SubsystemBase {
     leftEncoder.periodic();
 
 
-      doAlignedDrive();
+      doOdometryUpdate();
     
 
     drive.tankDrive(leftSpeed, rightSpeed);
 
   }
 
-  /*
+  /**
+   * Changes the speed that the motors are going at.
+   * <p>
+   * Valid values for motor speeds are -1.0 to 1.0, with -1.0 representing
+   * "full reverse" and 1.0 representing "full foirward".  A best effort is made
+   * to map the desired speed into an actual speed on the robot (i.e., .5 should
+   * have the robot go forward at about half the speed of 1.0).
+   * 
+   * @param newRightSpeed   The new speed of the right motor.
+   * @param newLeftspeed    The new speed of the left mmotor
+   * 
   setMotors is called by commands and changes the speed that the motors are going at.
   These speeds will be sent to the DifferentialDrive next periodic command.
   */
@@ -106,7 +138,38 @@ public class OctoDriveSubsystem extends SubsystemBase {
     }
   }
 
-  static double computeAngleChange( double leftDelta, double rightDelta ) 
+  /**
+   * Gets the current encoder position.
+   * 
+   * @return  An encoder pair that contains the total distance traveled by the left 
+   *          and right encoders since robot start time
+   */
+  EncoderPair getEncoderPos()
+  {
+    double left = -leftEncoder.getDistance();
+    double right = rightEncoder.getDistance();
+    return new EncoderPair( left, right );
+  }
+
+  /**
+   * Get the Delta (change) between the current encoder position & the last encoder position
+   * 
+   * Side effects:  Update's the class's last encoder position (lastPos)
+   * 
+   * @return An encoder pair that represents the delta between the left & right encoder positions
+   */
+  EncoderPair getDEncoder()
+  {
+    EncoderPair currentEncoderPos = getEncoderPos();
+    if ( lastEncoderPos == null ) {
+      lastEncoderPos = currentEncoderPos;
+    }
+    EncoderPair result = currentEncoderPos.sub( lastEncoderPos );
+    lastEncoderPos = currentEncoderPos;
+    return result;
+  }
+
+  static double computePhi( double dLeft, double dRight ) 
   {
     // 17 cm gap between left and right, approx
     // 8.5cm radius from the center
@@ -169,20 +232,21 @@ public class OctoDriveSubsystem extends SubsystemBase {
     //       = wheelDistanceTraveled / (radius * M_PI * 2 ) * M_PI * 2
     //       = wheelDistanceTraveled / radius
 
-    double angleDelta; // change in angle
+    double phi; // change in angle
 
-    final double leftSpeedMag = Math.abs( leftDelta );
-    final double rightSpeedMag = Math.abs( rightDelta );
+    final double leftSpeedMag = Math.abs( dLeft );
+    final double rightSpeedMag = Math.abs( dRight );
 
-    if ( leftDelta == rightDelta ) {
-      angleDelta = 0;
+    if ( dLeft == dRight ) {
+      // Left and Right wheel are the same.  Forward.
+      phi = 0;
     }
     else {
       double leftRadius;
       double rightRadius;
 
-      final boolean leftDeltaPos = leftDelta >= 0;
-      final boolean rightDeltaPos = rightDelta >= 0;
+      final boolean leftDeltaPos = dLeft >= 0;
+      final boolean rightDeltaPos = dRight >= 0;
 
       final double wheelGap = 16.5;
       float turnDirection;  // 1 = counterclockwise, -1 = clockwise
@@ -212,53 +276,41 @@ public class OctoDriveSubsystem extends SubsystemBase {
         radiusForAngleDelta = rightRadius;
         speedMagForAngleDelta = rightSpeedMag;
       }
-      angleDelta = turnDirection * speedMagForAngleDelta / radiusForAngleDelta;
+      phi = turnDirection * speedMagForAngleDelta / radiusForAngleDelta;
       //System.out.println("radius: " + radiusForAngleDelta + " speed: " + speedMagForAngleDelta + " angle delta: " + angleDelta );    
     }
-    return angleDelta;
+    return phi;
   }
 
-  public void doAlignedDrive(){
+  /**
+   * Use left and right encoder data to estimate the robot's odometry
+   * 
+   * See https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-186-mobile-autonomous-systems-laboratory-january-iap-2005/study-materials/odomtutorial.pdf
+   * for details about the math.
+   */
+  public void doOdometryUpdate(){
 
-    double leftDistance = leftEncoder.getDistance();
-    double rightDistance = rightEncoder.getDistance();
+    EncoderPair d = getDEncoder();
 
-    if ( !lastInitted ) {
-      lastLeftEncoder = leftDistance;
-      lastRightEncoder = rightDistance;
-      lastInitted = true;
-    }
+    //
+    // Because we're not directly connected to the robot, there can be a
+    // delay at start up between when the Java code comes up and when the
+    // robot sends its first encoder update.  Quietly ignore any encoder
+    // deltas that are ridiculously large.  TODO - should probably lock 
+    // this down better.
+    //
+    if ( d.mag() > 10.0 ) { return; }
+    if ( d.mag() < .01 ) { return; }
 
-    double leftDelta = -(leftDistance - lastLeftEncoder);
-    double rightDelta = rightDistance - lastRightEncoder;
-
-    lastLeftEncoder = leftDistance;
-    lastRightEncoder = rightDistance;
-
-    if ( Math.abs( leftDelta ) > 10.0 || Math.abs( rightDelta ) > 10.0 )
-    {
-      return;
-    }
-
-    final double leftSpeedMag = Math.abs( leftDelta );
-    final double rightSpeedMag = Math.abs( rightDelta );
-
-    if ( leftSpeedMag < .01 && rightSpeedMag < .01 ) {
-      return;
-    }
-
-    double angleDelta = computeAngleChange( leftDelta, rightDelta );
+    double phi = computePhi( d.left, d.right );
  
-    final double angleForPosCalc = angle + angleDelta / 2.0;
-    // assume we move forward the average of the two wheels
-    final double forward = ( leftDelta + rightDelta ) / 2.0;
+    final double thetaForPosCalc = theta + phi / 2.0;
+    final double dCenter = ( d.left + d.right ) / 2.0;
 
-    x += Math.cos( angleForPosCalc ) * forward;
-    y += Math.sin( angleForPosCalc ) * forward;
-    
-    angle += angleDelta;
-    //System.out.println( "lEncoder: " + leftDelta + " rEncoder: " + rightDelta + " angle: " + (((int) (angle * 180.0 / Math.PI)) + 360*100 ) % 360 + " adelta " + angleDelta );
-    //System.out.println( "     " + "x= " + x + " y= " + y); 
+    x += Math.cos( thetaForPosCalc ) * dCenter;
+    y += Math.sin( thetaForPosCalc ) * dCenter;
+    theta += phi;
+
     return;
   }
 
@@ -269,8 +321,8 @@ public class OctoDriveSubsystem extends SubsystemBase {
     return y;
   }
 
-  public double getAngle() {
-    return angle;
+  public double getTheta() {
+    return theta;
   }
 
 }
