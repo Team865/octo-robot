@@ -53,7 +53,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
   private DifferentialDrive drive;
 
   private Translation2d position = new Translation2d();
-  private double theta = 0.0;
+  private Rotation2d rotation = new Rotation2d();
 
   EncoderPair lastEncoderPos = null;
 
@@ -296,14 +296,12 @@ public class OctoDriveSubsystem extends SubsystemBase {
     if ( d.mag() < .01 ) { return; }
 
     final double phi = computePhi( d.left, d.right );
- 
-    final double thetaForPosCalc = theta + phi / 2.0;
     final double dCenter = ( d.left + d.right ) / 2.0;
 
-    final Rotation2d dRotation = new Rotation2d( thetaForPosCalc );
-    final Translation2d dPosition = new Translation2d( dCenter, 0.0 ).rotateBy( dRotation );
+    final Rotation2d dRotation = new Rotation2d( phi );
+    final Translation2d dPosition = new Translation2d( dCenter, 0.0 ).rotateBy( rotation );
     position = position.plus( dPosition );
-    theta += phi;
+    rotation = rotation.plus( dRotation );
 
     return;
   }
@@ -319,8 +317,8 @@ public class OctoDriveSubsystem extends SubsystemBase {
     return new Translation2d( position.getX(), position.getY() );
   }
 
-  public double getTheta() {
-    return theta;
+  public Rotation2d getRotation() {
+    return new Rotation2d( rotation.getRadians() );
   }
 
 }

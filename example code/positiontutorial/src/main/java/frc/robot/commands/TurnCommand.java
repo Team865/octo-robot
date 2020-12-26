@@ -44,7 +44,7 @@ public class TurnCommand extends CommandBase {
 
         // Compute a target turn rate
         //
-        final int currentIntAngle = toDegrees( drive.getTheta() );
+        final int currentIntAngle = toDegrees( drive.getRotation().getRadians() );
         final int angleDiff = subtractDegrees( targetIntAngle, currentIntAngle );
         final double motorPower = Math.max(.5, Math.min(1.0, Math.abs(((double) angleDiff) / 100.0)));
 

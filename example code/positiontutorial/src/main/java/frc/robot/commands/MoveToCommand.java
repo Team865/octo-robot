@@ -49,12 +49,11 @@ public class MoveToCommand extends CommandBase {
         final Translation2d pos = drive.getPosition();
         final Translation2d dTarget = target.minus( pos );
         final double distanceLeft = dTarget.getNorm();       
-        final double currentAngle = drive.getTheta();
-
-        final double targetAngle = Math.atan2( dTarget.getY(), dTarget.getX() );
+        final Rotation2d currentRotation = drive.getRotation();
+        final Rotation2d targetRotation = new Rotation2d( dTarget.getX(), dTarget.getY() );
         
-        final int currentIntAngle = toDegrees( currentAngle );
-        final int targetIntAngle = toDegrees( targetAngle );
+        final int currentIntAngle = toDegrees( currentRotation.getRadians() );
+        final int targetIntAngle = toDegrees( targetRotation.getRadians() );
         
         final int angleDiff = subtractDegrees( targetIntAngle, currentIntAngle );        
 
