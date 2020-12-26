@@ -11,10 +11,38 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.OctoEncoder;
 import frc.robot.lib.OctoSpeedController;
+import edu.wpi.first.wpilibj.geometry.*;
 
 public class OctoDriveSubsystem extends SubsystemBase {
-  private double rightSpeed;
-  private double leftSpeed;
+
+  /**
+   * Captures the concept of a left & right encoder pair
+   */
+  class EncoderPair {
+    EncoderPair( double leftArg, double rightArg )
+    {
+      left = leftArg;
+      right = rightArg;
+    }
+    EncoderPair sub( EncoderPair rhs ) {
+      return new EncoderPair( left - rhs.left, right - rhs.right );
+    }
+
+    double mag() {
+      return Math.sqrt( left*left + right*right );
+    }
+
+    public String toString()
+    {
+      return "EncoderP{ " + left + " , " + right + " }";
+    }
+
+    public double left;
+    public double right;
+  };
+
+  private double rightPower;
+  private double leftPower;
 
   private OctoSpeedController rightController;
   private OctoSpeedController leftController;
@@ -24,16 +52,10 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
   private DifferentialDrive drive;
 
-  //private boolean alignedDrive;
+  private Translation2d position = new Translation2d();
+  private Rotation2d rotation = new Rotation2d();
 
-  private double x = 0.0;
-  private double y = 0.0;
-  private double angle = 0.0;
-
-  private double lastLeftEncoder = 0;
-  private double lastRightEncoder = 0;
-
-  private boolean lastInitted = false;
+  EncoderPair lastEncoderPos = null;
 
   /*
   OctoDriveSubsystem controls the movement of the wheels, it uses a WPIlib DifferentialDrive object. 
@@ -45,9 +67,6 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
     rightEncoder = new OctoEncoder("ENR");
     leftEncoder = new OctoEncoder("ENL");
-
-    rightSpeed = 0.0;
-    leftSpeed = 0.0;
 
     drive = new DifferentialDrive(rightController, leftController);
 
@@ -67,210 +86,124 @@ public class OctoDriveSubsystem extends SubsystemBase {
   public void periodic() {
     rightEncoder.periodic();
     leftEncoder.periodic();
-
-
-      doAlignedDrive();
-    
-
-    drive.tankDrive(leftSpeed, rightSpeed);
-
+    doOdometryUpdate();
+  
+    drive.tankDrive(leftPower, rightPower);
   }
 
-  /*
-  setMotors is called by commands and changes the speed that the motors are going at.
-  These speeds will be sent to the DifferentialDrive next periodic command.
-  */
-  public void setMotors(double newRightSpeed, double newLeftSpeed){
-    // Adjusting by ~50% and adding .5 gets us a sort of linear
-    // input speed to actual speed curve.
-    double adjustedRightSpeed = 0;
-    if ( newRightSpeed > 0 ) {
-      adjustedRightSpeed = newRightSpeed * .5 + .5;
-    }
-    if ( newRightSpeed < 0 ) {
-      adjustedRightSpeed = newRightSpeed * .5 - .5;
-    }
-    double adjustedLeftSpeed = 0;
-    if ( newLeftSpeed > 0 ) {
-      adjustedLeftSpeed = newLeftSpeed * .5 + .5;
-    }
-    if ( newLeftSpeed < 0 ) {
-      adjustedLeftSpeed = newLeftSpeed * .5 - .5;
-    }
-
-    if ( rightSpeed != adjustedRightSpeed || leftSpeed != adjustedLeftSpeed )
-    {
-      rightSpeed = adjustedRightSpeed;
-      leftSpeed = adjustedLeftSpeed;
-      //System.out.println("New Speed " + leftSpeed + "," + rightSpeed); 
-    }
-  }
-
-  static double computeAngleChange( double leftDelta, double rightDelta ) 
+  /**
+   * Quick and dirty map from a desired speed to a power setting
+   * 
+   * @param speed  The desired speed from -1 to 1.  -1 = full reverse, 1 = full forward
+   * @return  The power setting that'll be sent to the motors
+   */
+  private static double speedToPower( double speed )
   {
-    // 17 cm gap between left and right, approx
-    // 8.5cm radius from the center
+    // The desired speed has a mangitude from 0 to 1.  After experimentation,
+    // the motors start moving at power = .5 and, of course, reach full at 1.0.
     //
-    // Let centerToWheel = 8.5cm
-    // let wheelGap = 17cm
+    // Well scale the desired speed mangitude of 0.0 to 1.0 to a power mangitude of
+    // 0.5 to 1.0.
     //
-    // Basics:  If the wheel speed isn't equal the robot goes in a circle.  Define:
-    //
-    // leftRadius = the left wheel's circle radius
-    // rightRadius = the right whee's circle radius
-    // 
-    // leftCircumfrance = leftRadius * 2 * Pi
-    // rightCircumfrance = rightRadius * 2 * Pi
-    //
-    // leftCircumfrance / LeftSpeedMag = rightCircumfrance / rightSpeedMag
-    // leftRadius * 2 * Pi / leftSpeedMag = rightRadius * 2 * Pi / rightSpeedMag
-    // leftRadius / leftSpeedMag = rightRadius / rightSpeedMag
-    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag    
-    //
-    // =============================================================
-    //
-    // Suppose the Right Wheel moves faster than the Left wheel
-    // The robot turns in a center centered to the left of the left wheel
-    // 
-    // rightRadius = leftRadius + wheelGap (we pivot to the left of the left wheel)
-    //
-    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag       
-    // leftRadius * rightSpeedMag = ( leftRadius + wheelGap ) * leftSpeedMag
-    // leftRadius * rightSpeedMag = leftRadius * leftSpeedMag + wheelGap * leftSpeedMag
-    // leftRadius * ( rightSpeedMag - LeftSpeedMag ) = wheelGap * leftSpeedMag
-    // leftRadius = wheelGap * leftSpeedMag / (rightSpeedMag - LeftSpeedMag )
-    // 
-    // Suppose the Left Wheel moves faster than the Right wheel
-    // The robot turns in a center centered to the right of the right wheel
-    // 
-    // rightRadius = leftRadius - wheelGap (we pivot to the right of the right wheel
-    // 
-    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag        
-    // leftRadius * rightSpeedMag = ( leftRadius - wheelGap ) * leftSpeedMag
-    // leftRadius * rightSpeedMag = leftRadius * leftSpeedMag - wheelGap * leftSpeedMag
-    // leftRadius * ( rightSpeedMag - LeftSpeedMag ) = -wheelGap * leftSpeedMag
-    // leftRadius = -wheelGap * leftSpeedMag / (rightSpeedMag - LeftSpeedMag ) 
-    //
-    // Suppose the left and right wheels move in opposite directions
-    //
-    // rightRadius = wheelGap - leftRadius
-    // leftRadius * rightSpeedMag = rightRadius * leftSpeedMag        
-    // leftRadius * rightSpeedMag = ( wheelGap - leftRadus ) * leftSpeedMag
-    // leftRadius * rightSpeedMag = - leftRadius * leftSpeedMag + wheelGap * leftSpeedMag
-    // leftRadius * ( rightSpeedMag + LeftSpeedMag ) = wheelGap * leftSpeedMag
-    // leftRadius = wheelGap * leftSpeedMag / (rightSpeedMag + LeftSpeedMag ) 
-    //
-    // Suppose the left and right wheels move at the same speed...  We're going straight
-    //
-    // Computing angle (radians) change from radius and wheel distance traveled
-    // 
-    // circumfrance = radius * 2 * Pi
-    // angle = ( wheelDistanceTraveled / circumfrance ) * M_PI * 2
-    //       = wheelDistanceTraveled / (radius * M_PI * 2 ) * M_PI * 2
-    //       = wheelDistanceTraveled / radius
+    final double speedMagnitude = Math.abs( speed );
+    final boolean isStopped = speedMagnitude == 0;
+    final boolean isReversed = speed < 0;
+    
+    final double powerMagnitudeRaw = speedMagnitude * 0.5 + 0.5;
+    final double powerMangitude = isStopped ? 0 : powerMagnitudeRaw;
+    final double power = isReversed ? -powerMangitude : powerMangitude;
 
-    double angleDelta; // change in angle
-
-    final double leftSpeedMag = Math.abs( leftDelta );
-    final double rightSpeedMag = Math.abs( rightDelta );
-
-    if ( leftDelta == rightDelta ) {
-      angleDelta = 0;
-    }
-    else {
-      double leftRadius;
-      double rightRadius;
-
-      final boolean leftDeltaPos = leftDelta >= 0;
-      final boolean rightDeltaPos = rightDelta >= 0;
-
-      final double wheelGap = 16.5;
-      float turnDirection;  // 1 = counterclockwise, -1 = clockwise
-
-      if ( leftDeltaPos != rightDeltaPos ) { // sign mismatch
-        leftRadius = wheelGap * leftSpeedMag / ( rightSpeedMag + leftSpeedMag );
-        rightRadius = wheelGap - leftRadius;
-        turnDirection = leftDeltaPos ? -1 : 1;
-      }
-      else if ( leftSpeedMag > rightSpeedMag ) {
-        leftRadius = -wheelGap * leftSpeedMag / (rightSpeedMag - leftSpeedMag );
-        rightRadius = leftRadius - wheelGap;
-        turnDirection = -1;
-      }
-      else {
-        leftRadius =  wheelGap * leftSpeedMag / (rightSpeedMag - leftSpeedMag );
-        rightRadius = leftRadius + wheelGap;
-        turnDirection = 1;        
-      }
-      double radiusForAngleDelta;
-      double speedMagForAngleDelta;
-      if ( leftRadius > rightRadius ) {
-        radiusForAngleDelta = leftRadius;
-        speedMagForAngleDelta = leftSpeedMag;
-      }
-      else {
-        radiusForAngleDelta = rightRadius;
-        speedMagForAngleDelta = rightSpeedMag;
-      }
-      angleDelta = turnDirection * speedMagForAngleDelta / radiusForAngleDelta;
-      //System.out.println("radius: " + radiusForAngleDelta + " speed: " + speedMagForAngleDelta + " angle delta: " + angleDelta );    
-    }
-    return angleDelta;
+    return power;
   }
 
-  public void doAlignedDrive(){
+  /**
+   * Changes the speed that the motors are going at.
+   * <p>
+   * Valid values for motor speeds are -1.0 to 1.0, with -1.0 representing
+   * "full reverse" and 1.0 representing "full foirward".  A best effort is made
+   * to map the desired speed into an actual speed on the robot (i.e., .5 should
+   * have the robot go forward at about half the speed of 1.0).
+   * 
+   * @param newRightSpeed   The new speed of the right motor.
+   * @param newLeftspeed    The new speed of the left mmotor
+   * 
+   */
+  public void setMotors(double newRightSpeed, double newLeftSpeed){
+    leftPower = speedToPower( newLeftSpeed );
+    rightPower = speedToPower( newRightSpeed );
+  }
 
-    double leftDistance = leftEncoder.getDistance();
-    double rightDistance = rightEncoder.getDistance();
+  /**
+   * Gets the current encoder position.
+   * 
+   * @return  An encoder pair that contains the total distance traveled by the left 
+   *          and right encoders since robot start time
+   */
+  EncoderPair getEncoderPos()
+  {
+    double left = -leftEncoder.getDistance();
+    double right = rightEncoder.getDistance();
+    return new EncoderPair( left, right );
+  }
 
-    if ( !lastInitted ) {
-      lastLeftEncoder = leftDistance;
-      lastRightEncoder = rightDistance;
-      lastInitted = true;
+  /**
+   * Get the Delta (change) between the current encoder position & the last encoder position
+   * 
+   * Side effects:  Update's the class's last encoder position (lastPos)
+   * 
+   * @return An encoder pair that represents the delta between the left & right encoder positions
+   */
+  EncoderPair getDEncoder()
+  {
+    EncoderPair currentEncoderPos = getEncoderPos();
+    if ( lastEncoderPos == null ) {
+      lastEncoderPos = currentEncoderPos;
     }
+    EncoderPair result = currentEncoderPos.sub( lastEncoderPos );
+    lastEncoderPos = currentEncoderPos;
+    return result;
+  }
 
-    double leftDelta = -(leftDistance - lastLeftEncoder);
-    double rightDelta = rightDistance - lastRightEncoder;
+  /**
+   * Use left and right encoder data to estimate the robot's odometry
+   */
+  public void doOdometryUpdate(){
 
-    lastLeftEncoder = leftDistance;
-    lastRightEncoder = rightDistance;
+    final EncoderPair d = getDEncoder();
 
-    if ( Math.abs( leftDelta ) > 10.0 || Math.abs( rightDelta ) > 10.0 )
-    {
-      return;
-    }
+    //
+    // Because we're not directly connected to the robot, there can be a
+    // delay at start up between when the Java code comes up and when the
+    // robot sends its first encoder update.  Quietly ignore any encoder
+    // deltas that are ridiculously large.  TODO: should probably lock 
+    // this down better.
+    //
+    if ( d.mag() > 10.0 ) { return; }
+    if ( d.mag() < .01 ) { return; }
 
-    final double leftSpeedMag = Math.abs( leftDelta );
-    final double rightSpeedMag = Math.abs( rightDelta );
+    // See https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-186-mobile-autonomous-systems-laboratory-january-iap-2005/study-materials/odomtutorial.pdf
+    // for details about the math.
 
-    if ( leftSpeedMag < .01 && rightSpeedMag < .01 ) {
-      return;
-    }
+    final double dBaseline = 16.5;   // Measured + experimental
+    final double phi = (d.right - d.left ) / dBaseline;
+    final double dCenter = ( d.left + d.right ) / 2.0;
 
-    double angleDelta = computeAngleChange( leftDelta, rightDelta );
- 
-    final double angleForPosCalc = angle + angleDelta / 2.0;
-    // assume we move forward the average of the two wheels
-    final double forward = ( leftDelta + rightDelta ) / 2.0;
+    final Rotation2d deltaRotation = new Rotation2d( phi );
+    final Translation2d deltaPosition = new Translation2d( dCenter, 0.0 ).rotateBy( rotation );
+    position = position.plus( deltaPosition );
+    rotation = rotation.plus( deltaRotation );
 
-    x += Math.cos( angleForPosCalc ) * forward;
-    y += Math.sin( angleForPosCalc ) * forward;
-    
-    angle += angleDelta;
-    //System.out.println( "lEncoder: " + leftDelta + " rEncoder: " + rightDelta + " angle: " + (((int) (angle * 180.0 / Math.PI)) + 360*100 ) % 360 + " adelta " + angleDelta );
-    //System.out.println( "     " + "x= " + x + " y= " + y); 
     return;
   }
 
-  public double getX() {
-    return x;
-  }
-  public double getY() {
-    return y;
+  public Translation2d getPosition() {
+    // "Clone" so we don't leak a reference to our internal data
+    return new Translation2d( position.getX(), position.getY() );
   }
 
-  public double getAngle() {
-    return angle;
+  public Rotation2d getRotation() {
+    // "Clone" so we don't leak a reference to our internal data    
+    return new Rotation2d( rotation.getRadians() );
   }
 
 }
