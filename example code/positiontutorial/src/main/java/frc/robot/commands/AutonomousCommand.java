@@ -36,14 +36,14 @@ public class AutonomousCommand extends CommandBase {
             // the X axis, so this is essentially a move forward
             new MoveToCommand( drive, new Translation2d( 100.0, 0.0 ) ),
             // Sharp Left turn to get us close to 90 degrees
-            new TurnCommand   ( drive, Math.toRadians(75.0) ),
+            new TurnCommand   ( drive, new Rotation2d(Math.toRadians(75.0)) ),
             // The robot should now be at <100,0>, facing close to 90 degrees.  Going
             // forward now will move the robot along the Y axis.   
             // A "Move To" <100,50> command should move the robot forward about 50cm 
             new MoveToCommand( drive, new Translation2d(100.0, 50.0 )),  
             // Another sharp turn.  This will turn the robot back toward where it started
             // (just over 180 degrees)          
-            new TurnCommand   ( drive, Math.toRadians( 190 ) ),      
+            new TurnCommand   ( drive, new Rotation2d(Math.toRadians( 190 )) ),      
             // Move back to the start.    
             new MoveToCommand( drive, new Translation2d(0.0, 0.0 ))  
         );
