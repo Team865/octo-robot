@@ -52,7 +52,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
   private DifferentialDrive drive;
 
-  private Translation2d position = new Translation2d();
+  private Translation2d translation = new Translation2d();
   private Rotation2d rotation = new Rotation2d();
 
   EncoderPair lastEncoderPos = null;
@@ -184,26 +184,23 @@ public class OctoDriveSubsystem extends SubsystemBase {
     // See https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-186-mobile-autonomous-systems-laboratory-january-iap-2005/study-materials/odomtutorial.pdf
     // for details about the math.
 
-    final double dBaseline = 16.5;   // Measured + experimental
+    final double dBaseline = 17.0;   // Measured + experimental
     final double phi = (d.right - d.left ) / dBaseline;
     final double dCenter = ( d.left + d.right ) / 2.0;
 
     final Rotation2d deltaRotation = new Rotation2d( phi );
-    final Translation2d deltaPosition = new Translation2d( dCenter, 0.0 ).rotateBy( rotation );
-    position = position.plus( deltaPosition );
+    final Translation2d deltaTranslation = new Translation2d( dCenter, 0.0 ).rotateBy( rotation );
+    translation = translation.plus( deltaTranslation );
     rotation = rotation.plus( deltaRotation );
 
     return;
   }
 
-  public Translation2d getPosition() {
+  public Pose2d getPoseMeters() {
     // "Clone" so we don't leak a reference to our internal data
-    return new Translation2d( position.getX(), position.getY() );
-  }
-
-  public Rotation2d getRotation() {
-    // "Clone" so we don't leak a reference to our internal data    
-    return new Rotation2d( rotation.getRadians() );
+    return new Pose2d( 
+      new Translation2d( translation.getX() / 100.0, translation.getY() / 100.0 ),
+      new Rotation2d( rotation.getRadians() ) );
   }
 
 }
