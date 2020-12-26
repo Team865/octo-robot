@@ -1,20 +1,20 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.geometry.*;
 import frc.robot.subsystems.OctoDriveSubsystem;
 
 public class MoveToCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     
     private OctoDriveSubsystem drive;
-    private double xTarget;
-    private double yTarget;
+    private Translation2d target;
+
     boolean isFinishedFlag = false;
 
-    public MoveToCommand(OctoDriveSubsystem driveArg, double xTargetArg, double yTargetArg) {
+    public MoveToCommand(OctoDriveSubsystem driveArg, Translation2d targetArg ) {
         drive = driveArg;
-        xTarget = xTargetArg;
-        yTarget = yTargetArg;
+        target = targetArg;
     }
 
     @Override
@@ -46,19 +46,17 @@ public class MoveToCommand extends CommandBase {
 
     @Override
     public void execute() {
-        final double deltaX = xTarget - drive.getX();
-        final double deltaY = yTarget - drive.getY();
+        final Translation2d pos = drive.getPosition();
+        final Translation2d dTarget = target.minus( pos );
+        final double distanceLeft = dTarget.getNorm();       
         final double currentAngle = drive.getTheta();
-        final double distanceLeft = Math.sqrt( deltaX * deltaX + deltaY * deltaY );
 
-        final double targetAngle = Math.atan2( deltaY, deltaX );
+        final double targetAngle = Math.atan2( dTarget.getY(), dTarget.getX() );
         
         final int currentIntAngle = toDegrees( currentAngle );
         final int targetIntAngle = toDegrees( targetAngle );
         
         final int angleDiff = subtractDegrees( targetIntAngle, currentIntAngle );        
-
-        //System.out.println( "Off target by " + diff + " distance " + distanceLeft + " last " + lastDistanceLeft );        
 
         //
         // Halt if we're close to the target

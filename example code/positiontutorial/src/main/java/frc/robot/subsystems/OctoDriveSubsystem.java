@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.OctoEncoder;
 import frc.robot.lib.OctoSpeedController;
+import edu.wpi.first.wpilibj.geometry.*;
 
 public class OctoDriveSubsystem extends SubsystemBase {
 
@@ -51,8 +52,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
   private DifferentialDrive drive;
 
-  private double x = 0.0;
-  private double y = 0.0;
+  private Translation2d position = new Translation2d();
   private double theta = 0.0;
 
   EncoderPair lastEncoderPos = null;
@@ -67,9 +67,6 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
     rightEncoder = new OctoEncoder("ENR");
     leftEncoder = new OctoEncoder("ENL");
-
-    rightSpeed = 0.0;
-    leftSpeed = 0.0;
 
     drive = new DifferentialDrive(rightController, leftController);
 
@@ -89,13 +86,9 @@ public class OctoDriveSubsystem extends SubsystemBase {
   public void periodic() {
     rightEncoder.periodic();
     leftEncoder.periodic();
-
-
-      doOdometryUpdate();
-    
-
+    doOdometryUpdate();
+  
     drive.tankDrive(leftSpeed, rightSpeed);
-
   }
 
   /**
@@ -290,35 +283,40 @@ public class OctoDriveSubsystem extends SubsystemBase {
    */
   public void doOdometryUpdate(){
 
-    EncoderPair d = getDEncoder();
+    final EncoderPair d = getDEncoder();
 
     //
     // Because we're not directly connected to the robot, there can be a
     // delay at start up between when the Java code comes up and when the
     // robot sends its first encoder update.  Quietly ignore any encoder
-    // deltas that are ridiculously large.  TODO - should probably lock 
+    // deltas that are ridiculously large.  TODO: should probably lock 
     // this down better.
     //
     if ( d.mag() > 10.0 ) { return; }
     if ( d.mag() < .01 ) { return; }
 
-    double phi = computePhi( d.left, d.right );
+    final double phi = computePhi( d.left, d.right );
  
     final double thetaForPosCalc = theta + phi / 2.0;
     final double dCenter = ( d.left + d.right ) / 2.0;
 
-    x += Math.cos( thetaForPosCalc ) * dCenter;
-    y += Math.sin( thetaForPosCalc ) * dCenter;
+    final Rotation2d dRotation = new Rotation2d( thetaForPosCalc );
+    final Translation2d dPosition = new Translation2d( dCenter, 0.0 ).rotateBy( dRotation );
+    position = position.plus( dPosition );
     theta += phi;
 
     return;
   }
 
-  public double getX() {
-    return x;
-  }
-  public double getY() {
-    return y;
+  public Translation2d getPosition() {
+    //
+    // Sigh.  "Clone" so we don't leak a reference to our live internal data,
+    // because that's ridiculously sloppy software engineering.  Other Java
+    // alternatives to this pattern include creating interfaces with public/
+    // private views using inheritenc.  In C++ you can say just "I'm giving you a
+    // reference that you can't change" & the compiler enforces the restriction.
+    //
+    return new Translation2d( position.getX(), position.getY() );
   }
 
   public double getTheta() {
