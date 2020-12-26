@@ -14,7 +14,7 @@ public class MoveToCommand extends CommandBase {
     private OctoDriveSubsystem drive;
 
     // The location in 2D space we're trying to get to.
-    private Translation2d target;
+    private Translation2d desiredTranslation;
 
     // Set to try if we've reached our target
     private boolean isFinishedFlag = false;
@@ -32,7 +32,7 @@ public class MoveToCommand extends CommandBase {
      */
     public MoveToCommand(OctoDriveSubsystem driveArg, Translation2d targetArg ) {
         drive = driveArg;
-        target = targetArg;
+        desiredTranslation = targetArg;
     }
 
     /**
@@ -63,14 +63,15 @@ public class MoveToCommand extends CommandBase {
         //
         // dTarget == how do we change our current position to get to the target
         //
-        final Translation2d pos = drive.getPosition();
-        final Translation2d dTarget = target.minus( pos );
-        final double distanceLeft = dTarget.getNorm();       
+        final Pose2d position = drive.getPoseMeters();
+        final Translation2d currentTranslation = position.getTranslation();
+        final Translation2d deltaTarget = desiredTranslation.minus( currentTranslation );
+        final double distanceLeft = deltaTarget.getNorm();       
 
         //
-        // 2. Halt & declare victory if we're close to the target
+        // 2. Halt & declare victory if we're close to the target (10cm)
         //
-        if ( distanceLeft < 10 ) {
+        if ( distanceLeft < 0.10 ) {
             isFinishedFlag = true;
             drive.setMotors( 0.0, 0.0 );
             return;
@@ -79,12 +80,12 @@ public class MoveToCommand extends CommandBase {
         //
         // 3. Compute the desired heading (desiredRotation)
         //
-        final Rotation2d desiredRotation = new Rotation2d( dTarget.getX(), dTarget.getY() );
+        final Rotation2d desiredRotation = new Rotation2d( deltaTarget.getX(), deltaTarget.getY() );
         
         //
         // 4. Compute the change we need to make to get to that heading (correctionRotation)
         //
-        final Rotation2d currentRotation = drive.getRotation();
+        final Rotation2d currentRotation = position.getRotation();
         final Rotation2d correctionRotation = desiredRotation.minus( currentRotation );
 
         //
@@ -107,7 +108,7 @@ public class MoveToCommand extends CommandBase {
         // would is a clearer way to communicate the intent of the code.
         // 
         // Increase the amount we're willing to adjust the angle when we get closer to target
-        final double distanceAdjustmentMultiplier =Math.max( 1.0, 3 - distanceLeft / 10 );
+        final double distanceAdjustmentMultiplier =Math.max( 1.0, 3.0 - distanceLeft * 10 );
         // Figure out the manginutude of the angular error
         final double correctionMagnitude = Math.abs( correctionDegrees );
         // Compute a raw weak motor power by subtracting 1, full power, from the mangitude of the turn we want to make

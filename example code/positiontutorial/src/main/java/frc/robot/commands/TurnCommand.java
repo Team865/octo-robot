@@ -50,7 +50,7 @@ public class TurnCommand extends CommandBase {
         //
         // 1. Compute the change we need to make to get to the desired heading (correctionRotation)
         //
-        final Rotation2d currentRotation = drive.getRotation();
+        final Rotation2d currentRotation = drive.getPoseMeters().getRotation();
         final Rotation2d correctionRotation = desiredRotation.minus( currentRotation );
 
         //

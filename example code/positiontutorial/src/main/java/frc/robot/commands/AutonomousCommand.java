@@ -32,15 +32,15 @@ public class AutonomousCommand extends CommandBase {
         // A sequence of commands to move the robot autonomously in a triangle.
         // The robot returns to its start position
         commandList = new SequentialCommandGroup(
-            // Move to coordinate <100,0>.  The robot starts at <0,0>, facing
+            // Move to coordinate <1.0,0> (meters).  The robot starts at <0,0>, facing
             // the X axis, so this is essentially a move forward
-            new MoveToCommand( drive, new Translation2d( 100.0, 0.0 ) ),
+            new MoveToCommand( drive, new Translation2d( 1.0, 0.0 ) ),
             // Sharp Left turn to get us close to 90 degrees
             new TurnCommand   ( drive, new Rotation2d(Math.toRadians(75.0)) ),
-            // The robot should now be at <100,0>, facing close to 90 degrees.  Going
+            // The robot should now be at <1.0,0>, facing close to 90 degrees.  Going
             // forward now will move the robot along the Y axis.   
-            // A "Move To" <100,50> command should move the robot forward about 50cm 
-            new MoveToCommand( drive, new Translation2d(100.0, 50.0 )),  
+            // A "Move To" <1.0,0.50> command should move the robot forward about 50cm 
+            new MoveToCommand( drive, new Translation2d( 1.0, 0.5 )),  
             // Another sharp turn.  This will turn the robot back toward where it started
             // (just over 180 degrees)          
             new TurnCommand   ( drive, new Rotation2d(Math.toRadians( 190 )) ),      
