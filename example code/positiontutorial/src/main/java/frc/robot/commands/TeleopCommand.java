@@ -12,7 +12,7 @@ import frc.robot.subsystems.OctoDriveSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-/*
+/**
 TeleopCommand is a command responcable for the robot's actions in
 the teleop period. It creates and gathers input from an XboxController
 and calls functions from the given OctoDrive to make it respond
@@ -24,29 +24,41 @@ public class TeleopCommand extends CommandBase {
   private OctoDriveSubsystem octoDrive;
 
 
-  /*
-  Init function. Stores the given OctoDriveSubsystem.
-  */
-  public TeleopCommand(OctoDriveSubsystem initSubsystem) {
-    octoDrive = initSubsystem;
-    addRequirements(initSubsystem);
+  /**
+   * Constructor.  Stores the drive
+   * 
+   * @param octoDriveArg
+   */
+  public TeleopCommand(OctoDriveSubsystem octoDriveArg) {
+    octoDrive = octoDriveArg;
+    addRequirements(octoDriveArg);
   }
   
   @Override
   public void initialize() {
   }
 
-  /*
-  The main function of TeleopCommand, this code is called 50 times a second.
-  It updates the XboxController, get's the controller's data, and updates
-  the speed of the OctoDrive's motors.
-  */
+  /**
+   * The main function of TeleopCommand, this code is called 50 times a second.
+   * It updates the XboxController, get's the controller's data, and updates
+   * the speed of the OctoDrive's motors.
+   * 
+   * 1.  Read/ Update the game controller
+   * 2.  Display the XboxController's state using the SmartDashboard
+   * 3.  Calculate the new speeds for the motors.
+   * 4.  Map the speeds to motor power values (forward=1.0, reverse=-1.0, stop=0.0)
+   * 5.  Update the DifferentialDrive's motors.
+   */
   @Override
   public void execute() {
-    //Update the XboxController.
+    //
+    // 1.  Read/ Update the game controller
+    //
     driverController.controllerPeriodic();
 
-    //Display the XboxController's state using the SmartDashboard
+    //
+    // 2.  Display the XboxController's state using the SmartDashboard
+    //
     SmartDashboard.putString("A Button", driverController.getIsAButtonPressed() + "");
     SmartDashboard.putString("B Button", driverController.getIsBButtonPressed() + "");
     SmartDashboard.putString("X Button", driverController.getIsXButtonPressed() + "");
@@ -55,11 +67,11 @@ public class TeleopCommand extends CommandBase {
     SmartDashboard.putString("L Bumper", driverController.getIsLBumperPressed() + "");
     SmartDashboard.putString("R Bumper", driverController.getIsRBumperPressed() + "");
 
-    //Calculate the new speeds for the motors.
+    //
+    // 3. Calculate the new speeds for the motors.
+    //
     int rightMotorDirection = 0;
     int leftMotorDirection = 0;
-    double rightMotorSpeed = 0.0;
-    double leftMotorSpeed = 0.0;
 
     if(driverController.getIsBButtonPressed()){
       rightMotorDirection++;
@@ -78,7 +90,10 @@ public class TeleopCommand extends CommandBase {
       leftMotorDirection--;
     }
 
-    
+    //
+    // 4.  Map the speeds to motor power values (forward=1.0, reverse=-1.0, stop=0.0)
+    // 
+    double rightMotorSpeed = 0.0;   
     if(rightMotorDirection > 0){
       rightMotorSpeed = 1.0;
     }
@@ -86,7 +101,7 @@ public class TeleopCommand extends CommandBase {
       rightMotorSpeed = -1.0;
     }
 
-
+    double leftMotorSpeed = 0.0;
     if(leftMotorDirection > 0){
       leftMotorSpeed = 1.0;
     }
@@ -94,7 +109,9 @@ public class TeleopCommand extends CommandBase {
       leftMotorSpeed = -1.0;
     }
 
-    //Update the DifferentialDrive's motors.
+    //
+    // 5. Update the DifferentialDrive's motors.
+    //
     octoDrive.setMotors(rightMotorSpeed, leftMotorSpeed);
   }
 
@@ -110,6 +127,4 @@ public class TeleopCommand extends CommandBase {
   public boolean isFinished() {
     return false;
   }
-
-
 }

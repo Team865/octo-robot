@@ -13,8 +13,6 @@ import frc.robot.lib.OctoEncoder;
 import frc.robot.lib.OctoSpeedController;
 import frc.robot.lib.EncoderPair;
 import frc.robot.lib.EncoderPairSource;
-import frc.robot.lib.EncoderPairChange;
-import edu.wpi.first.wpilibj.geometry.*;
 
 public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSource {
 
@@ -28,8 +26,6 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
   private OctoEncoder leftEncoder;
 
   private DifferentialDrive drive;
-
-
 
   /*
   OctoDriveSubsystem controls the movement of the wheels, it uses a WPIlib DifferentialDrive object. 
@@ -91,10 +87,11 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
   /**
    * Changes the speed that the motors are going at.
    * <p>
-   * Valid values for motor speeds are -1.0 to 1.0, with -1.0 representing
-   * "full reverse" and 1.0 representing "full foirward".  A best effort is made
-   * to map the desired speed into an actual speed on the robot (i.e., .5 should
-   * have the robot go forward at about half the speed of 1.0).
+   * - Valid values for motor speeds are -1.0 to 1.0
+   * - -1.0 represens "full reverse"
+   * - 1.0 representing "full forward".  
+   * - A best effort is made to map the desired speed into an actual speed on the robot 
+   *   (i.e., .5 should have the robot go forward at about half the speed of 1.0).
    * 
    * @param newRightSpeed   The new speed of the right motor.
    * @param newLeftspeed    The new speed of the left mmotor
@@ -107,6 +104,8 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
 
   /**
    * Gets the current encoder position.
+   * 
+   * Implements the EncoderPairSource interface
    * 
    * @return  An encoder pair that contains the total distance traveled by the left 
    *          and right encoders since robot start time

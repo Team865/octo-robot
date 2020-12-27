@@ -16,42 +16,44 @@ import frc.robot.commands.TurnCommand;
 import edu.wpi.first.wpilibj.geometry.*;
 
 /**
- * Demo autonomous command
+ * Autonomous Mode Demonstration
  * 
  * Uses the WPILib SequentialCommandGroup to execute a sequence of commands that move the robot in a triangle
  */
 public class AutonomousCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     
-    private SequentialCommandGroup commandList;
+    private final SequentialCommandGroup commandList;
 
     /**
-     * Autonomous mode constructor.  Sets the sequence of commands we want the robot to follow.
-     * @param drive This is the Robot's drive.  Used to get odometry and set motor speeds.
+     * Autonomous mode constructor. Sets the sequence of commands we want the robot
+     * to follow.
+     * 
+     * @param drive This is the Robot's drive. Used to get odometry and set motor
+     *              speeds.
      */
-    public AutonomousCommand(OctoDriveSubsystem drive, Odometry odometry ) {
+    public AutonomousCommand(final OctoDriveSubsystem drive, final Odometry odometry) {
         // A sequence of commands to move the robot autonomously in a triangle.
         // The robot returns to its start position
         commandList = new SequentialCommandGroup(
-            // Move to coordinate <1.0,0> (meters).  The robot starts at <0,0>, facing
-            // the X axis, so this is essentially a move forward
-            new MoveToCommand( drive, odometry, new Translation2d( 1.0, 0.0 ) ),
-            // Sharp Left turn to get us close to 90 degrees
-            new TurnCommand  ( drive, odometry, new Rotation2d(Math.toRadians(75.0)) ),
-            // The robot should now be at <1.0,0>, facing close to 90 degrees.  Going
-            // forward now will move the robot along the Y axis.   
-            // A "Move To" <1.0,0.50> command should move the robot forward about 50cm 
-            new MoveToCommand( drive, odometry, new Translation2d( 1.0, 0.5 )),  
-            // Another sharp turn.  This will turn the robot back toward where it started
-            // (just over 180 degrees)          
-            new TurnCommand  ( drive, odometry, new Rotation2d(Math.toRadians( 190 )) ),      
-            // Move back to the start.    
-            new MoveToCommand( drive, odometry, new Translation2d(0.0, 0.0 ))  
-        );
+                // Move to coordinate <1.0,0> (meters). The robot starts at <0,0>, facing
+                // the X axis, so this is essentially a move forward
+                new MoveToCommand(drive, odometry, new Translation2d(1.0, 0.0)),
+                // Sharp Left turn to get us close to 90 degrees
+                new TurnCommand(drive, odometry, new Rotation2d(Math.toRadians(75.0))),
+                // The robot should now be at <1.0,0>, facing close to 90 degrees. Going
+                // forward now will move the robot along the Y axis.
+                // A "Move To" <1.0,0.50> command should move the robot forward about 50cm
+                new MoveToCommand(drive, odometry, new Translation2d(1.0, 0.5)),
+                // Another sharp turn. This will turn the robot back toward where it started
+                // (just over 180 degrees)
+                new TurnCommand(drive, odometry, new Rotation2d(Math.toRadians(190))),
+                // Move back to the start.
+                new MoveToCommand(drive, odometry, new Translation2d(0.0, 0.0)));
     }
 
     /**
-     * Standard command initialize.  Call through to commandList.initialize()
+     * Standard command initialize. Call through to commandList.initialize()
      */
     @Override
     public void initialize() {
@@ -59,7 +61,7 @@ public class AutonomousCommand extends CommandBase {
     }
 
     /**
-     * Standard command execute.  Call through to commandList.execute()
+     * Standard command execute. Call through to commandList.execute()
      */
     @Override
     public void execute() {
@@ -67,10 +69,10 @@ public class AutonomousCommand extends CommandBase {
     }
 
     /**
-     * Standard command end.  Call through to commandList.end()
+     * Standard command end. Call through to commandList.end()
      */
     @Override
-    public void end(boolean interrupted) {
+    public void end(final boolean interrupted) {
         commandList.end( interrupted );
     }
 

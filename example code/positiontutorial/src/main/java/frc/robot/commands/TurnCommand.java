@@ -1,3 +1,10 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2018-2019 FIRST. All Rights Reserved.                        */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -6,7 +13,7 @@ import frc.robot.subsystems.Odometry;
 import edu.wpi.first.wpilibj.geometry.*;
 
 /**
- * Command that performs a sharp turn
+ * A command that performs a sharp turn
  */
 public class TurnCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -20,7 +27,6 @@ public class TurnCommand extends CommandBase {
     // Set to true when we're close to the desired rotation
     private boolean isFinishedFlag = false;
 
-
     /**
      * Command to turn toward a desired rotation
      * @param driveArg              The drive.  Used to set motor power
@@ -31,6 +37,7 @@ public class TurnCommand extends CommandBase {
         drive = driveArg;
         odometry = odometryArg;
         desiredRotation = desiredRotationArg;
+        addRequirements( drive, odometry );
     }
 
     /**
@@ -84,7 +91,7 @@ public class TurnCommand extends CommandBase {
         //
         // The closer we get to the correct angle, the more we should lower the power.
         // This basically says that a 90 degree difference is full power, then we start scaling down.
-        // Limit the power range from min 0.4 (40% power) to 1.0 (100% power).
+        // Limit the power range to a minimmum of 0.4 (40% power) to 1.0 (100% power).
         //
         // These values are basically hueristics & can be adjusted.  They're partly values that seem
         // to give us good odometry.
@@ -96,8 +103,7 @@ public class TurnCommand extends CommandBase {
         //
         // 5. Apply power to the motors
         // 
-        // Tight turns seem to get the best result WRT current odemetry angle accuracy.
-        // TODO - rebuild robot electronics with a gyroscope.
+        // Tight turns seem to get the best result WRT the current odometry's angle accuracy.
         //
         if ( correctionDegrees < 0 ) {
             // Sharp right turn, so full power left motor, reverse right
@@ -118,7 +124,7 @@ public class TurnCommand extends CommandBase {
     }
 
     /**
-     * isFinished implementation.  Return flag from Execute.
+     * isFinished implementation.  Return isFinishedFlag set by Execute.
      */
     @Override
     public boolean isFinished() {
