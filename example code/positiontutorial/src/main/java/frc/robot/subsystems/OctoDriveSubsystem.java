@@ -11,35 +11,12 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.OctoEncoder;
 import frc.robot.lib.OctoSpeedController;
+import frc.robot.lib.EncoderPair;
 import edu.wpi.first.wpilibj.geometry.*;
 
 public class OctoDriveSubsystem extends SubsystemBase {
 
-  /**
-   * Captures the concept of a left & right encoder pair
-   */
-  class EncoderPair {
-    EncoderPair( double leftArg, double rightArg )
-    {
-      left = leftArg;
-      right = rightArg;
-    }
-    EncoderPair sub( EncoderPair rhs ) {
-      return new EncoderPair( left - rhs.left, right - rhs.right );
-    }
-
-    double mag() {
-      return Math.sqrt( left*left + right*right );
-    }
-
-    public String toString()
-    {
-      return "EncoderP{ " + left + " , " + right + " }";
-    }
-
-    public double left;
-    public double right;
-  };
+ 
 
   private double rightPower;
   private double leftPower;
@@ -159,7 +136,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
     if ( lastEncoderPos == null ) {
       lastEncoderPos = currentEncoderPos;
     }
-    EncoderPair result = currentEncoderPos.sub( lastEncoderPos );
+    EncoderPair result = currentEncoderPos.minus( lastEncoderPos );
     lastEncoderPos = currentEncoderPos;
     return result;
   }
@@ -178,15 +155,15 @@ public class OctoDriveSubsystem extends SubsystemBase {
     // deltas that are ridiculously large.  TODO: should probably lock 
     // this down better.
     //
-    if ( d.mag() > 10.0 ) { return; }
-    if ( d.mag() < .01 ) { return; }
+    if ( d.getMag() > 10.0 ) { return; }
+    if ( d.getMag() < .01 ) { return; }
 
     // See https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-186-mobile-autonomous-systems-laboratory-january-iap-2005/study-materials/odomtutorial.pdf
     // for details about the math.
 
     final double dBaseline = 17.0;   // Measured + experimental
-    final double phi = (d.right - d.left ) / dBaseline;
-    final double dCenter = ( d.left + d.right ) / 2.0;
+    final double phi = (d.getRight() - d.getLeft() ) / dBaseline;
+    final double dCenter = ( d.getLeft() + d.getRight() ) / 2.0;
 
     final Rotation2d deltaRotation = new Rotation2d( phi );
     final Translation2d deltaTranslation = new Translation2d( dCenter, 0.0 ).rotateBy( rotation );
@@ -202,5 +179,4 @@ public class OctoDriveSubsystem extends SubsystemBase {
       new Translation2d( translation.getX() / 100.0, translation.getY() / 100.0 ),
       new Rotation2d( rotation.getRadians() ) );
   }
-
 }
