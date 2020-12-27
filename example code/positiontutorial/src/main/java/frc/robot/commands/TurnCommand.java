@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OctoDriveSubsystem;
+import frc.robot.subsystems.Odometry;
 import edu.wpi.first.wpilibj.geometry.*;
 
 /**
@@ -10,20 +11,25 @@ import edu.wpi.first.wpilibj.geometry.*;
 public class TurnCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     
-    // The drive.  Used to set motor power & get odometry
+    // The drive.  Used to set motor power
     private OctoDriveSubsystem drive;
+    // The odometry tracker.  Used to get position & orientation
+    private Odometry odometry;
     // The desired rotation - what we're trying to achieve
     private Rotation2d desiredRotation;
     // Set to true when we're close to the desired rotation
     private boolean isFinishedFlag = false;
 
+
     /**
      * Command to turn toward a desired rotation
-     * @param driveArg              The drive.  USed to set motor power & get odemetry
+     * @param driveArg              The drive.  Used to set motor power
+     * @param odometryArg           Odometry tracker.  Used to figure out where we are
      * @param desiredRotationArg    The desired rotation
      */
-    public TurnCommand( OctoDriveSubsystem driveArg, Rotation2d desiredRotationArg) {
+    public TurnCommand( OctoDriveSubsystem driveArg, Odometry odometryArg, Rotation2d desiredRotationArg) {
         drive = driveArg;
+        odometry = odometryArg;
         desiredRotation = desiredRotationArg;
     }
 
@@ -50,7 +56,7 @@ public class TurnCommand extends CommandBase {
         //
         // 1. Compute the change we need to make to get to the desired heading (correctionRotation)
         //
-        final Rotation2d currentRotation = drive.getPoseMeters().getRotation();
+        final Rotation2d currentRotation = odometry.getPoseMeters().getRotation();
         final Rotation2d correctionRotation = desiredRotation.minus( currentRotation );
 
         //
