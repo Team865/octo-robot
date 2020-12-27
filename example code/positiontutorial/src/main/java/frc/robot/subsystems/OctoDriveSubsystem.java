@@ -29,10 +29,7 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
 
   private DifferentialDrive drive;
 
-  private Translation2d translation = new Translation2d();
-  private Rotation2d rotation = new Rotation2d();
 
-  EncoderPairChange encoderChangeTracker;
 
   /*
   OctoDriveSubsystem controls the movement of the wheels, it uses a WPIlib DifferentialDrive object. 
@@ -52,9 +49,6 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
 
     leftEncoder.reset();
     rightEncoder.reset();    
-
-    // Declare a class to track changes in the encoder, using this class as its data source
-    encoderChangeTracker = new EncoderPairChange( this );
   }
 
   /*
@@ -66,8 +60,6 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
   public void periodic() {
     rightEncoder.periodic();
     leftEncoder.periodic();
-    doOdometryUpdate();
-  
     drive.tankDrive(leftPower, rightPower);
   }
 
@@ -127,34 +119,4 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
     return new EncoderPair( left, right );
   }
 
-  /**
-   * Use left and right encoder data to estimate the robot's odometry
-   */
-  public void doOdometryUpdate(){
-
-    final EncoderPair d = encoderChangeTracker.getChange();
-
-    if ( d.getMag() < .01 ) { return; }
-
-    // See https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-186-mobile-autonomous-systems-laboratory-january-iap-2005/study-materials/odomtutorial.pdf
-    // for details about the math.
-
-    final double dBaseline = 17.0;   // Measured + experimental
-    final double phi = (d.getRight() - d.getLeft() ) / dBaseline;
-    final double dCenter = ( d.getLeft() + d.getRight() ) / 2.0;
-
-    final Rotation2d deltaRotation = new Rotation2d( phi );
-    final Translation2d deltaTranslation = new Translation2d( dCenter, 0.0 ).rotateBy( rotation );
-    translation = translation.plus( deltaTranslation );
-    rotation = rotation.plus( deltaRotation );
-
-    return;
-  }
-
-  public Pose2d getPoseMeters() {
-    // "Clone" so we don't leak a reference to our internal data
-    return new Pose2d( 
-      new Translation2d( translation.getX() / 100.0, translation.getY() / 100.0 ),
-      new Rotation2d( rotation.getRadians() ) );
-  }
 }

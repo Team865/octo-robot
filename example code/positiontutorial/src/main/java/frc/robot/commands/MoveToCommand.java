@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.geometry.*;
 import frc.robot.subsystems.OctoDriveSubsystem;
+import frc.robot.subsystems.Odometry;
 
 /**
  * Command that moves the rebot to a desired location in 2D space
@@ -10,8 +11,11 @@ import frc.robot.subsystems.OctoDriveSubsystem;
 public class MoveToCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     
-    // The drive we use to get odometry from and set motor speeds
+    // The drive we use to set motor speeds
     private OctoDriveSubsystem drive;
+
+    // The source of our odometry (robot position & orientation)
+    private Odometry odometry;
 
     // The location in 2D space we're trying to get to.
     private Translation2d desiredTranslation;
@@ -30,8 +34,9 @@ public class MoveToCommand extends CommandBase {
      * but it may do so in a large, sweeping arch.
      * 
      */
-    public MoveToCommand(OctoDriveSubsystem driveArg, Translation2d targetArg ) {
+    public MoveToCommand(OctoDriveSubsystem driveArg, Odometry odometryArg, Translation2d targetArg ) {
         drive = driveArg;
+        odometry = odometryArg;
         desiredTranslation = targetArg;
     }
 
@@ -63,7 +68,7 @@ public class MoveToCommand extends CommandBase {
         //
         // dTarget == how do we change our current position to get to the target
         //
-        final Pose2d position = drive.getPoseMeters();
+        final Pose2d position = odometry.getPoseMeters();
         final Translation2d currentTranslation = position.getTranslation();
         final Translation2d deltaTarget = desiredTranslation.minus( currentTranslation );
         final double distanceLeft = deltaTarget.getNorm();       
