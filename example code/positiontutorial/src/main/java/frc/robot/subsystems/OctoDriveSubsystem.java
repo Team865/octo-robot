@@ -12,11 +12,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.OctoEncoder;
 import frc.robot.lib.OctoSpeedController;
 import frc.robot.lib.EncoderPair;
+import frc.robot.lib.EncoderPairSource;
+import frc.robot.lib.EncoderPairChange;
 import edu.wpi.first.wpilibj.geometry.*;
 
-public class OctoDriveSubsystem extends SubsystemBase {
-
- 
+public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSource {
 
   private double rightPower;
   private double leftPower;
@@ -32,7 +32,7 @@ public class OctoDriveSubsystem extends SubsystemBase {
   private Translation2d translation = new Translation2d();
   private Rotation2d rotation = new Rotation2d();
 
-  EncoderPair lastEncoderPos = null;
+  EncoderPairChange encoderChangeTracker;
 
   /*
   OctoDriveSubsystem controls the movement of the wheels, it uses a WPIlib DifferentialDrive object. 
@@ -52,6 +52,9 @@ public class OctoDriveSubsystem extends SubsystemBase {
 
     leftEncoder.reset();
     rightEncoder.reset();    
+
+    // Declare a class to track changes in the encoder, using this class as its data source
+    encoderChangeTracker = new EncoderPairChange( this );
   }
 
   /*
@@ -116,7 +119,8 @@ public class OctoDriveSubsystem extends SubsystemBase {
    * @return  An encoder pair that contains the total distance traveled by the left 
    *          and right encoders since robot start time
    */
-  EncoderPair getEncoderPos()
+  @Override
+  public EncoderPair getEncoderPos()
   {
     double left = -leftEncoder.getDistance();
     double right = rightEncoder.getDistance();
@@ -124,38 +128,12 @@ public class OctoDriveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Get the Delta (change) between the current encoder position & the last encoder position
-   * 
-   * Side effects:  Update's the class's last encoder position (lastPos)
-   * 
-   * @return An encoder pair that represents the delta between the left & right encoder positions
-   */
-  EncoderPair getDEncoder()
-  {
-    EncoderPair currentEncoderPos = getEncoderPos();
-    if ( lastEncoderPos == null ) {
-      lastEncoderPos = currentEncoderPos;
-    }
-    EncoderPair result = currentEncoderPos.minus( lastEncoderPos );
-    lastEncoderPos = currentEncoderPos;
-    return result;
-  }
-
-  /**
    * Use left and right encoder data to estimate the robot's odometry
    */
   public void doOdometryUpdate(){
 
-    final EncoderPair d = getDEncoder();
+    final EncoderPair d = encoderChangeTracker.getChange();
 
-    //
-    // Because we're not directly connected to the robot, there can be a
-    // delay at start up between when the Java code comes up and when the
-    // robot sends its first encoder update.  Quietly ignore any encoder
-    // deltas that are ridiculously large.  TODO: should probably lock 
-    // this down better.
-    //
-    if ( d.getMag() > 10.0 ) { return; }
     if ( d.getMag() < .01 ) { return; }
 
     // See https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-186-mobile-autonomous-systems-laboratory-january-iap-2005/study-materials/odomtutorial.pdf
