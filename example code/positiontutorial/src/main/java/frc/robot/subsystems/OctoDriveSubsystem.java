@@ -11,10 +11,8 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.OctoEncoder;
 import frc.robot.lib.OctoSpeedController;
-import frc.robot.lib.EncoderPair;
-import frc.robot.lib.EncoderPairSource;
 
-public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSource {
+public class OctoDriveSubsystem extends SubsystemBase {
 
   private double rightPower;
   private double leftPower;
@@ -40,8 +38,8 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
 
     drive = new DifferentialDrive(rightController, leftController);
 
-    leftEncoder.setDistancePerPulse(19.4/80.0 * 1.108);
-    rightEncoder.setDistancePerPulse(19.4/80.0 * 1.108);
+    leftEncoder.setDistancePerPulse( 19.4/80.0 * 1.108 / 100.0);
+    rightEncoder.setDistancePerPulse( 19.4/80.0 * 1.108 / 100.0);
 
     leftEncoder.reset();
     rightEncoder.reset();    
@@ -103,19 +101,23 @@ public class OctoDriveSubsystem extends SubsystemBase implements EncoderPairSour
   }
 
   /**
-   * Gets the current encoder position.
+   * Gets the current Left encoder position.
    * 
-   * Implements the EncoderPairSource interface
-   * 
-   * @return  An encoder pair that contains the total distance traveled by the left 
-   *          and right encoders since robot start time
+   * @return  The total distance forward traveled by the left wheel
    */
-  @Override
-  public EncoderPair getEncoderPos()
+  public double getLeftEncoder()
   {
-    double left = -leftEncoder.getDistance();
-    double right = rightEncoder.getDistance();
-    return new EncoderPair( left, right );
+    return -leftEncoder.getDistance();
+  }
+
+  /**
+   * Gets the current Right encoder position.
+   * 
+   * @return  The total distance forward traveled by the right wheel
+   */  
+  public double getRightEncoder()
+  {
+    return rightEncoder.getDistance();
   }
 
 }

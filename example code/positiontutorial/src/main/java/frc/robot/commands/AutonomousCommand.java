@@ -10,7 +10,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.OctoDriveSubsystem;
-import frc.robot.subsystems.Odometry;
+import frc.robot.subsystems.OdometrySubsystem;
 import frc.robot.commands.MoveToCommand;
 import frc.robot.commands.TurnCommand;
 import edu.wpi.first.wpilibj.geometry.*;
@@ -32,7 +32,7 @@ public class AutonomousCommand extends CommandBase {
      * @param drive This is the Robot's drive. Used to get odometry and set motor
      *              speeds.
      */
-    public AutonomousCommand(final OctoDriveSubsystem drive, final Odometry odometry) {
+    public AutonomousCommand(final OctoDriveSubsystem drive, final OdometrySubsystem odometry) {
         // A sequence of commands to move the robot autonomously in a triangle.
         // The robot returns to its start position
         commandList = new SequentialCommandGroup(

@@ -10,7 +10,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj.geometry.*;
 import frc.robot.subsystems.OctoDriveSubsystem;
-import frc.robot.subsystems.Odometry;
+import frc.robot.subsystems.OdometrySubsystem;
 
 /**
  * Move to a desired location in 2D space
@@ -22,7 +22,7 @@ public class MoveToCommand extends CommandBase {
     private OctoDriveSubsystem drive;
 
     // The source of our odometry (robot position & orientation)
-    private Odometry odometry;
+    private OdometrySubsystem odometry;
 
     // The location in 2D space we're trying to get to.  Units are meters
     private Translation2d desiredTranslation;
@@ -42,7 +42,7 @@ public class MoveToCommand extends CommandBase {
      * follow a large, sweeping arch
      * 
      */
-    public MoveToCommand(OctoDriveSubsystem driveArg, Odometry odometryArg, Translation2d targetArg ) {
+    public MoveToCommand(OctoDriveSubsystem driveArg, OdometrySubsystem odometryArg, Translation2d targetArg ) {
         drive = driveArg;
         odometry = odometryArg;
         desiredTranslation = targetArg;
