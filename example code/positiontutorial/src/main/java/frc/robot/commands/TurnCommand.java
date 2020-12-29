@@ -9,7 +9,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OctoDriveSubsystem;
-import frc.robot.subsystems.Odometry;
+import frc.robot.subsystems.OdometrySubsystem;
 import edu.wpi.first.wpilibj.geometry.*;
 
 /**
@@ -21,7 +21,7 @@ public class TurnCommand extends CommandBase {
     // The drive.  Used to set motor power
     private OctoDriveSubsystem drive;
     // The odometry tracker.  Used to get position & orientation
-    private Odometry odometry;
+    private OdometrySubsystem odometry;
     // The desired rotation - what we're trying to achieve
     private Rotation2d desiredRotation;
     // Set to true when we're close to the desired rotation
@@ -33,7 +33,7 @@ public class TurnCommand extends CommandBase {
      * @param odometryArg           Odometry tracker.  Used to figure out where we are
      * @param desiredRotationArg    The desired rotation
      */
-    public TurnCommand( OctoDriveSubsystem driveArg, Odometry odometryArg, Rotation2d desiredRotationArg) {
+    public TurnCommand( OctoDriveSubsystem driveArg, OdometrySubsystem odometryArg, Rotation2d desiredRotationArg) {
         drive = driveArg;
         odometry = odometryArg;
         desiredRotation = desiredRotationArg;

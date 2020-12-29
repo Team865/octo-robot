@@ -10,7 +10,7 @@ package frc.robot;
 import frc.robot.commands.AutonomousCommand;
 import frc.robot.commands.TeleopCommand;
 import frc.robot.subsystems.OctoDriveSubsystem;
-import frc.robot.subsystems.Odometry;
+import frc.robot.subsystems.OdometrySubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -24,7 +24,7 @@ public class RobotContainer {
   
   private final OctoDriveSubsystem m_octoDriveSubsystem = new OctoDriveSubsystem();
   private final TeleopCommand m_teleopCommand = new TeleopCommand(m_octoDriveSubsystem);
-  private final AutonomousCommand m_autonomousCommand = new AutonomousCommand(m_octoDriveSubsystem, new Odometry( m_octoDriveSubsystem ));
+  private final AutonomousCommand m_autonomousCommand = new AutonomousCommand(m_octoDriveSubsystem, new OdometrySubsystem( m_octoDriveSubsystem ));
 
   /**
    * The container for the robot.  Contains subsystems, IO devices, and commands.
