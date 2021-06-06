@@ -1,4 +1,5 @@
 #include "time_manager.h"
+#include <string>
 
 namespace Time {
 

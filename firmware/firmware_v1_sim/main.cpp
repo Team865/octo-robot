@@ -130,6 +130,7 @@ class NetInterfaceSim: public NetInterface {
   Time::TimeUS execute() override 
   {
     defaultConnection.execute();
+    return Time::TimeUS{ 20000 }; // 1/50th of a second
   }
   std::shared_ptr<NetConnection> getShared()
   {
@@ -273,5 +274,6 @@ int main(int argc, char* argv[])
     Time::TimeUS delay = loop();
     usleep( delay.get() );
   }
+  return 0;
 }
 

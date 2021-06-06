@@ -33,24 +33,39 @@ ENDIF ( BEEFOCUS_CLANG )
 
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/firmware )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1 )
 
-set (FIRMWARE_SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/hardware_interface.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_datasend.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_encoder.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_motor.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_parser.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_process_input.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_scheduler.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/command_sr04.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/time_manager.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/firmware/util_profile.cpp
+set (FIRMWARE_V1_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/hardware_interface.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/command_datasend.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/command_encoder.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/command_motor.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/command_parser.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/command_process_input.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/command_scheduler.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/command_sr04.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/time_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/util_profile.cpp
 )
 
-add_library( firmware_lib STATIC ${FIRMWARE_SOURCES} )
+set (FIRMWARE_V2_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/hardware_interface.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_datasend.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_encoder.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_motor.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_parser.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_process_input.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_scheduler.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_sr04.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/time_manager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/util_profile.cpp
+)
 
-LIST(APPEND FIRMWARE_SIM_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/firmware_sim/main.cpp)
+add_library( firmware_v1_lib STATIC ${FIRMWARE_V1_SOURCES} )
+add_library( firmware_v2_lib STATIC ${FIRMWARE_V2_SOURCES} )
+
+LIST(APPEND FIRMWARE_V1_SIM_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1_sim/main.cpp)
+LIST(APPEND FIRMWARE_V2_SIM_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2_sim/main.cpp)
 
 # Testing
 find_package (GTest)
@@ -59,13 +74,16 @@ find_package (GMock)
 IF (GTEST_FOUND)
   add_definitions( -DGTEST_FOUND )
   MESSAGE (STATUS  "GTEST found, running unit tests")
-  ADD_SUBDIRECTORY(unit_tests)
+  ADD_SUBDIRECTORY(firmware/unit_tests)
 ELSE()
   MESSAGE (STATUS  "GTEST not found, skipping unit tests")
 ENDIF (GTEST_FOUND)
   
 add_definitions( -DPC_BUILD )
 
-add_executable(firmware_sim ${FIRMWARE_SIM_SOURCES})
-target_link_libraries(firmware_sim firmware_lib )
+add_executable(firmware_v1_sim ${FIRMWARE_V1_SIM_SOURCES})
+target_link_libraries(firmware_v1_sim firmware_v1_lib )
+add_executable(firmware_v2_sim ${FIRMWARE_V2_SIM_SOURCES})
+target_link_libraries(firmware_v2_sim firmware_v2_lib )
+
 
