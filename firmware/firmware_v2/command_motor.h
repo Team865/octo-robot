@@ -19,13 +19,8 @@ class MotorHardware {
   /// @brief Constructor
   ///
   /// @param[in] hwiArg   - Micro-controller Pin Interface
-  /// @param[in] pin0Arg  - Digital Pin that controls one of the motor inputs 
-  /// @param[in] pin1Arg  - Digital Pin that controls the other motor input
   ///
-  MotorHardware( 
-    std::shared_ptr<HW::I> hwiArg, 
-    HW::Pin pin0Arg,  
-    HW::Pin pin1Arg);
+  MotorHardware( std::shared_ptr<HW::I> hwiArg );
   MotorHardware() = delete;
 
   /// @brief Tell the motor to go forward
@@ -39,10 +34,6 @@ class MotorHardware {
 
   // @brief Interface to hardware (i.e., GPIO pins)
   std::shared_ptr<HW::I> hwi;
-  // @brief Digital Pin that controls one of the motor inputs 
-  const HW::Pin pin0;
-  // @param Digital Pin that controls the other motor input
-  const HW::Pin pin1;
 };
 
 ///
@@ -51,10 +42,7 @@ class MotorHardware {
 class MotorState
 {
   public:
-  MotorState( 
-    std::shared_ptr<HW::I> hwiArg, 
-    HW::Pin pin0Arg,  
-    HW::Pin pin1Arg);
+  MotorState( std::shared_ptr<HW::I> hwiArg );
   MotorState() = delete;
 
   // @brief What kind of output are we sending to the controller right now?>
@@ -97,13 +85,8 @@ class Motor: public Base {
   /// @brief Constructor
   ///
   /// @param[in] hwiArg   - Micro-controller Pin Interface
-  /// @param[in] pin0Arg  - Digital Pin that controls one of the motor inputs 
-  /// @param[in] pin1Arg  - Digital Pin that controls the other motor input
   /// 
-  Motor( 
-    std::shared_ptr<HW::I> hwiArg, 
-    HW::Pin pin0Arg,  
-    HW::Pin pin1Arg);
+  Motor( std::shared_ptr<HW::I> hwiArg );
   Motor() = delete;
 
   ///

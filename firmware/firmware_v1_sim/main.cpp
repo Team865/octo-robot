@@ -6,15 +6,15 @@
 #include <math.h>   // for adding variation to simulated temperature.
 #include <map>    
 
-#include "command_datasend.h"
-#include "command_motor.h"
-#include "command_process_input.h"
-#include "command_scheduler.h"
+#include "../firmware_v1/command_datasend.h"
+#include "../firmware_v1/command_motor.h"
+#include "../firmware_v1/command_process_input.h"
+#include "../firmware_v1/command_scheduler.h"
 
-#include "hardware_interface.h"
-#include "time_interface.h"
-#include "time_manager.h"
-#include "time_hst.h"
+#include "../firmware_v1/hardware_interface.h"
+#include "../firmware_v1/time_interface.h"
+#include "../firmware_v1/time_manager.h"
+#include "../firmware_v1/time_hst.h"
 
 std::shared_ptr<Command::Scheduler> scheduler;
 

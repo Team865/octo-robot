@@ -7,14 +7,6 @@ namespace
 {
 const std::unordered_map<HW::Pin, int, EnumHash > pinMap = 
 {
-  { HW::Pin::MOTOR0_PIN0,     0     },
-  { HW::Pin::MOTOR0_PIN1,     2     },
-  { HW::Pin::MOTOR1_PIN0,     16    },
-  { HW::Pin::MOTOR1_PIN1,     15    },
-  { HW::Pin::ENCODER0_PIN0,   14    },
-  { HW::Pin::ENCODER0_PIN1,   12    },
-  { HW::Pin::ENCODER1_PIN0,   13    },
-  { HW::Pin::ENCODER1_PIN1,   4     },
   { HW::Pin::SR04_TRIG,       1     },
   { HW::Pin::SR04_ECHO,       5     },
   { HW::Pin::LED_PIN,         3     }
@@ -23,10 +15,6 @@ const std::unordered_map<HW::Pin, int, EnumHash > pinMap =
 constexpr int LOCAL_LED_PIN=3;
 
 const std::vector< HW::Pin > interruptInputs = {
-  HW::Pin::ENCODER0_PIN0,
-  HW::Pin::ENCODER0_PIN1,
-  HW::Pin::ENCODER1_PIN0,
-  HW::Pin::ENCODER1_PIN1,
 #ifndef OCTO_ESP8266_DEBUG
   HW::Pin::SR04_ECHO
 #endif
@@ -82,30 +70,6 @@ std::array<std::unique_ptr<InputInterruptHandler>, static_cast<size_t>(HW::Pin::
 // easy to reason about.
 // 
 InputInterruptHandler* pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::END_OF_PINS) ];
-
-void ICACHE_RAM_ATTR leftEncoderPin0Int()
-{
-  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN0) ];
-  handler->interrupt();
-}
-
-void ICACHE_RAM_ATTR leftEncoderPin1Int()
-{
-  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER0_PIN1) ];
-  handler->interrupt();
-}
-
-void ICACHE_RAM_ATTR rightEncoderPin0Int()
-{
-  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER1_PIN0) ];
-  handler->interrupt();
-}
-
-void ICACHE_RAM_ATTR rightEncoderPin1Int()
-{
-  InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::ENCODER1_PIN1) ];
-  handler->interrupt();
-}
 
 #ifndef OCTO_ESP8266_DEBUG
 void ICACHE_RAM_ATTR echoPinInt()
@@ -166,18 +130,10 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
     pinToInputHandlerRaw[ slot ] = pinToInputHandler[ slot ].get();
   }
 
-  pinMode( pinMap.at( Pin::ENCODER0_PIN0 ), INPUT );
-  pinMode( pinMap.at( Pin::ENCODER1_PIN0 ), INPUT );
-  pinMode( pinMap.at( Pin::ENCODER0_PIN1 ), INPUT );
-  pinMode( pinMap.at( Pin::ENCODER1_PIN1 ), INPUT );
 #ifndef OCTO_ESP8266_DEBUG
   pinMode( pinMap.at( Pin::SR04_ECHO     ), INPUT );
 #endif
 
-  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN0 ) ), leftEncoderPin0Int, CHANGE );
-  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER0_PIN1 ) ), leftEncoderPin1Int, CHANGE );
-  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN0 ) ), rightEncoderPin0Int, CHANGE );
-  attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::ENCODER1_PIN1 ) ), rightEncoderPin1Int, CHANGE );
 #ifndef OCTO_ESP8266_DEBUG
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::SR04_ECHO) ), echoPinInt, CHANGE );
 

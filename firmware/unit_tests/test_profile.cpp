@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "util_profile.h"
+#include "../firmware_v1/util_profile.h"
 #include "test_mock_net.h"
 
 namespace Util {

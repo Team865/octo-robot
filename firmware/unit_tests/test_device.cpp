@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "hardware_interface.h"
-#include "wifi_secrets.h"
+#include "../firmware_v1/hardware_interface.h"
+#include "../firmware_v2/wifi_secrets.h"
 
 /// @brief Every Pin in the Pins enum should have a debug name
 TEST( DEVICE, should_have_complete_pin_names )

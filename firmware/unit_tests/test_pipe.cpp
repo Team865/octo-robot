@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "util_pipe.h"
+#include "../firmware_v1/util_pipe.h"
 
 namespace Util {
 

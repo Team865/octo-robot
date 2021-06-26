@@ -5,7 +5,7 @@
 #ifndef __TEST_MOCK_HARDWARE__
 #define __TEST_MOCK_HARDWARE__
 
-#include "hardware_interface.h"
+#include "../firmware_v1/hardware_interface.h"
 #include "test_mock_event.h"
 
 ///

@@ -30,9 +30,7 @@ class Encoder: public Base {
   Encoder( 
     std::shared_ptr<HW::I> hwiArg, 
     std::shared_ptr<DebugInterface> debugArg, 
-    std::shared_ptr<NetInterface> netArg, 
-    HW::Pin pin0Arg,  
-    HW::Pin pin1Arg);
+    std::shared_ptr<NetInterface> netArg );
 
   ///
   /// @brief Standard time slice function
@@ -80,11 +78,6 @@ class Encoder: public Base {
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
-
-  // @brief Digital input for encoder pin 0
-  const HW::Pin pin0;
-  // @param Digital input for encoder pin 1
-  const HW::Pin pin1;
 
   unsigned int lastGreyCode;
   int position;
