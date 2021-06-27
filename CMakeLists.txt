@@ -3,8 +3,8 @@ project (firware_sim CXX C)
 
 OPTION (BEEFOCUS_CLANG, "Build using Clang" OFF)
 
-# Make sure we're building with C++ 11.
-set(CMAKE_CXX_STANDARD 11)
+# Make sure we're building with C++ 17.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

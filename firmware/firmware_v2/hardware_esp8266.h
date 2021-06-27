@@ -19,6 +19,9 @@ class HardwareESP8266: public I
   IEvent&   GetInputEvents( Pin pin) override;
   void      LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) override;
   void      LEDUpdate() override;
+  void      beginTransmission( int address ) override;
+  void      endTransmission() override;
+  void      write( std::basic_string_view< std::byte> bytes ) override;
 };
 };
 

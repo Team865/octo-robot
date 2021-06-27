@@ -185,6 +185,18 @@ class ISim: public I
   {
   }
 
+  void beginTransmission( int address ) override
+  {
+  }
+
+  void endTransmission() override
+  {
+  }
+  
+  void write( std::basic_string_view< std::byte > bytes ) override 
+  {
+  }
+
   private:
 
   std::map< Pin, IEvent > pinToEventMap;

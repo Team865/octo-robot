@@ -7,9 +7,9 @@ namespace
 {
 const std::unordered_map<HW::Pin, int, EnumHash > pinMap = 
 {
-  { HW::Pin::SR04_TRIG,       1     },
-  { HW::Pin::SR04_ECHO,       5     },
-  { HW::Pin::LED_PIN,         3     }
+  { HW::Pin::SR04_TRIG,       14    },
+  { HW::Pin::SR04_ECHO,       12    },
+  { HW::Pin::LED_PIN,         13    }
 };
 
 constexpr int LOCAL_LED_PIN=3;
@@ -187,6 +187,19 @@ void HardwareESP8266::LEDUpdate()
 {
   strip.show();
 }
+
+void HardwareESP8266::beginTransmission(int address)
+{
+}
+
+void HardwareESP8266::endTransmission()
+{
+}
+
+void HardwareESP8266::write(std::basic_string_view<std::byte> bytes)
+{
+}
+
 
 }
 
