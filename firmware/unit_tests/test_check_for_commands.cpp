@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "command_parser.h"
+#include "../firmware_v1/command_parser.h"
 #include "test_mock_debug.h"
 #include "test_mock_event.h"
 #include "test_mock_hardware.h"

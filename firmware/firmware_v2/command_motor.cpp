@@ -6,49 +6,34 @@ namespace Command{
 //=======================================================================
 
 MotorHardware::MotorHardware(
-  std::shared_ptr<HW::I> hwiArg, 
-  HW::Pin pin0Arg,  
-  HW::Pin pin1Arg 
-) :
-  hwi{hwiArg}, pin0{ pin0Arg }, pin1{ pin1Arg} 
+  std::shared_ptr<HW::I> hwiArg
+) : hwi{hwiArg}
 {
-  // Configure hardware pins for output
-  hwi->PinMode(pin0,  HW::PinIOMode::M_OUTPUT );
-  hwi->PinMode(pin1,  HW::PinIOMode::M_OUTPUT );
-
   // Set the motor to off
   setMotorStop();
 }
 
 void MotorHardware::setMotorForward()
 {
-  // Forward, one input on, the other input off
-  hwi->DigitalWrite( pin0, HW::PinState::MOTOR_POS );
-  hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
+  // Forward Direction
 }
 
 void MotorHardware::setMotorBackward()
 {
-  // Backward, one input off, the other input on
-  hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
-  hwi->DigitalWrite( pin1, HW::PinState::MOTOR_POS );
+  // Backward Direction
 }
 
 void MotorHardware::setMotorStop()
 {
   // Stopped,  Both inputs off.
-  hwi->DigitalWrite( pin0, HW::PinState::MOTOR_NEG );
-  hwi->DigitalWrite( pin1, HW::PinState::MOTOR_NEG );
 }
 
 //=======================================================================
 
 MotorState::MotorState(
-  std::shared_ptr<HW::I> hwiArg, 
-  HW::Pin pin0Arg,  
-  HW::Pin pin1Arg 
+  std::shared_ptr<HW::I> hwiArg
 ) :
-  motorHardware{ hwiArg, pin0Arg, pin1Arg }, lastPulse{ Pulse::NONE }
+  motorHardware{ hwiArg}, lastPulse{ Pulse::NONE }
 {
 }
 
@@ -79,11 +64,9 @@ void MotorState::doPulse( MotorState::Pulse pulse )
 //=======================================================================
 
 Motor::Motor( 
-  std::shared_ptr<HW::I> hwiArg, 
-  HW::Pin pin0Arg,  
-  HW::Pin pin1Arg 
+  std::shared_ptr<HW::I> hwiArg
 ) :
-  motorState{ hwiArg, pin0Arg, pin1Arg }, 
+  motorState{ hwiArg }, 
   dir { Motor::Dir::FORWARD }, speedAsPercent{ 0 }, counter{ 0 }
 {
 }
@@ -161,5 +144,63 @@ const char* Motor::debugName()
   return "L298 Motor Control";
 }
 
+
 } // End Command Namespace
+
+
+#ifdef TODO
+#include "WEMOS_Motor.h"
+
+int pwm;
+
+//Motor shiled I2C Address: 0x30
+//PWM frequency: 1000Hz(1kHz)
+Motor M1(0x30,_MOTOR_A, 1000);//Motor A
+Motor M2(0x30,_MOTOR_B, 1000);//Motor B
+
+
+void setup2() {
+  Serial.begin(115200);
+}
+
+void loop2() {
+
+  for (pwm = 0; pwm <= 100; pwm++)
+  {
+    M1.setmotor( _CW, pwm);
+    M2.setmotor(_CW, 100-pwm);
+    Serial.printf("A:%d%, B:%d%, DIR:CW\r\n", pwm,100-pwm);
+  }
+  
+  M1.setmotor(_STOP);
+  M2.setmotor( _STOP);
+  Serial.println("Motor A&B STOP");
+  delay(200);
+  
+  for (pwm = 0; pwm <=100; pwm++)
+  {
+    M1.setmotor(_CCW, pwm);
+    M2.setmotor(_CCW, 100-pwm);
+    Serial.printf("A:%d%, B:%d%, DIR:CCW\r\n", pwm,100-pwm);
+
+  }
+  
+  M1.setmotor(_STOP);
+  M2.setmotor( _STOP);
+  delay(200);
+  Serial.println("Motor A&B STOP");
+
+  M1.setmotor(_SHORT_BRAKE);
+  M2.setmotor( _SHORT_BRAKE);
+  Serial.println("Motor A&B SHORT BRAKE");  
+  delay(1000);
+  
+  M1.setmotor(_STANDBY);//Both Motor standby
+  //M2.setmotor( _STANDBY);
+  Serial.println("Motor A&B STANDBY");  
+  delay(1000);
+  
+}
+
+#endif
 

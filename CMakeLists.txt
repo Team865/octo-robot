@@ -3,8 +3,8 @@ project (firware_sim CXX C)
 
 OPTION (BEEFOCUS_CLANG, "Build using Clang" OFF)
 
-# Make sure we're building with C++ 11.
-set(CMAKE_CXX_STANDARD 11)
+# Make sure we're building with C++ 17.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -32,8 +32,6 @@ if ( BEEFOCUS_CLANG )
 ENDIF ( BEEFOCUS_CLANG )
 
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/")
-
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1 )
 
 set (FIRMWARE_V1_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v1/hardware_interface.cpp
@@ -83,6 +81,7 @@ add_definitions( -DPC_BUILD )
 
 add_executable(firmware_v1_sim ${FIRMWARE_V1_SIM_SOURCES})
 target_link_libraries(firmware_v1_sim firmware_v1_lib )
+
 add_executable(firmware_v2_sim ${FIRMWARE_V2_SIM_SOURCES})
 target_link_libraries(firmware_v2_sim firmware_v2_lib )
 

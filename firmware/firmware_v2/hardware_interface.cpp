@@ -3,14 +3,6 @@
 namespace HW {
 
 const std::unordered_map<Pin,std::string,EnumHash> pinNames = {
-    { Pin::MOTOR0_PIN0,     "Motor0 Pin0" },
-    { Pin::MOTOR0_PIN1,     "Motor0 Pin1" },
-    { Pin::MOTOR1_PIN0,     "Motor1 Pin0" },
-    { Pin::MOTOR1_PIN1,     "Motor1 Pin1" },
-    { Pin::ENCODER0_PIN0,   "Encoder0 Pin0" },
-    { Pin::ENCODER0_PIN1,   "Encoder0 Pin1" },
-    { Pin::ENCODER1_PIN0,   "Encoder1 Pin0" },
-    { Pin::ENCODER1_PIN1,   "Encoder1 Pin1" },
     { Pin::SR04_TRIG,       "SR04 Trigger" },
     { Pin::SR04_ECHO,       "SR04 Echo" },
     { Pin::LED_PIN,         "WS2812 Out" },

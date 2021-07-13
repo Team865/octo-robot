@@ -5,7 +5,7 @@
 #ifndef __TEST_MOCK_DEBUG__
 #define __TEST_MOCK_DEBUG__
 
-#include "debug_interface.h"
+#include "../firmware_v1/debug_interface.h"
 
 ///
 /// @brief Simple no-op debug interface

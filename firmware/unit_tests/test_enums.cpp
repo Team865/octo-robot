@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "command_process_input.h"
+#include "../firmware_v1/command_process_input.h"
 
 namespace Command {
 

@@ -6,15 +6,15 @@
 #include <math.h>   // for adding variation to simulated temperature.
 #include <map>    
 
-#include "command_datasend.h"
-#include "command_motor.h"
-#include "command_process_input.h"
-#include "command_scheduler.h"
+#include "../firmware_v2/command_datasend.h"
+#include "../firmware_v2/command_motor.h"
+#include "../firmware_v2/command_process_input.h"
+#include "../firmware_v2/command_scheduler.h"
 
-#include "hardware_interface.h"
-#include "time_interface.h"
-#include "time_manager.h"
-#include "time_hst.h"
+#include "../firmware_v2/hardware_interface.h"
+#include "../firmware_v2/time_interface.h"
+#include "../firmware_v2/time_manager.h"
+#include "../firmware_v2/time_hst.h"
 
 std::shared_ptr<Command::Scheduler> scheduler;
 
@@ -185,6 +185,18 @@ class ISim: public I
   {
   }
 
+  void beginTransmission( int address ) override
+  {
+  }
+
+  void endTransmission() override
+  {
+  }
+  
+  void write( std::basic_string_view< std::byte > bytes ) override 
+  {
+  }
+
   private:
 
   std::map< Pin, IEvent > pinToEventMap;
@@ -222,18 +234,12 @@ void setup() {
 
   auto timeSim    = std::make_shared<TimeInterfaceSim>();
   auto time       = std::make_shared<Time::Manager>( timeSim, hst );
-  auto motorSimA  = std::make_shared<Command::Motor>( 
-                          hardware, 
-                          HW::Pin::MOTOR0_PIN0, HW::Pin::MOTOR0_PIN1 );
-  auto motorSimB  = std::make_shared<Command::Motor>( 
-                          hardware, 
-                          HW::Pin::MOTOR1_PIN0, HW::Pin::MOTOR1_PIN1 );
+  auto motorSimA  = std::make_shared<Command::Motor>( hardware );
+  auto motorSimB  = std::make_shared<Command::Motor>( hardware );
   auto encoderASim = std::make_shared<Command::Encoder>(
-                          hardware, debug, wifi, 
-                          HW::Pin::ENCODER0_PIN0, HW::Pin::ENCODER0_PIN1);
+                          hardware, debug, wifi);
   auto encoderBSim = std::make_shared<Command::Encoder>(
-                          hardware, debug, wifi, 
-                          HW::Pin::ENCODER1_PIN0, HW::Pin::ENCODER1_PIN1);
+                          hardware, debug, wifi);
  
   auto sr04        = std::make_shared<Command::SR04> (
                           hardware, debug, wifi, hst,

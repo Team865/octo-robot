@@ -33,18 +33,10 @@ void setup() {
                         wifi, hardware, debug, hst );
   auto timeNNTP  = std::make_shared<TimeESP8266>( debug );
   auto time      = std::make_shared<Time::Manager>( timeNNTP, hst );
-  auto motorA = std::make_shared<Command::Motor>(
-                        hardware,
-                        HW::Pin::MOTOR0_PIN0, HW::Pin::MOTOR0_PIN1 );
-  auto motorB = std::make_shared<Command::Motor>(
-                        hardware,
-                        HW::Pin::MOTOR1_PIN0, HW::Pin::MOTOR1_PIN1 );
-  auto encoderA = std::make_shared<Command::Encoder>(
-                        hardware, debug, wifi, 
-                        HW::Pin::ENCODER0_PIN0, HW::Pin::ENCODER0_PIN1 );
-  auto encoderB = std::make_shared<Command::Encoder>(
-                        hardware, debug, wifi, 
-                        HW::Pin::ENCODER1_PIN0, HW::Pin::ENCODER1_PIN1 );
+  auto motorA = std::make_shared<Command::Motor>( hardware );
+  auto motorB = std::make_shared<Command::Motor>( hardware );
+  auto encoderA = std::make_shared<Command::Encoder>( hardware, debug, wifi );
+  auto encoderB = std::make_shared<Command::Encoder>( hardware, debug, wifi );
   auto sr04     = std::make_shared<Command::SR04> ( 
                         hardware, debug, wifi, hst,
                         HW::Pin::SR04_TRIG, HW::Pin::SR04_ECHO );

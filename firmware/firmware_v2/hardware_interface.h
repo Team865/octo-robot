@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <string_view>
 #include "basic_types.h"
 #include "hardware_types.h"     // pin enums & related functions
 #include "util_ipinevents.h"    // for the IPinEvent interface 
@@ -29,6 +30,9 @@ class I
   virtual IEvent& GetInputEvents( Pin pin ) = 0;
   virtual void LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) = 0;
   virtual void LEDUpdate() = 0;
+  virtual void beginTransmission( int address ) = 0;
+  virtual void endTransmission() = 0;
+  virtual void write( std::basic_string_view< std::byte > data ) = 0;
 };
 };  // End HW namespace
 

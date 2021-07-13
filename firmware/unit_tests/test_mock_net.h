@@ -5,7 +5,8 @@
 #ifndef __TEST_MOCK_NET_H__
 #define __TEST_MOCK_NET_H__
 
-#include "net_interface.h"
+#include <algorithm>
+#include "../firmware_v1/net_interface.h"
 #include "test_mock_event.h"
 #include "test_mock_hardware.h"
 

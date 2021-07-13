@@ -4,7 +4,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 
-#include "hardware_interface.h"
+#include "../firmware_v1/hardware_interface.h"
 
 /// @brief a Hardware Event
 ///

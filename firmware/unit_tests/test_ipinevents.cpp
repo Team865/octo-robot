@@ -4,7 +4,7 @@
 /// @brief Tests for Util::IPinEvents
 ///
 
-#include "util_ipinevents.h"
+#include "../firmware_v1/util_ipinevents.h"
 
 namespace Util {
 
