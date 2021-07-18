@@ -7,17 +7,15 @@ namespace
 {
 const std::unordered_map<HW::Pin, int, EnumHash > pinMap = 
 {
-  { HW::Pin::SR04_TRIG,       14    },
-  { HW::Pin::SR04_ECHO,       12    },
+  { HW::Pin::SR04_TRIG,       12    },
+  { HW::Pin::SR04_ECHO,       14    },
   { HW::Pin::LED_PIN,         13    }
 };
 
 constexpr int LOCAL_LED_PIN=3;
 
 const std::vector< HW::Pin > interruptInputs = {
-#ifndef OCTO_ESP8266_DEBUG
   HW::Pin::SR04_ECHO
-#endif
 };
 
 const std::unordered_map<HW::PinState, int, EnumHash > pinStateMap = {
@@ -71,13 +69,13 @@ std::array<std::unique_ptr<InputInterruptHandler>, static_cast<size_t>(HW::Pin::
 // 
 InputInterruptHandler* pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::END_OF_PINS) ];
 
-#ifndef OCTO_ESP8266_DEBUG
+
 void ICACHE_RAM_ATTR echoPinInt()
 {
   InputInterruptHandler* handler = pinToInputHandlerRaw[ static_cast<size_t>(HW::Pin::SR04_ECHO ) ];
   handler->interrupt();
 }
-#endif
+
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel( 8, LOCAL_LED_PIN, NEO_GRB + NEO_KHZ800 );
 
@@ -113,12 +111,12 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
     fastAbstractToRealPinState[ index ] = entry.second;
   }
 
-#ifndef OCTO_ESP8266_DEBUG
+
   // todo - constants
   pinMode( pinMap.at( Pin::SR04_TRIG ), FUNCTION_3 );
   pinMode( pinMap.at( Pin::LED_PIN),    FUNCTION_3 );
   pinMode( pinMap.at( Pin::LED_PIN),    OUTPUT );
-#endif
+
 
   for ( size_t index = 0; index < static_cast<size_t>(HW::Pin::END_OF_PINS); ++index ) {
     pinToInputHandlerRaw[ index ] = nullptr;
@@ -130,20 +128,15 @@ HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
     pinToInputHandlerRaw[ slot ] = pinToInputHandler[ slot ].get();
   }
 
-#ifndef OCTO_ESP8266_DEBUG
+
   pinMode( pinMap.at( Pin::SR04_ECHO     ), INPUT );
-#endif
-
-#ifndef OCTO_ESP8266_DEBUG
   attachInterrupt( digitalPinToInterrupt( pinMap.at( Pin::SR04_ECHO) ), echoPinInt, CHANGE );
-
   strip.begin();
 
   for ( int i = 0; i < 8; ++i ) {
     LEDSet( i, 0, 128, 0 );
   }
   LEDUpdate();
-#endif
 }
 
 void HardwareESP8266::DigitalWrite( Pin pin, PinState state )

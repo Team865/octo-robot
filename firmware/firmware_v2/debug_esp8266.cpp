@@ -4,12 +4,8 @@
 
 DebugESP8266::DebugESP8266()
 {
-#ifdef OCTO_ESP8266_DEBUG
-	Serial.begin( 115200 );
+  Serial.begin( 115200 );
   isDisabled = false;
-#else
-  isDisabled = true;
-#endif
 }
 
 void DebugESP8266::disable()

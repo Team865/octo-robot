@@ -59,9 +59,7 @@ void setup() {
   scheduler->addCommand( motorB );
   scheduler->addCommand( encoderA );
   scheduler->addCommand( encoderB );
-#ifndef OCTO_ESP8266_DEBUG
   scheduler->addCommand( sr04 );
-#endif
   scheduler->addCommand( wifi );
   auto connection = wifi->getShared();
   scheduler->addCommand( connection );
