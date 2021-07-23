@@ -2,6 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include "hardware_esp8266.h"
 #include <memory>
+#include "Wire.h"
 
 namespace
 {
@@ -84,6 +85,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel( 8, LOCAL_LED_PIN, NEO_GRB + NEO_KHZ
 namespace HW {
 HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
 {
+  Wire.begin();
   // create cache for pin id
   for ( size_t index = 0 ; index < fastAbstractToRealPin.size(); ++index ) 
   {
@@ -195,4 +197,3 @@ void HardwareESP8266::write(std::basic_string_view<std::byte> bytes)
 
 
 }
-

@@ -3,6 +3,8 @@
 
 #include "hardware_interface.h"
 #include "time_hst.h"
+#include "Wire.h"
+#include <cstddef>
 
 namespace HW {
 class HardwareESP8266: public I
@@ -22,8 +24,9 @@ class HardwareESP8266: public I
   void      beginTransmission( int address ) override;
   void      endTransmission() override;
   void      write( std::basic_string_view< std::byte> bytes ) override;
+  void      WireBeginTransmission(int address) override {Wire.beginTransmission(address);};
+  bool      WireEndTransmission() override {return((Wire.endTransmission() == 0) ? true : false);};
 };
 };
 
 #endif
-

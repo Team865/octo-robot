@@ -4,12 +4,12 @@
 #include <unordered_map>
 #include <string>
 #include <string_view>
+#include <cstddef>
 #include "basic_types.h"
 #include "hardware_types.h"     // pin enums & related functions
 #include "util_ipinevents.h"    // for the IPinEvent interface 
 
 namespace HW {
-
 //
 // 128 event buffer.  I've noticed the encounter input bouncing with a 
 // 10us delay between bounces.  Missed events == unreliable encoder.
@@ -33,6 +33,8 @@ class I
   virtual void beginTransmission( int address ) = 0;
   virtual void endTransmission() = 0;
   virtual void write( std::basic_string_view< std::byte > data ) = 0;
+  virtual void WireBeginTransmission( int address ) = 0;
+  virtual bool WireEndTransmission() = 0;
 };
 };  // End HW namespace
 

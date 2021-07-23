@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <math.h>   // for adding variation to simulated temperature.
-#include <map>    
+#include <map>
 
 #include "../firmware_v2/command_datasend.h"
 #include "../firmware_v2/command_motor.h"
@@ -197,6 +197,15 @@ class ISim: public I
   {
   }
 
+  void WireBeginTransmission( int address ) override
+  {
+  }
+
+  bool WireEndTransmission() override
+  {
+      return (false);
+  }
+
   private:
 
   std::map< Pin, IEvent > pinToEventMap;
@@ -234,8 +243,8 @@ void setup() {
 
   auto timeSim    = std::make_shared<TimeInterfaceSim>();
   auto time       = std::make_shared<Time::Manager>( timeSim, hst );
-  auto motorSimA  = std::make_shared<Command::Motor>( hardware );
-  auto motorSimB  = std::make_shared<Command::Motor>( hardware );
+  auto motorSimA  = std::make_shared<Command::Motor>( hardware, debug );
+  auto motorSimB  = std::make_shared<Command::Motor>( hardware, debug );
   auto encoderASim = std::make_shared<Command::Encoder>(
                           hardware, debug, wifi);
   auto encoderBSim = std::make_shared<Command::Encoder>(

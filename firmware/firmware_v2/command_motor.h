@@ -86,7 +86,7 @@ class Motor: public Base {
   ///
   /// @param[in] hwiArg   - Micro-controller Pin Interface
   /// 
-  Motor( std::shared_ptr<HW::I> hwiArg );
+  Motor( std::shared_ptr<HW::I> hwiArg, std::shared_ptr<DebugInterface> debugArg);
   Motor() = delete;
 
   ///

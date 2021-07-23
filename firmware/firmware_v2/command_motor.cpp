@@ -64,11 +64,34 @@ void MotorState::doPulse( MotorState::Pulse pulse )
 //=======================================================================
 
 Motor::Motor( 
-  std::shared_ptr<HW::I> hwiArg
+  std::shared_ptr<HW::I> hwiArg,
+  std::shared_ptr<DebugInterface> debugArg
 ) :
   motorState{ hwiArg }, 
   dir { Motor::Dir::FORWARD }, speedAsPercent{ 0 }, counter{ 0 }
 {
+    int nDevices;
+    int address;
+    bool error;
+
+    (*debugArg) << "Motor Up\n";
+    (*debugArg) << "Scanning...\n";
+
+    nDevices = 0;
+    for(address = 1; address < 127; address++){
+        hwiArg->WireBeginTransmission(address);
+        error = hwiArg->WireEndTransmission();
+        if(error){
+            (*debugArg) << "I2C device found at address 0x";
+            if(address < 16){
+                (*debugArg) << "0";
+            }
+            (*debugArg) << address;
+            (*debugArg) << "\n";
+        }
+    }
+
+
 }
 
 //
