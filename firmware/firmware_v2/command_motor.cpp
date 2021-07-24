@@ -2,72 +2,11 @@
 #include "wifi_debug_ostream.h"
 
 namespace Command{
-
 //=======================================================================
-
-MotorHardware::MotorHardware(
-  std::shared_ptr<HW::I> hwiArg
-) : hwi{hwiArg}
-{
-  // Set the motor to off
-  setMotorStop();
-}
-
-void MotorHardware::setMotorForward()
-{
-  // Forward Direction
-}
-
-void MotorHardware::setMotorBackward()
-{
-  // Backward Direction
-}
-
-void MotorHardware::setMotorStop()
-{
-  // Stopped,  Both inputs off.
-}
-
-//=======================================================================
-
-MotorState::MotorState(
-  std::shared_ptr<HW::I> hwiArg
-) :
-  motorHardware{ hwiArg}, lastPulse{ Pulse::NONE }
-{
-}
-
-//
-// Set the motor controller output as per pulse
-// 
-void MotorState::doPulse( MotorState::Pulse pulse )
-{
-  if ( lastPulse == pulse ) {
-    return;
-  }
-  lastPulse = pulse;
-
-  switch( pulse ) 
-  {
-    case Pulse::FORWARD:
-      motorHardware.setMotorForward();
-      break;
-    case Pulse::BACKWARD:
-      motorHardware.setMotorBackward();
-      break;
-    case Pulse::NONE:
-      motorHardware.setMotorStop();
-      break;
-  }
-}
-
-//=======================================================================
-
 Motor::Motor( 
   std::shared_ptr<HW::I> hwiArg,
   std::shared_ptr<DebugInterface> debugArg
 ) :
-  motorState{ hwiArg }, 
   dir { Motor::Dir::FORWARD }, speedAsPercent{ 0 }, counter{ 0 }
 {
     int nDevices;
@@ -111,42 +50,8 @@ Motor::Motor(
 // 
 Time::TimeUS Motor::execute() 
 {
-  counter = counter + 1;
 
-  // 1. Figure out if we're turning the motor on or off.
-  //
-  const bool shouldTurnMotorOn= ( counter & 1 ) == 1;
-
-  // 2. Figure out the pulse duration.  This is a function of speed
-  //
-  const unsigned int percentOfPeriodForCurrentState= 
-      shouldTurnMotorOn ? speedAsPercent : (100 - speedAsPercent );
-  const Time::TimeUS pulseDuration= 
-      Time::TimeUS( periodInMS * Time::USPerMs * percentOfPeriodForCurrentState / 100 ); 
-
-  // 3. Early exit if we're spending no time in the current state
-  // 
-  if ( pulseDuration == Time::TimeUS( 0 ) ) {
-    return pulseDuration;
-  }
-
-  // 4. Set the hardware to the new state
-  // 
-  if ( !shouldTurnMotorOn) {
-    motorState.doPulse( MotorState::Pulse::NONE );
-  }
-  else {
-    if ( dir == Motor::Dir::FORWARD ) {
-      motorState.doPulse( MotorState::Pulse::FORWARD );
-    }
-    else {
-      motorState.doPulse( MotorState::Pulse::BACKWARD );
-    }
-  }
-
-  // 5. Tell the schedule to pause, as per the pulse's duration
-  ///
-  return pulseDuration;
+  return Time::TimeUS(100000);
 }
 
 //
