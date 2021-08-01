@@ -13,7 +13,7 @@ const std::unordered_map<HW::Pin, int, EnumHash > pinMap =
   { HW::Pin::LED_PIN,         13    }
 };
 
-constexpr int LOCAL_LED_PIN=3;
+constexpr int LOCAL_LED_PIN=13;
 
 const std::vector< HW::Pin > interruptInputs = {
   HW::Pin::SR04_ECHO
