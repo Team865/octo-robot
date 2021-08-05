@@ -34,7 +34,11 @@ class I
   virtual void endTransmission() = 0;
   virtual void write( std::basic_string_view< std::byte > data ) = 0;
   virtual void WireBeginTransmission( int address ) = 0;
+  virtual void WireWrite( int data ) = 0;
   virtual bool WireEndTransmission() = 0;
+  virtual int WireRequestFrom(int address, int quantity) = 0;
+  virtual int WireAvailable() = 0;
+  virtual int WireRead() = 0;
 };
 };  // End HW namespace
 

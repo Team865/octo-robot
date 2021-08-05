@@ -203,7 +203,26 @@ class ISim: public I
 
   bool WireEndTransmission() override
   {
-      return (false);
+    return (false);
+  }
+
+  void WireWrite(int data) override
+  {
+  }
+
+  int WireRead() override
+  {
+    return(0);
+  }
+
+  int WireAvailable() override
+  {
+    return(0);
+  }
+
+  int WireRequestFrom(int address, int quantity) override
+  {
+    return(0);
   }
 
   private:

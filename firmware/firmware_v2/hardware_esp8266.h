@@ -26,6 +26,10 @@ class HardwareESP8266: public I
   void      write( std::basic_string_view< std::byte> bytes ) override;
   void      WireBeginTransmission(int address) override {Wire.beginTransmission(address);};
   bool      WireEndTransmission() override {return((Wire.endTransmission() == 0) ? true : false);};
+  void      WireWrite(int data) override {Wire.write(data);};
+  int       WireRead() override {return(Wire.read());};
+  int       WireAvailable() override {return(Wire.available());};
+  int       WireRequestFrom(int address, int quantity) override {return(Wire.requestFrom(address, quantity));};
 };
 };
 
