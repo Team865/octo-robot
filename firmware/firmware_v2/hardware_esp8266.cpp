@@ -182,18 +182,4 @@ void HardwareESP8266::LEDUpdate()
 {
   strip.show();
 }
-
-void HardwareESP8266::beginTransmission(int address)
-{
-}
-
-void HardwareESP8266::endTransmission()
-{
-}
-
-void HardwareESP8266::write(std::basic_string_view<std::byte> bytes)
-{
-}
-
-
 }

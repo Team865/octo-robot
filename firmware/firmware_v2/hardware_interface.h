@@ -30,9 +30,6 @@ class I
   virtual IEvent& GetInputEvents( Pin pin ) = 0;
   virtual void LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) = 0;
   virtual void LEDUpdate() = 0;
-  virtual void beginTransmission( int address ) = 0;
-  virtual void endTransmission() = 0;
-  virtual void write( std::basic_string_view< std::byte > data ) = 0;
   virtual void WireBeginTransmission( int address ) = 0;
   virtual void WireWrite( int data ) = 0;
   virtual bool WireEndTransmission() = 0;

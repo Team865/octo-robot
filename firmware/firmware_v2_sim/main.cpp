@@ -185,18 +185,6 @@ class ISim: public I
   {
   }
 
-  void beginTransmission( int address ) override
-  {
-  }
-
-  void endTransmission() override
-  {
-  }
-  
-  void write( std::basic_string_view< std::byte > bytes ) override 
-  {
-  }
-
   void WireBeginTransmission( int address ) override
   {
   }
