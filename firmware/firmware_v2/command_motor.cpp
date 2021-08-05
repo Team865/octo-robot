@@ -5,9 +5,10 @@ namespace Command{
 //=======================================================================
 Motor::Motor( 
   std::shared_ptr<HW::I> hwiArg,
-  std::shared_ptr<DebugInterface> debugArg
+  std::shared_ptr<DebugInterface> debugArg,
+  int motorNumArg
 ) :
-  dir { Motor::Dir::FORWARD }, speedAsPercent{ 0 }, counter{ 0 }
+    dir { _STOP }, speedAsPercent{ 0 }, counter{ 0 }, hwi{hwiArg}, motorNum{motorNumArg}
 {
     int nDevices;
     int address;
@@ -18,8 +19,8 @@ Motor::Motor(
 
     nDevices = 0;
     for(address = 1; address < 127; address++){
-        hwiArg->WireBeginTransmission(address);
-        error = hwiArg->WireEndTransmission();
+        hwi->WireBeginTransmission(address);
+        error = hwi->WireEndTransmission();
         if(error){
             (*debugArg) << "I2C device found at address 0x";
             if(address < 16){
@@ -29,8 +30,14 @@ Motor::Motor(
             (*debugArg) << "\n";
         }
     }
-
-
+    //Set frequency
+    int freq = 1000;
+    hwi->WireBeginTransmission(30);
+    hwi->WireWrite(((freq >> 16) & 0xff) & 0x0f );
+    hwi->WireWrite((freq >> 16)  & 0xff );
+    hwi->WireWrite((freq >> 8 )  & 0xff );
+    hwi->WireWrite((freq >> 0 )  & 0xff );
+    hwi->WireEndTransmission();
 }
 
 //
@@ -59,8 +66,20 @@ Time::TimeUS Motor::execute()
 // 
 void Motor::setSpeed( int percent )
 {
-  dir = percent >= 0 ? Dir::FORWARD : Dir::BACKWARDS;
+  int pwr_val;
+  dir = percent >= 0 ? _CW :
+    percent <= 0 ? _CCW : _STOP;
   speedAsPercent = percent >= 0 ? percent : -percent;
+
+  pwr_val = speedAsPercent*100;
+  pwr_val = pwr_val > 10000 ? 100000 : pwr_val;
+
+  hwi->WireBeginTransmission(30);
+  hwi->WireWrite(motorNum | 0x10);
+  hwi->WireWrite(dir);
+  hwi->WireWrite(pwr_val >> 8);
+  hwi->WireWrite(pwr_val);
+  hwi->WireEndTransmission();
 }
 
 

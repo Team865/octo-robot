@@ -262,8 +262,8 @@ void setup() {
 
   auto timeSim    = std::make_shared<TimeInterfaceSim>();
   auto time       = std::make_shared<Time::Manager>( timeSim, hst );
-  auto motorSimA  = std::make_shared<Command::Motor>( hardware, debug );
-  auto motorSimB  = std::make_shared<Command::Motor>( hardware, debug );
+  auto motorSimA  = std::make_shared<Command::Motor>( hardware, debug, 0); //0 for first motor, 1 for second motor
+  auto motorSimB  = std::make_shared<Command::Motor>( hardware, debug, 1);
   auto encoderASim = std::make_shared<Command::Encoder>(
                           hardware, debug, wifi);
   auto encoderBSim = std::make_shared<Command::Encoder>(

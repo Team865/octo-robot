@@ -7,6 +7,10 @@
 #include "net_interface.h"
 #include "debug_interface.h"
 
+#define _CCW 1
+#define _CW 2
+#define _STOP 3
+
 namespace Command {
 ///
 /// @brief Motor Controller for a L298 Controller
@@ -19,7 +23,7 @@ class Motor: public Base {
   ///
   /// @param[in] hwiArg   - Micro-controller Pin Interface
   /// 
-  Motor( std::shared_ptr<HW::I> hwiArg, std::shared_ptr<DebugInterface> debugArg);
+  Motor( std::shared_ptr<HW::I> hwiArg, std::shared_ptr<DebugInterface> debugArg, int motorNumArg);
   Motor() = delete;
 
   ///
@@ -46,20 +50,14 @@ class Motor: public Base {
 
   private:
 
-  //
-  // @brief What direction is the motor going? 
-  //
-  enum class Dir {
-    FORWARD,
-    BACKWARDS
-  };
-
-  // @brief Current direction of the motor - forwards or backwards
-  Dir dir;
+  // @brief Current direction of the motor - clockwise, counterclockwise, or stopped
+  int dir;
   // @brief Current speed
   unsigned speedAsPercent;
   // @brief Counter. Incremented each time execute is called
   int counter;
+  const std::shared_ptr<HW::I> hwi;
+  const int motorNum;
 
   static constexpr unsigned int periodInMS = 100;
 };
