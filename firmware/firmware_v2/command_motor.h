@@ -57,6 +57,7 @@ class Motor: public Base {
   // @brief Counter. Incremented each time execute is called
   int counter;
   const std::shared_ptr<HW::I> hwi;
+  const std::shared_ptr<DebugInterface> debug;
   const int motorNum;
 
   static constexpr unsigned int periodInMS = 100;
