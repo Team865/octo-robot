@@ -7,6 +7,7 @@
 #include <map>
 
 #include "../firmware_v2/command_datasend.h"
+#include "../firmware_v2/command_gyro.h"
 #include "../firmware_v2/command_motor.h"
 #include "../firmware_v2/command_process_input.h"
 #include "../firmware_v2/command_scheduler.h"
@@ -261,6 +262,9 @@ void setup() {
                           hardware, debug, wifi, hst,
                           HW::Pin::SR04_TRIG, HW::Pin::SR04_ECHO );
 
+  auto gyro        = std::make_shared<Command::Gyro> (
+                          hardware, debug );
+
   auto dataSend = std::make_shared<Command::DataSend>( 
                           debug, wifi, 
                           encoderASim, encoderBSim, sr04, hardware );
@@ -271,10 +275,11 @@ void setup() {
                           motorSimA,    motorSimB, 
                           encoderASim,  encoderBSim,
                           sr04,
+                          gyro,
                           hst,
                           scheduler,
                           dataSend
-   );
+  );
 
   scheduler->addCommand( commandProcessor );
   scheduler->addCommand( time );
@@ -282,6 +287,7 @@ void setup() {
   scheduler->addCommand( motorSimA );
   scheduler->addCommand( motorSimB );
   scheduler->addCommand( sr04 );
+  scheduler->addCommand( gyro );
   scheduler->addCommand( encoderASim );
   scheduler->addCommand( encoderBSim );
   scheduler->addCommand( wifi );

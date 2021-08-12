@@ -1,6 +1,7 @@
 
 #include <memory>
 #include "command_datasend.h"
+#include "command_gyro.h"
 #include "command_scheduler.h"
 #include "command_process_input.h"
 #include "debug_esp8266.h"
@@ -40,6 +41,7 @@ void setup() {
   auto sr04     = std::make_shared<Command::SR04> ( 
                         hardware, debug, wifi, hst,
                         HW::Pin::SR04_TRIG, HW::Pin::SR04_ECHO );
+  auto gyro     = std::make_shared<Command::Gyro> ( hardware, debug );
           
   auto dataSend = std::make_shared<Command::DataSend>( debug, wifi, 
                         encoderA, encoderB, sr04, hardware );
@@ -50,6 +52,7 @@ void setup() {
                         motorA, motorB,
                         encoderA, encoderB,
                         sr04,
+                        gyro,
                         hst,
                         scheduler,
                         dataSend );
@@ -65,4 +68,5 @@ void setup() {
   scheduler->addCommand( connection );
   scheduler->addCommand( hst );
   scheduler->addCommand( dataSend );
+  scheduler->addCommand( gyro );
 }

@@ -40,6 +40,7 @@ const std::vector<CommandTemplate> commandTemplates =
   { "rprofile",   Command::RProfile,      HasArg::No   },
   { "datasend",   Command::DataSend,      HasArg::Yes  },
   { "range",      Command::RangeSensor,   HasArg::No   },
+  { "gyro",       Command::ReadGyro,      HasArg::No   },
 }; 
 
 /// @brief Process an integer argument

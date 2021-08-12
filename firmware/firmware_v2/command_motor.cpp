@@ -22,12 +22,7 @@ Motor::Motor(
         hwi->WireBeginTransmission(address);
         error = hwi->WireEndTransmission();
         if(error){
-            (*debug) << "I2C device found at address 0x";
-            if(address < 16){
-                (*debug) << "0";
-            }
-            (*debug) << address;
-            (*debug) << "\n";
+            (*debug) << "I2C device found at address " << address << "\n";
         }
     }
     //Set frequency
