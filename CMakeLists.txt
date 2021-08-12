@@ -50,6 +50,7 @@ set (FIRMWARE_V2_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/hardware_interface.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_datasend.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_encoder.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_gyro.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_motor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_parser.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/firmware/firmware_v2/command_process_input.cpp

@@ -9,6 +9,7 @@
 
 #include "command_encoder.h"
 #include "command_datasend.h"
+#include "command_gyro.h"
 #include "command_motor.h"
 #include "command_parser.h"
 #include "command_sr04.h"
@@ -51,7 +52,8 @@ class ProcessCommand: public Base
   /// @param[in] motorRArg    - The class that controls the right motor
   /// @param[in] encoderLArg  - The encoder for left motor 
   /// @param[in] encoderRArg  - The encoder for right motor
-  /// @param[in] sr04Arg      - The s404 sonar range finder
+  /// @param[in] sr04Arg      - The sr04 sonar range finder
+  /// @param[in] gyroArg      - The gy521 gyroscape
   /// @param[in] hstArg       - Interface for the High Speed Timer
   /// @param[in] schedulerArg - The schedululer.  Used to display profiling
   /// @param[in] dataSendArg  - Sends data to the host every 1/50 sec
@@ -66,6 +68,7 @@ class ProcessCommand: public Base
 		std::shared_ptr<Command::Encoder> encoderLArg,
 		std::shared_ptr<Command::Encoder> encoderRArg,
 		std::shared_ptr<Command::SR04> sr04Arg,
+		std::shared_ptr<Command::Gyro> gyroArg,
 		std::shared_ptr<Time::HST> hstArg, 
 		std::shared_ptr<Command::Scheduler > schedulerArg,
 		std::shared_ptr<Command::DataSend > dataSendArg 
@@ -120,6 +123,7 @@ class ProcessCommand: public Base
   void doRProfile( CommandParser::CommandPacket );
   void doDataSend( CommandParser::CommandPacket );
   void doRangeSensor( CommandParser::CommandPacket );
+  void doReadGyro( CommandParser::CommandPacket );
   void doError( CommandParser::CommandPacket );
 
   std::shared_ptr<NetInterface> net;
@@ -137,6 +141,8 @@ class ProcessCommand: public Base
   std::shared_ptr<Command::Encoder> encoderR;
   /// @brief Interface to SR04 Sonar Range Finder
   std::shared_ptr<Command::SR04> sr04;
+  /// @brief Interface to gy521 gyroscope
+  std::shared_ptr<Command::Gyro> gyro;
   /// @brief Interface to the high speed timer
   std::shared_ptr<Time::HST> hst;
   /// @brief Interface to the command scheduler, for reporting

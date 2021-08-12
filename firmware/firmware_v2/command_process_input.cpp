@@ -26,6 +26,7 @@ ProcessCommand::ProcessCommand(
     std::shared_ptr<Command::Encoder> encoderLArg,
     std::shared_ptr<Command::Encoder> encoderRArg,
     std::shared_ptr<Command::SR04> sr04Arg,
+    std::shared_ptr<Command::Gyro> gyroArg,
     std::shared_ptr<Time::HST> hstArg,
     std::shared_ptr<Command::Scheduler> schedulerArg,
     std::shared_ptr<Command::DataSend> dataSendArg
@@ -33,7 +34,7 @@ ProcessCommand::ProcessCommand(
     timeMgr{ timeArg }, 
     motorL{ motorLArg }, motorR{ motorRArg }, 
     encoderL{ encoderLArg }, encoderR{ encoderRArg },
-    sr04{ sr04Arg },
+    sr04{ sr04Arg }, gyro{ gyroArg},
     hst{ hstArg },
     scheduler{ schedulerArg },
     dataSend{ dataSendArg }
@@ -89,6 +90,7 @@ const std::unordered_map<CommandParser::Command,
   { CommandParser::Command::RProfile,     &ProcessCommand::doRProfile},
   { CommandParser::Command::DataSend,     &ProcessCommand::doDataSend},
   { CommandParser::Command::RangeSensor,  &ProcessCommand::doRangeSensor},
+  { CommandParser::Command::ReadGyro,     &ProcessCommand::doReadGyro},
   { CommandParser::Command::NoCommand,    &ProcessCommand::doError},
 };
 
@@ -152,6 +154,13 @@ void ProcessCommand::doGetEncoderR( CommandParser::CommandPacket cp )
   int position = encoderR->getPosition();
   int rotation_speed = encoderR->getSpeed();
   net->get() << "encoderr " << position << " " << rotation_speed << "\n";
+}
+
+void ProcessCommand::doReadGyro( CommandParser::CommandPacket cp )
+{
+  (void) cp;
+  int angle = gyro->getAngle();
+  net->get() << "gyro " << angle << "\n";
 }
 
 void ProcessCommand::doGetTimeMs( CommandParser::CommandPacket cp )

@@ -36,6 +36,11 @@ class I
   virtual int WireRequestFrom(int address, int quantity) = 0;
   virtual int WireAvailable() = 0;
   virtual int WireRead() = 0;
+  inline int WireRead2() {
+    const int upper = WireRead();
+    const int lower = WireRead();
+    return ( ( upper << 8) | lower ); 
+  }
 };
 };  // End HW namespace
 
