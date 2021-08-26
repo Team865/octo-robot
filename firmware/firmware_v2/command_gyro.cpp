@@ -153,10 +153,10 @@ Gyro::Gyro(
 {
   (*debugArg) << "Gyro Up\n";
 
-  hwi->WireBeginTransmission( I2C_ADDRESS );
-  hwi->WireWrite( GY521_PWR_MGMT_1 );
-  hwi->WireWrite( GY521_WAKEUP );
-  if ( !hwi->WireEndTransmission() ) {
+  hwi->WireBeginTransmission( 0, I2C_ADDRESS );
+  hwi->WireWrite( 0, GY521_PWR_MGMT_1 );
+  hwi->WireWrite( 0, GY521_WAKEUP );
+  if ( !hwi->WireEndTransmission(0) ) {
     (*debugArg) << "Gyro Init Failed\n";
   }
 }
@@ -166,16 +166,16 @@ Gyro::Gyro(
 //
 Time::TimeUS Gyro::execute() 
 {
-  hwi->WireBeginTransmission( I2C_ADDRESS );
-  hwi->WireWrite( GY521_GYRO_ZOUT_H );
-  if ( !hwi->WireEndTransmission() )
+  hwi->WireBeginTransmission( 0, I2C_ADDRESS );
+  hwi->WireWrite( 0, GY521_GYRO_ZOUT_H );
+  if ( !hwi->WireEndTransmission(0) )
   {
     (*debug) << "Gyro register error\n";
     return Time::TimeUS(100000);
   }
 
-  hwi->WireRequestFrom( I2C_ADDRESS, 2 );
-  int value = hwi->WireRead2(); 
+  hwi->WireRequestFrom( 0, I2C_ADDRESS, 2 );
+  int value = hwi->WireRead2(0);
 
   // The number comes in as a 16 bit unsigned integer.  Manually convert
   // to an integer.

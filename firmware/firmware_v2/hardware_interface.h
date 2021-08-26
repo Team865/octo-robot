@@ -30,15 +30,15 @@ class I
   virtual IEvent& GetInputEvents( Pin pin ) = 0;
   virtual void LEDSet( unsigned int led, unsigned char r, unsigned char g, unsigned char b ) = 0;
   virtual void LEDUpdate() = 0;
-  virtual void WireBeginTransmission( int address ) = 0;
-  virtual void WireWrite( int data ) = 0;
-  virtual bool WireEndTransmission() = 0;
-  virtual int WireRequestFrom(int address, int quantity) = 0;
-  virtual int WireAvailable() = 0;
-  virtual int WireRead() = 0;
-  inline int WireRead2() {
-    const int upper = WireRead();
-    const int lower = WireRead();
+  virtual void WireBeginTransmission( int i2c_bus, int address ) = 0;
+  virtual void WireWrite( int i2c_bus, int data ) = 0;
+  virtual bool WireEndTransmission( int i2c_bus ) = 0;
+  virtual int WireRequestFrom( int i2c_bus, int address, int quantity) = 0;
+  virtual int WireAvailable( int i2c_bus ) = 0;
+  virtual int WireRead( int i2c_bus ) = 0;
+  inline int WireRead2( int i2c_bus ) {
+    const int upper = WireRead(i2c_bus);
+    const int lower = WireRead(i2c_bus);
     return ( ( upper << 8) | lower ); 
   }
 };

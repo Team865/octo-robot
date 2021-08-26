@@ -8,12 +8,12 @@ namespace
 {
 const std::unordered_map<HW::Pin, int, EnumHash > pinMap = 
 {
-  { HW::Pin::SR04_TRIG,       12    },
+  { HW::Pin::SR04_TRIG,       16    },
   { HW::Pin::SR04_ECHO,       14    },
-  { HW::Pin::LED_PIN,         13    }
+  { HW::Pin::LED_PIN,         15    }
 };
 
-constexpr int LOCAL_LED_PIN=13;
+constexpr int LOCAL_LED_PIN=15;
 
 const std::vector< HW::Pin > interruptInputs = {
   HW::Pin::SR04_ECHO
@@ -86,6 +86,9 @@ namespace HW {
 HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
 {
   Wire.begin();
+  sw.setDelay_us(5);
+  sw.setTimeout(1000);
+  sw.begin();
   // create cache for pin id
   for ( size_t index = 0 ; index < fastAbstractToRealPin.size(); ++index ) 
   {

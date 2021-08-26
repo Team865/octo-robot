@@ -20,26 +20,27 @@ Time::TimeUS Encoder::execute()
   int low;
   int high;
   int val;
+  int i2c_bus = 0;
 
   // ==Low==
-  hwi->WireBeginTransmission(I2C_ADRESS);
-  hwi->WireWrite(_mag_lo);
-  hwi->WireEndTransmission();
-  hwi->WireRequestFrom(I2C_ADRESS, 1);
+  hwi->WireBeginTransmission(i2c_bus, I2C_ADRESS);
+  hwi->WireWrite(i2c_bus, _mag_lo);
+  hwi->WireEndTransmission(i2c_bus);
+  hwi->WireRequestFrom(i2c_bus, I2C_ADRESS, 1);
 
-  while (hwi->WireAvailable() == 0)
+  while (hwi->WireAvailable(i2c_bus) == 0)
   ;
-  high = hwi->WireRead();
+  high = hwi->WireRead(i2c_bus);
 
   // ==High==
-  hwi->WireBeginTransmission(I2C_ADRESS);
-  hwi->WireWrite(_mag_hi);
-  hwi->WireEndTransmission();
-  hwi->WireRequestFrom(I2C_ADRESS, 1);
+  hwi->WireBeginTransmission(i2c_bus, I2C_ADRESS);
+  hwi->WireWrite(i2c_bus, _mag_hi);
+  hwi->WireEndTransmission(i2c_bus);
+  hwi->WireRequestFrom(i2c_bus, I2C_ADRESS, 1);
 
-  while (hwi->WireAvailable() == 0)
+  while (hwi->WireAvailable(i2c_bus) == 0)
   ;
-  high = hwi->WireRead();
+  high = hwi->WireRead(i2c_bus);
 
   high = high << 8;
   val = high | low;

@@ -72,10 +72,6 @@ class Encoder: public Base {
   const int I2C_ADRESS = 0x36;
   const int _mag_hi = 0x1b;
   const int _mag_lo = 0x1c;
-
-  int readOneByte();
-  int readTwoBytes();
-  void writeOneByte(int dat_in);
 };
 
 }; // end Command namespace.
