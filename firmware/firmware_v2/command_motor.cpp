@@ -19,20 +19,20 @@ Motor::Motor(
 
     nDevices = 0;
     for(address = 1; address < 127; address++){
-        hwi->WireBeginTransmission(address);
-        error = hwi->WireEndTransmission();
+        hwi->WireBeginTransmission(0, address);
+        error = hwi->WireEndTransmission(0);
         if(error){
             (*debug) << "I2C device found at address " << address << "\n";
         }
     }
     //Set frequency
     int freq = 1000;
-    hwi->WireBeginTransmission(30);
-    hwi->WireWrite(((freq >> 16) & 0xff) & 0x0f );
-    hwi->WireWrite((freq >> 16)  & 0xff );
-    hwi->WireWrite((freq >> 8 )  & 0xff );
-    hwi->WireWrite((freq >> 0 )  & 0xff );
-    hwi->WireEndTransmission();
+    hwi->WireBeginTransmission(0, 30);
+    hwi->WireWrite(0, ((freq >> 16) & 0xff) & 0x0f );
+    hwi->WireWrite(0, (freq >> 16)  & 0xff );
+    hwi->WireWrite(0, (freq >> 8 )  & 0xff );
+    hwi->WireWrite(0, (freq >> 0 )  & 0xff );
+    hwi->WireEndTransmission(0);
 }
 
 //
@@ -70,12 +70,12 @@ void Motor::setSpeed( int percent )
   pwr_val = speedAsPercent*100;
   pwr_val = pwr_val > 10000 ? 100000 : pwr_val;
   (*debug) << "Begining transmission of pwr_val: " << percent;
-  hwi->WireBeginTransmission(0x30);
-  hwi->WireWrite(motorNum | 0x10);
-  hwi->WireWrite(dir);
-  hwi->WireWrite(pwr_val >> 8);
-  hwi->WireWrite(pwr_val);
-  error = hwi->WireEndTransmission();
+  hwi->WireBeginTransmission(0, 0x30);
+  hwi->WireWrite(0, motorNum | 0x10);
+  hwi->WireWrite(0, dir);
+  hwi->WireWrite(0, pwr_val >> 8);
+  hwi->WireWrite(0, pwr_val);
+  error = hwi->WireEndTransmission(0);
   if(error){
       (*debug) << "Transmission success";
   }

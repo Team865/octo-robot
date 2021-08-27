@@ -58,20 +58,6 @@ class Encoder: public Base {
 
   private:
 
-  enum class Action {
-    NO_ACTION,
-    CW_ROTATION,    // clockwise
-    CCW_ROTATION,   // counter clockwise rotation
-    ILLEGAL,        // should never happen
-  };
-
-  unsigned int getGreyCode();
-
-  /// @brief Action to take when we transition between grey code states.
-  /// see encoder_command.cpp for details.
-  ///
-  static Action greyCodeActionTable[4][4];
-
   // @brief Interface to hardware (i.e., GPIO pins)
   std::shared_ptr<HW::I> hwi;
   // @brief Interface to debug log
@@ -79,11 +65,13 @@ class Encoder: public Base {
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
 
-  unsigned int lastGreyCode;
   int position;
   int speed;
   Time::DeviceTimeUS lastZeroStateChange;
   int updatesWithNoEvent = 0;
+  const int I2C_ADRESS = 0x36;
+  const int _mag_hi = 0x1b;
+  const int _mag_lo = 0x1c;
 };
 
 }; // end Command namespace.

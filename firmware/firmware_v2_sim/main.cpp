@@ -186,30 +186,30 @@ class ISim: public I
   {
   }
 
-  void WireBeginTransmission( int address ) override
+  void WireBeginTransmission( int i2c_bus, int address ) override
   {
   }
 
-  bool WireEndTransmission() override
+  bool WireEndTransmission(int i2c_bus) override
   {
     return (false);
   }
 
-  void WireWrite(int data) override
+  void WireWrite(int i2c_bus, int data) override
   {
   }
 
-  int WireRead() override
-  {
-    return(0);
-  }
-
-  int WireAvailable() override
+  int WireRead(int i2c_bus) override
   {
     return(0);
   }
 
-  int WireRequestFrom(int address, int quantity) override
+  int WireAvailable(int i2c_bus) override
+  {
+    return(0);
+  }
+
+  int WireRequestFrom(int i2c_bus, int address, int quantity) override
   {
     return(0);
   }
