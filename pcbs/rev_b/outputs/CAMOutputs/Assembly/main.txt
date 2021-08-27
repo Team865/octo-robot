@@ -1,15 +1,15 @@
-Partlist exported from /home/andrew/src/octo-robot/pcbs/rev_b/main.sch at 2021-07-27 6:13 PM
+Partlist exported from /home/andrew/src/octo-robot/pcbs/rev_b/main.sch at 2021-08-12 7:10 PM
 
-Qty Value                                  Device                                 Package              Parts                             Description                                              POPULARITY
-2                                          PINHD-1X2                              1X02                 JP4, JP5                          PIN HEADER                                               98        
-1                                          PINHD-1X3                              1X03                 JP3                               PIN HEADER                                               92        
-5                                          PINHD-1X4                              1X04                 SR_01, SR_02, SR_03, SR_04, SR_05 PIN HEADER                                               91        
-1                                          PINHD-1X4/90                           1X04/90              JP2                               PIN HEADER                                               9         
-1                                          PINHD-1X8                              1X08                 JP1                               PIN HEADER                                               67        
-1   100nF                                  C-US050-024X044                        C050-024X044         C1                                CAPACITOR, American symbol                                         
-5   10K                                    R-US_0204/7                            0204/7               R1, R2, R3, R5, R7                RESISTOR, American symbol                                          
-1   1K                                     R-US_0309/V                            0309V                R6                                RESISTOR, American symbol                                          
-1   2K                                     R-US_0309/V                            0309V                R4                                RESISTOR, American symbol                                          
-1   BUTTON6X6X10MMSIDE                     BUTTON6X6X10MMSIDE                     BUTTON6X6X10MMSIDE   U$7                                                                                                  
-1   WEMOS-D1-MINI                          WEMOS-D1-MINI                          WEMOS-D1-MINI        U$1                               WEMOS D1 mini: Mini Wi-Fi Board based on ESP-8266 device           
-1   WEMOS-D1-MINI-SHIELDWEMOS-MOTOR-SHIELD WEMOS-D1-MINI-SHIELDWEMOS-MOTOR-SHIELD WEMOS-D1-MINI-SHIELD U$6                               Template for WEMOS D1 mini compatible shields                      
+Qty Value                                  Device                                 Package              Parts                          Description                                              POPULARITY
+2                                          PINHD-1X2                              1X02                 JP4, JP5                       PIN HEADER                                               98        
+1                                          PINHD-1X3                              1X03                 JP3                            PIN HEADER                                               92        
+6                                          PINHD-1X4                              1X04                 JP6, JP7, JP8, JP9, JP10, JP11 PIN HEADER                                               91        
+1                                          PINHD-1X4/90                           1X04/90              JP2                            PIN HEADER                                               9         
+1                                          PINHD-1X8                              1X08                 JP1                            PIN HEADER                                               67        
+1   100nF                                  C-US050-024X044                        C050-024X044         C1                             CAPACITOR, American symbol                                         
+5   10K                                    R-US_0204/7                            0204/7               R1, R2, R3, R5, R7             RESISTOR, American symbol                                          
+1   1K                                     R-US_0309/V                            0309V                R6                             RESISTOR, American symbol                                          
+1   2K                                     R-US_0309/V                            0309V                R4                             RESISTOR, American symbol                                          
+1   BUTTON6X6X10MMSIDE                     BUTTON6X6X10MMSIDE                     BUTTON6X6X10MMSIDE   U$7                                                                                               
+1   WEMOS-D1-MINI                          WEMOS-D1-MINI                          WEMOS-D1-MINI        U$1                            WEMOS D1 mini: Mini Wi-Fi Board based on ESP-8266 device           
+1   WEMOS-D1-MINI-SHIELDWEMOS-MOTOR-SHIELD WEMOS-D1-MINI-SHIELDWEMOS-MOTOR-SHIELD WEMOS-D1-MINI-SHIELD U$6                            Template for WEMOS D1 mini compatible shields                      
