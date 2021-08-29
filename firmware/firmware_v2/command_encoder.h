@@ -30,7 +30,8 @@ class Encoder: public Base {
   Encoder( 
     std::shared_ptr<HW::I> hwiArg, 
     std::shared_ptr<DebugInterface> debugArg, 
-    std::shared_ptr<NetInterface> netArg );
+    std::shared_ptr<NetInterface> netArg,
+    int i2cBusArg);
 
   ///
   /// @brief Standard time slice function
@@ -64,6 +65,8 @@ class Encoder: public Base {
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
+
+  int i2cBus;
 
   int position;
   int speed;

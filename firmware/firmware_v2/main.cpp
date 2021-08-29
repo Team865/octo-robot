@@ -36,8 +36,8 @@ void setup() {
   auto time      = std::make_shared<Time::Manager>( timeNNTP, hst );
   auto motorA = std::make_shared<Command::Motor>( hardware, debug, 0);
   auto motorB = std::make_shared<Command::Motor>( hardware, debug, 1);
-  auto encoderA = std::make_shared<Command::Encoder>( hardware, debug, wifi );
-  auto encoderB = std::make_shared<Command::Encoder>( hardware, debug, wifi );
+  auto encoderA = std::make_shared<Command::Encoder>( hardware, debug, wifi, 0 );
+  auto encoderB = std::make_shared<Command::Encoder>( hardware, debug, wifi, 1 );
   auto sr04     = std::make_shared<Command::SR04> ( 
                         hardware, debug, wifi, hst,
                         HW::Pin::SR04_TRIG, HW::Pin::SR04_ECHO );

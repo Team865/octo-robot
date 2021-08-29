@@ -12,7 +12,7 @@ namespace HW {
 class HardwareESP8266: public I
 {
   private:
-  SoftWire sw = SoftWire(4, 5);
+  SoftWire sw = SoftWire(13, 12);
   
   public:
 

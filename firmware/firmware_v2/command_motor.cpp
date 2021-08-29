@@ -19,8 +19,8 @@ Motor::Motor(
 
     nDevices = 0;
     for(address = 1; address < 127; address++){
-        hwi->WireBeginTransmission(0, address);
-        error = hwi->WireEndTransmission(0);
+        hwi->WireBeginTransmission(1, address);
+        error = hwi->WireEndTransmission(1);
         if(error){
             (*debug) << "I2C device found at address " << address << "\n";
         }
