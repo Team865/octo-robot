@@ -29,9 +29,9 @@ Time::TimeUS Encoder::execute()
   hwi->WireEndTransmission(i2cBus);
   hwi->WireRequestFrom(i2cBus, I2C_ADRESS, 1);
 
-  //while (hwi->WireAvailable(i2cBus) == 0)
-  //;
-  high = hwi->WireRead(i2cBus);
+  while (hwi->WireAvailable(i2cBus) == 0)
+  ;
+  low = hwi->WireRead(i2cBus);
 
   //(*debug) << "Ending Low " << i2cBus << "\n";
 
@@ -42,15 +42,17 @@ Time::TimeUS Encoder::execute()
   hwi->WireEndTransmission(i2cBus);
   hwi->WireRequestFrom(i2cBus, I2C_ADRESS, 1);
 
-  //while (hwi->WireAvailable(i2cBus) == 0)
-  //;
+  while (hwi->WireAvailable(i2cBus) == 0)
+  ;
   high = hwi->WireRead(i2cBus);
-  //(*debug) << "Ending High\n";
 
   high = high << 8;
   val = high | low;
 
   position = val;
+
+  (*debug) << position << " " << i2cBus << "\n";
+
   return Time::TimeUS( 10000 );
 }
 
