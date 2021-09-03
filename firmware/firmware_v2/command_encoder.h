@@ -73,8 +73,8 @@ class Encoder: public Base {
   Time::DeviceTimeUS lastZeroStateChange;
   int updatesWithNoEvent = 0;
   const int I2C_ADRESS = 0x36;
-  const int _mag_hi = 0x1b;
-  const int _mag_lo = 0x1c;
+  const int _mag_hi = 0x0c;
+  const int _mag_lo = 0x0d;
 };
 
 }; // end Command namespace.

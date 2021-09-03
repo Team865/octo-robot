@@ -51,7 +51,8 @@ Time::TimeUS Encoder::execute()
 
   position = val;
 
-  (*debug) << position << " " << i2cBus << "\n";
+  //(*debug) << i2cBus << ": " << high << ", " << low << "\n";
+  (*debug) << i2cBus << ": " << position << "\n";
 
   return Time::TimeUS( 10000 );
 }

@@ -85,10 +85,8 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel( 8, LOCAL_LED_PIN, NEO_GRB + NEO_KHZ
 namespace HW {
 HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
 {
-  char swTxBuffer[16];
-  char swRxBuffer[16];
-  
   Wire.begin();
+  //sw.enablePullups(true);
   sw.setDelay_us(5);
   sw.setTimeout(1000);
   sw.setTxBuffer(swTxBuffer, sizeof(swTxBuffer));
