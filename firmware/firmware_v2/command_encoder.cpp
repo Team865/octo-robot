@@ -1,5 +1,6 @@
 #include "command_encoder.h"
 #include "wifi_debug_ostream.h"
+#include <cmath>
 
 namespace Command{
 
@@ -49,7 +50,16 @@ Time::TimeUS Encoder::execute()
   high = high << 8;
   val = high | low;
 
-  position = val;
+
+  //loop test
+  int position_dif = val - raw_position;
+  if((std::abs(position_dif) > 3000 && i2cBus == 0) || (!(std::abs(position_dif) > 3000) && i2cBus == 1)){
+      position -= position_dif;
+  }
+  else{
+      position += position_dif;
+  }
+  raw_position = val;
 
   //(*debug) << i2cBus << ": " << high << ", " << low << "\n";
   (*debug) << i2cBus << ": " << position << "\n";

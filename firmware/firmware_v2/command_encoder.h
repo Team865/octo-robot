@@ -67,7 +67,7 @@ class Encoder: public Base {
   std::shared_ptr<NetInterface> net;
 
   int i2cBus;
-
+  int raw_position;
   int position;
   int speed;
   Time::DeviceTimeUS lastZeroStateChange;
