@@ -12,7 +12,10 @@ namespace HW {
 class HardwareESP8266: public I
 {
   private:
-  SoftWire sw = SoftWire(4, 5);
+  SoftWire sw = SoftWire(13, 12);
+
+  char swTxBuffer[16];
+  char swRxBuffer[16];
   
   public:
 
@@ -44,7 +47,12 @@ class HardwareESP8266: public I
     };
   };
   void      WireWrite( int i2c_bus, int data) override {
-    Wire.write(data);
+    if(i2c_bus == 0){
+      Wire.write(data);
+    }
+    else{
+      sw.write(data);
+    }
   };
   int       WireRead( int i2c_bus ) override {
     if(i2c_bus == 0){

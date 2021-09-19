@@ -86,8 +86,11 @@ namespace HW {
 HardwareESP8266::HardwareESP8266( std::shared_ptr< Time::HST> hst )
 {
   Wire.begin();
+  //sw.enablePullups(true);
   sw.setDelay_us(5);
   sw.setTimeout(1000);
+  sw.setTxBuffer(swTxBuffer, sizeof(swTxBuffer));
+  sw.setRxBuffer(swRxBuffer, sizeof(swRxBuffer));
   sw.begin();
   // create cache for pin id
   for ( size_t index = 0 ; index < fastAbstractToRealPin.size(); ++index ) 

@@ -254,9 +254,9 @@ void setup() {
   auto motorSimA  = std::make_shared<Command::Motor>( hardware, debug, 0); //0 for first motor, 1 for second motor
   auto motorSimB  = std::make_shared<Command::Motor>( hardware, debug, 1);
   auto encoderASim = std::make_shared<Command::Encoder>(
-                          hardware, debug, wifi);
+                          hardware, debug, wifi, 0);
   auto encoderBSim = std::make_shared<Command::Encoder>(
-                          hardware, debug, wifi);
+                          hardware, debug, wifi, 1);
  
   auto sr04        = std::make_shared<Command::SR04> (
                           hardware, debug, wifi, hst,

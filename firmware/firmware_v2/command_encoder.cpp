@@ -1,14 +1,16 @@
 #include "command_encoder.h"
 #include "wifi_debug_ostream.h"
+#include <cmath>
 
 namespace Command{
 
 Encoder::Encoder( 
   std::shared_ptr<HW::I> hwiArg, 
   std::shared_ptr<DebugInterface> debugArg, 
-  std::shared_ptr<NetInterface> netArg
+  std::shared_ptr<NetInterface> netArg,
+  int i2cBusArg
 ) :
-    hwi { hwiArg }, debug { debugArg }, net { netArg },
+    hwi { hwiArg }, debug { debugArg }, net { netArg }, i2cBus { i2cBusArg },
   position{ 0 }
 {
 
@@ -20,32 +22,47 @@ Time::TimeUS Encoder::execute()
   int low;
   int high;
   int val;
-  int i2c_bus = 0;
 
   // ==Low==
-  hwi->WireBeginTransmission(i2c_bus, I2C_ADRESS);
-  hwi->WireWrite(i2c_bus, _mag_lo);
-  hwi->WireEndTransmission(i2c_bus);
-  hwi->WireRequestFrom(i2c_bus, I2C_ADRESS, 1);
+  //(*debug) << "Starting Low " << i2cBus << "\n";
+  hwi->WireBeginTransmission(i2cBus, I2C_ADRESS);
+  hwi->WireWrite(i2cBus, _mag_lo);
+  hwi->WireEndTransmission(i2cBus);
+  hwi->WireRequestFrom(i2cBus, I2C_ADRESS, 1);
 
-  while (hwi->WireAvailable(i2c_bus) == 0)
+  while (hwi->WireAvailable(i2cBus) == 0)
   ;
-  high = hwi->WireRead(i2c_bus);
+  low = hwi->WireRead(i2cBus);
+
+  //(*debug) << "Ending Low " << i2cBus << "\n";
 
   // ==High==
-  hwi->WireBeginTransmission(i2c_bus, I2C_ADRESS);
-  hwi->WireWrite(i2c_bus, _mag_hi);
-  hwi->WireEndTransmission(i2c_bus);
-  hwi->WireRequestFrom(i2c_bus, I2C_ADRESS, 1);
+  //(*debug) << "Starting High\n";
+  hwi->WireBeginTransmission(i2cBus, I2C_ADRESS);
+  hwi->WireWrite(i2cBus, _mag_hi);
+  hwi->WireEndTransmission(i2cBus);
+  hwi->WireRequestFrom(i2cBus, I2C_ADRESS, 1);
 
-  while (hwi->WireAvailable(i2c_bus) == 0)
+  while (hwi->WireAvailable(i2cBus) == 0)
   ;
-  high = hwi->WireRead(i2c_bus);
+  high = hwi->WireRead(i2cBus);
 
   high = high << 8;
   val = high | low;
 
-  (*debug) << val << '\n';
+
+  //loop test
+  int position_dif = val - raw_position;
+  if((std::abs(position_dif) > 3000 && i2cBus == 0) || (!(std::abs(position_dif) > 3000) && i2cBus == 1)){
+      position -= position_dif;
+  }
+  else{
+      position += position_dif;
+  }
+  raw_position = val;
+
+  //(*debug) << i2cBus << ": " << high << ", " << low << "\n";
+  (*debug) << i2cBus << ": " << position << "\n";
 
   return Time::TimeUS( 10000 );
 }
@@ -60,7 +77,8 @@ const char* Encoder::debugName()
 
 int Encoder::getPosition()
 {
-  return 0;
+  //(*debug) << "Getting position\n";
+  return position;
 }
 
 int Encoder::getSpeed()

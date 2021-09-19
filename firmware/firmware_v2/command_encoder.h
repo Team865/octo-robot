@@ -30,7 +30,8 @@ class Encoder: public Base {
   Encoder( 
     std::shared_ptr<HW::I> hwiArg, 
     std::shared_ptr<DebugInterface> debugArg, 
-    std::shared_ptr<NetInterface> netArg );
+    std::shared_ptr<NetInterface> netArg,
+    int i2cBusArg);
 
   ///
   /// @brief Standard time slice function
@@ -65,13 +66,15 @@ class Encoder: public Base {
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
 
+  int i2cBus;
+  int raw_position;
   int position;
   int speed;
   Time::DeviceTimeUS lastZeroStateChange;
   int updatesWithNoEvent = 0;
   const int I2C_ADRESS = 0x36;
-  const int _mag_hi = 0x1b;
-  const int _mag_lo = 0x1c;
+  const int _mag_hi = 0x0c;
+  const int _mag_lo = 0x0d;
 };
 
 }; // end Command namespace.

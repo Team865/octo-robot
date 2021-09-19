@@ -15,12 +15,21 @@ Motor::Motor(
     bool error;
 
     (*debugArg) << "Motor Up\n";
-    (*debugArg) << "Scanning...\n";
-
+    (*debugArg) << "Scanning Bus 0 Devices...\n";
     nDevices = 0;
     for(address = 1; address < 127; address++){
         hwi->WireBeginTransmission(0, address);
         error = hwi->WireEndTransmission(0);
+        if(error){
+            (*debug) << "I2C device found at address " << address << "\n";
+        }
+    }
+
+    (*debugArg) << "Scanning Bus 1 Devices...\n";
+    nDevices = 0;
+    for(address = 1; address < 127; address++){
+        hwi->WireBeginTransmission(1, address);
+        error = hwi->WireEndTransmission(1);
         if(error){
             (*debug) << "I2C device found at address " << address << "\n";
         }
