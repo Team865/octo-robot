@@ -71,7 +71,17 @@ T& operator<<( T& sink, const char* string )
   std::size_t length = strlen( string );
   sink.write( string, length );
   return sink;
+}
+ 
+/// @brief Output a C++17 string view
+template <class T,
+  typename = my_enable_if_t<is_beefocus_sink<T>::value>>
+T& operator<<( T& sink, std::string_view string )
+{
+  sink.write( string.data(), string.length() );
+  return sink;
 } 
+
 
 /// @brief Output an unsigned number of a SIMPLE_ISTREAM.
 template <class T,

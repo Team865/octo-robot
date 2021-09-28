@@ -9,6 +9,7 @@ DataSend::DataSend(
   std::shared_ptr<Command::Encoder>   encoderLArg,
   std::shared_ptr<Command::Encoder>   encoderRArg,
   std::shared_ptr<Command::SR04>      rangeFinderArg,
+  std::shared_ptr<Command::Gyro>      gyroArg,
   std::shared_ptr<HW::I>              hwiArg
 ) :
   debug { debugArg }, 
@@ -16,6 +17,7 @@ DataSend::DataSend(
   encoderL{ encoderLArg },
   encoderR{ encoderRArg },
   rangeFinder{ rangeFinderArg },
+  gyro{ gyroArg },
   hwi{ hwiArg}
 {
 }
@@ -31,6 +33,7 @@ Time::TimeUS DataSend::execute()
     net->get() << "ENL " << encoderL->getPosition() << " " << encoderL->getSpeed() << "\n";  
     net->get() << "ENR " << encoderR->getPosition() << " " << encoderR->getSpeed() << "\n";
     net->get() << "RNG " << rangeFinder->getLastSensorReading() << "\n";
+    net->get() << "GYR " << gyro->getAngle() << "\n";
   }
   rangeFinder->sensorRequest();
 
@@ -38,7 +41,7 @@ Time::TimeUS DataSend::execute()
   updateLEDs();
 #endif
 
-  return Time::TimeMS( 100 );  // 10 updates / second
+  return Time::TimeMS( 10 );  // 10 updates / second
 }
 
 //
@@ -60,8 +63,11 @@ void DataSend::updateLEDs()
 
   //
   // 1. Use the Sonar Range finder current distance for the center color
+  //    Mix in the gyro
   // 
   const int range = rangeFinder->getLastSensorReading();
+  const int gangle = gyro->getAngle();
+
   if ( range >= 0 ) { 
     lastValidSensorReading = range;
   }
@@ -80,8 +86,10 @@ void DataSend::updateLEDs()
     // Full Red:   drange = 0
     center[ B ] = 255 * drange / maxRangeForDisplayPurposes;
     center[ R ] = 255 - center[B];
-    center[ G ] = 0;
+    center[ G ] = (gangle/2)  % 255;
   }
+
+  constexpr int speedCap = 10000;
  
   //
   // 2. Use the Left encoder speed for the left color.
@@ -90,11 +98,11 @@ void DataSend::updateLEDs()
   if ( leftMag >= 0 )
   {
     left[ R ] = 0;
-    left[ G ] = std::min(leftMag,120000)*255/120000;
+    left[ G ] = std::min(leftMag,speedCap)*255/speedCap;
     left[ B ] = 255 - left[G];
   }
   else {
-    left[ R ] = std::min(-leftMag,120000)*255/120000;
+    left[ R ] = std::min(-leftMag,speedCap)*255/speedCap;
     left[ G ] = 0;
     left[ B ] = 255 - left[R];
   }
@@ -106,11 +114,11 @@ void DataSend::updateLEDs()
   if ( rightMag >= 0 )
   {
     right[ R ] = 0;
-    right[ G ] = std::min(rightMag,120000)*255/120000;
+    right[ G ] = std::min(rightMag,speedCap)*255/speedCap;
     right[ B ] = 255 - right[G];
   }
   else {
-    right[ R ] = std::min(-rightMag,120000)*255/120000;
+    right[ R ] = std::min(-rightMag,speedCap)*255/speedCap;
     right[ G ] = 0;
     right[ B ] = 255 - right[R];
   }

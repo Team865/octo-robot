@@ -5,6 +5,7 @@
 #include "command_base.h"
 #include "command_encoder.h"
 #include "command_sr04.h"
+#include "command_gyro.h"
 #include "debug_interface.h"
 #include "hardware_interface.h"
 #include "net_interface.h"
@@ -25,6 +26,7 @@ class DataSend: public Base {
   /// @param[in] encoderLArg    - Interface to the left motor's encoder
   /// @param[in] encoderRArg    - Interface to the right motor's encoder
   /// @param[in] rangeFinderArg - Interface to the SR04 range finder
+  /// @param[in] gryoArg        - Interface to the Gyroscope
   /// @param[in] hwiArg         - Interface to the hardware, for LED setting
   /// 
   DataSend( 
@@ -33,6 +35,7 @@ class DataSend: public Base {
     std::shared_ptr<Command::Encoder>   encoderLArg,
     std::shared_ptr<Command::Encoder>   encoderRArg,
     std::shared_ptr<Command::SR04>      rangeFinderArg,
+    std::shared_ptr<Command::Gyro>      gyroArg,
     std::shared_ptr<HW::I>              hwiArg
   );
 
@@ -69,6 +72,8 @@ class DataSend: public Base {
   std::shared_ptr<Encoder> encoderR;
   // @brief Interface to sonar range finder
   std::shared_ptr<SR04>   rangeFinder;
+  // @brief Interface to gyroscope
+  std::shared_ptr<Gyro>   gyro;
   // @brief Interface to hardware, for setting LEDs.
   std::shared_ptr<HW::I>  hwi;
   // @brief Are we currently outputting data

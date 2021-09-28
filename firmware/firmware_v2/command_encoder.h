@@ -6,6 +6,7 @@
 #include "hardware_interface.h"
 #include "net_interface.h"
 #include "debug_interface.h"
+#include "time_hst.h"
 
 namespace Command {
 
@@ -31,6 +32,7 @@ class Encoder: public Base {
     std::shared_ptr<HW::I> hwiArg, 
     std::shared_ptr<DebugInterface> debugArg, 
     std::shared_ptr<NetInterface> netArg,
+    std::shared_ptr<Time::HST> hst,
     int i2cBusArg);
 
   ///
@@ -65,16 +67,19 @@ class Encoder: public Base {
   std::shared_ptr<DebugInterface> debug;
   // @brief Interface to network (i.e., Wifi)
   std::shared_ptr<NetInterface> net;
+  // @brief Interface to timer
+  std::shared_ptr<Time::HST> hst;
 
   int i2cBus;
-  int raw_position;
-  int position;
-  int speed;
-  Time::DeviceTimeUS lastZeroStateChange;
-  int updatesWithNoEvent = 0;
+  int position = 0;
+  int last_raw_position = 0;
+  int speed = 0;
+  int speed_accumulate = 0;
+  Time::DeviceTimeMS speed_accumulate_start;
+  int speed_count = 0;
   const int I2C_ADRESS = 0x36;
-  const int _mag_hi = 0x0c;
-  const int _mag_lo = 0x0d;
+  const int _raw_ang_hi = 0x0c;
+  const int _raw_ang_lo = 0x0d;
 };
 
 }; // end Command namespace.
