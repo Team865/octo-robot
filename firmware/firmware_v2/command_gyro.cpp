@@ -170,7 +170,6 @@ Time::TimeUS Gyro::execute()
   hwi->WireWrite( 0, GY521_GYRO_ZOUT_H );
   if ( !hwi->WireEndTransmission(0) )
   {
-    (*debug) << "Gyro register error\n";
     return Time::TimeUS(100000);
   }
 
@@ -196,7 +195,7 @@ Time::TimeUS Gyro::execute()
   if ( value < 40 && value > -40 ) {
     value = 0;
   }
-  angle   += value;
+  angle   += ( value * 180 / 131 );
   
   angle    = angle % TicksPer360degrees;
   samples += 1;
@@ -211,14 +210,8 @@ Time::TimeUS Gyro::execute()
 
 unsigned int Gyro::getAngle()
 {
-  // Reduce to 16 bits of accuracy
-  unsigned rval = angle / ( TicksPer360degrees / ( 1 << 16 ) );
-
-  // Increase to target domain we want
-  rval = rval * ( 360 * 100 );
-
-  // Reduce down the final 16 bits.
-  rval /= ( 1 << 16 );
+  // Reduce to 12 bits of accuracy
+  unsigned rval = angle / ( TicksPer360degrees / ( 1 << 12 ) );
 
   return rval;
 }
