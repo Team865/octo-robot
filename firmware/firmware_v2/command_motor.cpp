@@ -78,7 +78,6 @@ void Motor::setSpeed( int percent )
 
   pwr_val = speedAsPercent*100;
   pwr_val = pwr_val > 10000 ? 100000 : pwr_val;
-  (*debug) << "Begining transmission of pwr_val: " << percent;
   hwi->WireBeginTransmission(0, 0x30);
   hwi->WireWrite(0, motorNum | 0x10);
   hwi->WireWrite(0, dir);
