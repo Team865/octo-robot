@@ -10,7 +10,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.OctoDriveSubsystem;
 import frc.robot.subsystems.OdometrySubsystem;
-import edu.wpi.first.wpilibj.geometry.*;
+import edu.wpi.first.math.geometry.*;
 
 /**
  * A command that performs a sharp turn
