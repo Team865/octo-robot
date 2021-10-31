@@ -8,7 +8,7 @@
 package frc.robot.lib;
 
 
-import edu.wpi.first.wpilibj.motorcontrol.*;
+import edu.wpi.first.wpilibj.SpeedController;
 
 /*
 Please note that this is not an offical SpeedController, this is an inbetween
@@ -16,12 +16,12 @@ to work around the fact that the octorobot does not use a roboRIO. This
 code is a way to fake the functionality of a normal SpeedController for
 use in the OctoDriveSubsystem.
 
-The OctoSpeedController is a custom MotorController made to communicate with the
+The OctoSpeedController is a custom SpeedController made to communicate with the
 InternetConnecter. It represents and controlls the speed of one motor.
 It is to be used as an input in a DifferentialDrive. It gives commands
 to the InternetConnecter and the InternetConnecter sends them.
 */
-public class OctoSpeedController implements MotorController {
+public class OctoSpeedController implements SpeedController {
     private double motorSpeed;
     private boolean inverted;
     private String name;
@@ -91,6 +91,10 @@ public class OctoSpeedController implements MotorController {
     @Override
     public void stopMotor(){
         update(0.0);
+    }
+
+    @Override
+    public void pidWrite(double output) {
     }
 
     /*
