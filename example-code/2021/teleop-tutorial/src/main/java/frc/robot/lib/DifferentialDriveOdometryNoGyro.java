@@ -7,7 +7,7 @@
 
 package frc.robot.lib;
 
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.wpilibj.geometry.*;
 
 /**
   * Like the First Robotics DifferentialDriveOdometry class, but doesn't need a hardware gyro
