@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWMSparkMax;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This is a demo program showing the use of the RobotDrive class, specifically it contains the code
@@ -26,6 +27,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    SmartDashboard.putString("Trigger",  m_joyStick.getTrigger() ? "Down" : "Up" );
     m_myRobot.tankDrive(-m_joyStick.getY(), -m_joyStick.getThrottle());
   }
 }
